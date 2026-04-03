@@ -1,8 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import ModeToggle from "../../../components/two-sum/ModeToggle";
-import ArrayCell from "../../../components/two-sum/ArrayCell";
+import ArrayCell from "@/components/two-sum/ArrayBox";
+import InputPanel, { InputField, PresetExample } from "@/components/ui/InputPanel";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
+import { sounds } from "@/components/ui/SoundManager";
+
+const inputFields: InputField[] = [
+  { key: "nums", label: "Sorted array (comma-separated)", type: "array", placeholder: "e.g. 1,2,3,4,6,8,11", defaultValue: "1,2,3,4,6,8,11" },
+  { key: "target", label: "Target sum", type: "number", placeholder: "e.g. 10", defaultValue: "10" },
+];
+
+const presets: PresetExample[] = [
+  { name: "Example 1: target=10", values: { nums: "1,2,3,4,6,8,11", target: "10" } },
+  { name: "Example 2: target=9", values: { nums: "2,7,11,15", target: "9" } },
+];
 
 const NUMS = [1, 2, 3, 4, 6, 8, 11];
 const TARGET = 10;
@@ -157,8 +171,18 @@ export default function TwoSumSortedVisualizer() {
   const hasValidPointers = left < right;
   const currentSum = hasValidPointers ? NUMS[left] + NUMS[right] : NaN;
 
+  const outputResult = status === "found"
+    ? `✅ Found pair: nums[${left}] + nums[${right}] = ${NUMS[left]} + ${NUMS[right]} = ${TARGET}`
+    : status === "not-found"
+    ? `❌ No pair found that sums to ${TARGET}`
+    : null;
+
   return (
-    <div className="min-h-screen bg-black text-slate-50 flex flex-col items-center py-10 px-4 gap-10">
+    <div className="min-h-screen grid-pattern text-slate-50 flex flex-col items-center py-10 px-4 gap-10">
+      <div className="w-full max-w-3xl"><BackButton href="/two-pointers" label="Two Pointers" /></div>
+
+      <InputPanel fields={inputFields} presets={presets} onRun={() => {}} accentColor="#22d3ee" />
+
       {/* Title */}
       <header className="flex flex-col items-center gap-3">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
@@ -387,6 +411,9 @@ export default function TwoSumSortedVisualizer() {
           Reset
         </button>
       </div>
+
+      <OutputPanel result={outputResult} success={status === "found" ? true : status === "not-found" ? false : null}
+        stepCount={0} complexity="O(n)" visible={status === "found" || status === "not-found"} />
     </div>
   );
 }

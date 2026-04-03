@@ -12,6 +12,7 @@ export default function ArrayViz({
   cursor: number;
 }) {
   const step = trace[cursor];
+  if (!step) return null;
   const activeIndex = step.i;
 
   return (

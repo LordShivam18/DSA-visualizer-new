@@ -12,6 +12,7 @@ export default function ChartViz({
   cursor: number;
 }) {
   const step = trace[cursor];
+  if (!step) return null;
   const nums = step.nums;
 
   // Build runningSum chart data

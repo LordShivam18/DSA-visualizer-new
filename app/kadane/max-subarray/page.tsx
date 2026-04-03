@@ -10,6 +10,8 @@ import CodePanel from "@/components/kadane/CodePanel";
 
 import { generateTrace } from "@/components/kadane/generateTrace";
 import { TraceStep } from "@/components/kadane/generateTrace";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
 
 export default function Page() {
   const [trace, setTrace] = useState<TraceStep[]>([]);
@@ -48,7 +50,8 @@ export default function Page() {
   const reset = () => setCursor(0);
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-[#06060a] to-[#04040b] text-slate-100">
+    <div className="min-h-screen p-6 grid-pattern text-slate-100">
+      <div className="max-w-6xl mx-auto mb-4"><BackButton href="/topics" label="Topics" /></div>
       <header className="max-w-6xl mx-auto mb-6">
         <h1 className="text-3xl font-extrabold">
           Maximum Subarray (Kadane) — Visualizer
@@ -118,6 +121,12 @@ export default function Page() {
           </div>
         </aside>
       </main>
+
+      <div className="max-w-6xl mx-auto mt-6">
+        <OutputPanel result={cursor === trace.length - 1 && trace.length > 0 ? `Max subarray sum found` : null}
+          success={cursor === trace.length - 1 && trace.length > 0 ? true : null} stepCount={cursor + 1}
+          complexity="O(n)" visible={cursor === trace.length - 1 && trace.length > 0} />
+      </div>
     </div>
   );
 }

@@ -13,8 +13,8 @@ import StatsPanelBS
 
 import CodePanelBS 
   from "@/components/binary-search/search-insert-position/CodePanelBS";
-
-
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
 
 
 const NUMS = [1, 3, 5, 6];
@@ -177,8 +177,8 @@ export default function SearchInsertPositionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-50 flex flex-col items-center py-10 px-4 gap-8">
-      {/* Title */}
+    <div className="min-h-screen grid-pattern text-slate-50 flex flex-col items-center py-10 px-4 gap-8">
+      <div className="w-full max-w-3xl"><BackButton href="/topics" label="Topics" /></div>
       <header className="flex flex-col items-center gap-3 text-center">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
           <span className="text-cyan-400 drop-shadow-[0_0_18px_rgba(34,211,238,0.9)]">
@@ -296,6 +296,9 @@ export default function SearchInsertPositionPage() {
           Reset
         </button>
       </div>
+
+      <OutputPanel result={insertPos !== null ? `Insert position: index ${insertPos}` : null}
+        success={status === "done" ? true : null} stepCount={0} complexity="O(log n)" visible={status === "done"} />
     </div>
   );
 }

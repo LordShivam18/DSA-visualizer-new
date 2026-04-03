@@ -8,6 +8,8 @@ import CharNode, {
 } from "@/components/two-pointers/is-subsequence/CharacterBox";
 import MicroscopeView from "@/components/two-pointers/is-subsequence/MicroscopeView";
 import PointerNode from "@/components/two-pointers/is-subsequence/PointerNode";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
 
 const S = "abc";
 const T = "ahbgdc";
@@ -184,7 +186,8 @@ export default function IsSubsequencePage() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-slate-50 flex flex-col items-center py-10 px-4 gap-10">
+    <div className="min-h-screen grid-pattern text-slate-50 flex flex-col items-center py-10 px-4 gap-10">
+      <div className="w-full max-w-3xl"><BackButton href="/two-pointers" label="Two Pointers" /></div>
       {/* Title */}
       <header className="flex flex-col items-center gap-3">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
@@ -417,6 +420,10 @@ export default function IsSubsequencePage() {
           Reset
         </button>
       </div>
+
+      <OutputPanel result={lastAction?.kind === "done-true" ? `\u2705 "${S}" is a subsequence of "${T}"` : lastAction?.kind === "done-false" ? `\u274c "${S}" is NOT a subsequence of "${T}"` : null}
+        success={lastAction?.kind === "done-true" ? true : lastAction?.kind === "done-false" ? false : null}
+        stepCount={0} complexity="O(n)" visible={status === "done"} />
     </div>
   );
 }

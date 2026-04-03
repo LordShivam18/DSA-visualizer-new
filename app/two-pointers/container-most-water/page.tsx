@@ -13,6 +13,8 @@ import StatsPanel
   from "@/components/two-pointers/container-most-water/StatsPanel";
 import CodePanel 
   from "@/components/two-pointers/container-most-water/CodePanel";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
 
 const HEIGHTS = [1, 8, 6, 2, 5, 4, 8, 3, 7];
 
@@ -215,6 +217,7 @@ export default function ContainerMostWaterPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-slate-950 to-slate-950 text-slate-50 flex flex-col items-center py-10 px-4 gap-10">
+      <div className="w-full max-w-3xl"><BackButton href="/two-pointers" label="Two Pointers" /></div>
       {/* Hero header */}
       <header className="flex flex-col items-center gap-3 text-center">
         <p className="text-xs tracking-[0.3em] uppercase text-slate-500">
@@ -295,6 +298,9 @@ export default function ContainerMostWaterPage() {
           Reset
         </button>
       </div>
+
+      <OutputPanel result={status === "done" ? `Maximum water area: ${maxArea}` : null}
+        success={status === "done" ? true : null} stepCount={0} complexity="O(n)" visible={status === "done"} />
     </div>
   );
 }

@@ -24,6 +24,7 @@ export default function CodePanel({
   trace: PlusOneStep[];
   cursor: number;
 }) {
+  if (!trace[cursor]) return null;
   const action = trace[cursor].action;
 
   function highlight(line: string) {

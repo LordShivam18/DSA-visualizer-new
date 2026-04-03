@@ -12,6 +12,8 @@ import TreeView, {
 } from "@/components/binary-tree/max-depth/TreeView";
 import StatsPanelBT from "@/components/binary-tree/max-depth/StatsPanelBT";
 import CodePanelBT from "@/components/binary-tree/max-depth/CodePanelBT";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
 
 type Status = "ready" | "running" | "done";
 
@@ -180,13 +182,15 @@ export default function MaxDepthBinaryTreePage() {
     return "";
   }
 
+  const maxTheoreticalDepth: number = 3;
   const depthPercent =
-    MAX_THEORETICAL_DEPTH === 0
+    maxTheoreticalDepth === 0
       ? 0
-      : Math.min(1, depth / MAX_THEORETICAL_DEPTH);
+      : Math.min(1, depth / maxTheoreticalDepth);
 
   return (
-    <div className="min-h-screen bg-[#01020a] text-slate-50 flex flex-col items-center py-10 px-4 gap-8">
+    <div className="min-h-screen grid-pattern text-slate-50 flex flex-col items-center py-10 px-4 gap-8">
+      <div className="w-full max-w-3xl"><BackButton href="/binary-tree" label="Binary Tree" /></div>
       <header className="flex flex-col items-center gap-3 text-center">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
           <span className="text-cyan-400 drop-shadow-[0_0_18px_rgba(34,211,238,0.9)]">
@@ -293,6 +297,9 @@ export default function MaxDepthBinaryTreePage() {
           Reset
         </button>
       </div>
+
+      <OutputPanel result={status === "done" ? `Max depth = ${depth}` : null}
+        success={status === "done" ? true : null} stepCount={0} complexity="O(n)" visible={status === "done"} />
     </div>
   );
 }

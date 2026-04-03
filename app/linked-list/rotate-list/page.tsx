@@ -1,83 +1,74 @@
 // app/linked-list/rotate-list/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
-
-import {
-  generateTrace,
-  RotateListStep,
-} from "@/components/linked-list/rotate-list/generateTrace";
-
+import { useEffect, useState, useCallback } from "react";
+import { generateTrace, RotateListStep } from "@/components/linked-list/rotate-list/generateTrace";
 import LinkedListTrack from "@/components/linked-list/rotate-list/LinkedListTrack";
 import MicroscopeView from "@/components/linked-list/rotate-list/MicroscopeView";
 import TracePanel from "@/components/linked-list/rotate-list/TracePanel";
 import CodePanel from "@/components/linked-list/rotate-list/CodePanel";
 import Controls from "@/components/linked-list/rotate-list/Controls";
+import InputPanel, { InputField, PresetExample } from "@/components/ui/InputPanel";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
+import { sounds } from "@/components/ui/SoundManager";
+
+const inputFields: InputField[] = [
+  { key: "nodes", label: "Node values (comma-separated)", type: "array", placeholder: "e.g. 1,2,3,4,5", defaultValue: "1,2,3,4,5" },
+  { key: "k", label: "Rotate by k positions", type: "number", placeholder: "e.g. 2", defaultValue: "2" },
+];
+
+const presetExamples: PresetExample[] = [
+  { name: "Example 1: [1..5], k=2", values: { nodes: "1,2,3,4,5", k: "2" } },
+  { name: "Example 2: [0,1,2], k=4", values: { nodes: "0,1,2", k: "4" } },
+];
 
 export default function Page() {
-  const [input, setInput] = useState("1,2,3,4,5");
-  const [k, setK] = useState(2);
   const [trace, setTrace] = useState<RotateListStep[]>([]);
   const [cursor, setCursor] = useState(0);
   const [mode, setMode] = useState<"beginner" | "expert">("beginner");
 
-  const parseInput = () =>
-    input.split(",").map((v) => Number(v.trim())).filter((n) => !isNaN(n));
-
-  const regenerate = () => {
-    const steps = generateTrace(parseInput(), k);
+  const handleRun = useCallback((values: Record<string, string>) => {
+    const arr = values.nodes.split(",").map((v) => Number(v.trim())).filter((n) => !isNaN(n));
+    const k = parseInt(values.k) || 2;
+    if (arr.length === 0) return;
+    const steps = generateTrace(arr, k);
     setTrace(steps);
     setCursor(0);
-  };
+    sounds.click();
+  }, []);
 
   useEffect(() => {
-    regenerate();
+    const steps = generateTrace([1, 2, 3, 4, 5], 2);
+    setTrace(steps);
+    setCursor(0);
   }, []);
 
   const step = trace[cursor];
   const canPrev = cursor > 0;
   const canNext = trace.length > 0 && cursor < trace.length - 1;
+  const isDone = cursor === trace.length - 1 && trace.length > 0;
 
   return (
-    <div className="min-h-screen bg-black text-slate-100 p-6">
+    <div className="min-h-screen grid-pattern text-slate-100 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        <h1 className="text-3xl font-extrabold">
-          Rotate List — Visualizer
+        <BackButton href="/linked-list" label="Linked List" />
+
+        <h1 className="text-3xl font-extrabold mt-4">
+          <span className="text-cyan-400 text-glow-cyan">Rotate</span> List
         </h1>
 
-        {/* Input */}
-        <div className="rounded-2xl border border-slate-800 bg-[#020617] p-4 space-y-4">
-          <div className="flex gap-4">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="flex-1 rounded-lg bg-black border border-slate-700 px-3 py-2 text-sm"
-              placeholder="1,2,3,4,5"
-            />
-            <input
-              type="number"
-              value={k}
-              onChange={(e) => setK(Number(e.target.value))}
-              className="w-24 rounded-lg bg-black border border-slate-700 px-3 py-2 text-sm"
-            />
-            <button
-              onClick={regenerate}
-              className="px-4 py-2 rounded-lg border border-cyan-400 bg-cyan-600/10"
-            >
-              Visualize
-            </button>
-          </div>
+        <InputPanel fields={inputFields} presets={presetExamples} onRun={handleRun} accentColor="#22d3ee" />
 
-          <Controls
-            prev={() => setCursor((c) => Math.max(0, c - 1))}
-            next={() => setCursor((c) => Math.min(trace.length - 1, c + 1))}
-            reset={() => setCursor(0)}
-            canPrev={canPrev}
-            canNext={canNext}
-            mode={mode}
-            setMode={setMode}
-          />
-        </div>
+        <Controls
+          prev={() => { setCursor((c) => Math.max(0, c - 1)); sounds.tick(); }}
+          next={() => { setCursor((c) => Math.min(trace.length - 1, c + 1)); sounds.tick(); }}
+          reset={() => { setCursor(0); sounds.reset(); }}
+          canPrev={canPrev}
+          canNext={canNext}
+          mode={mode}
+          setMode={setMode}
+        />
 
         {step && (
           <div className="grid grid-cols-1 lg:grid-cols-[3fr,2fr] gap-6">
@@ -85,13 +76,20 @@ export default function Page() {
               <LinkedListTrack step={step} />
               <MicroscopeView step={step} mode={mode} />
             </div>
-
             <div className="space-y-4">
               <TracePanel step={step} />
               <CodePanel step={step} />
             </div>
           </div>
         )}
+
+        <OutputPanel
+          result={isDone ? `Rotation complete` : null}
+          success={isDone ? true : null}
+          stepCount={cursor + 1}
+          complexity="O(n)"
+          visible={isDone}
+        />
       </div>
     </div>
   );

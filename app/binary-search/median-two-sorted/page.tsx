@@ -7,6 +7,8 @@ import PartitionView from "@/components/binary-search/median-two-sorted/Partitio
 import StatsPanelM2 from "@/components/binary-search/median-two-sorted/StatsPanelM2";
 import CodePanelM2 from "@/components/binary-search/median-two-sorted/CodePanelM2";
 import StoryTabs from "@/components/binary-search/median-two-sorted/StoryTabs";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
 
 const NUMS1 = [1, 3, 8];
 const NUMS2 = [7, 9, 10, 11];
@@ -207,7 +209,8 @@ export default function MedianTwoSortedPage() {
     lastAction?.relation ?? (status === "ready" ? "none" : "none");
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-50 flex flex-col items-center py-10 px-4 gap-8">
+    <div className="min-h-screen grid-pattern text-slate-50 flex flex-col items-center py-10 px-4 gap-8">
+      <div className="w-full max-w-3xl"><BackButton href="/topics" label="Topics" /></div>
       {/* Title */}
       <header className="flex flex-col items-center gap-3 text-center max-w-3xl">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
@@ -319,6 +322,9 @@ export default function MedianTwoSortedPage() {
           Reset
         </button>
       </div>
+
+      <OutputPanel result={median !== null ? `Median = ${median}` : null}
+        success={status === "done" ? true : null} stepCount={0} complexity="O(log min(m,n))" visible={status === "done"} />
     </div>
   );
 }

@@ -12,6 +12,7 @@ export default function TracePanel({
   cursor: number;
 }) {
   const s = trace[cursor];
+  if (!s) return null;
 
   return (
     <div className="text-sm text-slate-300 space-y-2">

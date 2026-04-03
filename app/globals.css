@@ -1,12 +1,28 @@
 @import "tailwindcss";
 
-/* Light mode base colors */
+/* ======================================================
+   DSA VISUALIZER — PREMIUM DESIGN SYSTEM
+   ====================================================== */
+
+/* Neon color palette */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #050509;
+  --foreground: #ededed;
+  --neon-cyan: #22d3ee;
+  --neon-violet: #a78bfa;
+  --neon-emerald: #34d399;
+  --neon-rose: #fb7185;
+  --neon-amber: #fbbf24;
+  --neon-blue: #60a5fa;
+  --glass-bg: rgba(15, 18, 35, 0.65);
+  --glass-border: rgba(148, 163, 184, 0.12);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
+  --card-bg: rgba(8, 12, 30, 0.85);
+  --surface-1: #0a0e1a;
+  --surface-2: #0d1225;
+  --surface-3: #111830;
 }
 
-/* Tailwind theme hooks */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -14,23 +30,178 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Dark mode overrides */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
-/* Global body styling */
+/* ===== Global Body ===== */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080b14;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--neon-cyan), var(--neon-violet));
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--neon-violet), var(--neon-rose));
 }
 
 /* ======================================================
-   3D Flip Animation for Node3D + future premium UIs
+   GLASSMORPHISM UTILITIES
+   ====================================================== */
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px) saturate(1.5);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  box-shadow:
+    0 0 0 1px var(--glass-highlight) inset,
+    0 8px 32px rgba(0, 0, 0, 0.45);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(34, 211, 238, 0.3);
+  box-shadow:
+    0 0 0 1px rgba(34, 211, 238, 0.08) inset,
+    0 0 30px rgba(34, 211, 238, 0.12),
+    0 12px 40px rgba(0, 0, 0, 0.5);
+  transform: translateY(-3px) scale(1.015);
+}
+
+/* ======================================================
+   NEON GLOW UTILITIES
+   ====================================================== */
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.4), 0 0 60px rgba(34, 211, 238, 0.1);
+}
+.glow-violet {
+  box-shadow: 0 0 20px rgba(167, 139, 250, 0.4), 0 0 60px rgba(167, 139, 250, 0.1);
+}
+.glow-emerald {
+  box-shadow: 0 0 20px rgba(52, 211, 153, 0.4), 0 0 60px rgba(52, 211, 153, 0.1);
+}
+.glow-rose {
+  box-shadow: 0 0 20px rgba(251, 113, 133, 0.4), 0 0 60px rgba(251, 113, 133, 0.1);
+}
+.glow-amber {
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.4), 0 0 60px rgba(251, 191, 36, 0.1);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 18px rgba(34, 211, 238, 0.8), 0 0 40px rgba(34, 211, 238, 0.3);
+}
+.text-glow-violet {
+  text-shadow: 0 0 18px rgba(167, 139, 250, 0.8), 0 0 40px rgba(167, 139, 250, 0.3);
+}
+
+/* ======================================================
+   GRADIENT UTILITIES
+   ====================================================== */
+
+.gradient-text-hero {
+  background: linear-gradient(135deg, #22d3ee 0%, #a78bfa 50%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+}
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-violet), var(--neon-emerald));
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ======================================================
+   KEYFRAME ANIMATIONS
+   ====================================================== */
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2.5s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+}
+
+/* ======================================================
+   3D FLIP (existing, preserved)
    ====================================================== */
 
 @keyframes flip3d {
@@ -49,4 +220,120 @@ body {
 
 .rotate-y-180 {
   transform: rotateY(180deg);
+}
+
+/* ======================================================
+   INPUT PANEL STYLES
+   ====================================================== */
+
+.input-field {
+  background: rgba(15, 18, 35, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  border-radius: 0.75rem;
+  padding: 0.625rem 1rem;
+  color: #e2e8f0;
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.875rem;
+  transition: all 0.25s ease;
+  outline: none;
+  width: 100%;
+}
+
+.input-field:focus {
+  border-color: rgba(34, 211, 238, 0.5);
+  box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.08), 0 0 20px rgba(34, 211, 238, 0.1);
+}
+
+.input-field::placeholder {
+  color: rgba(148, 163, 184, 0.4);
+}
+
+/* ======================================================
+   BUTTON STYLES
+   ====================================================== */
+
+.btn-neon {
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-neon-cyan {
+  background: linear-gradient(135deg, #22d3ee, #06b6d4);
+  color: #0a0e1a;
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.4);
+}
+.btn-neon-cyan:hover {
+  box-shadow: 0 0 35px rgba(34, 211, 238, 0.6);
+  transform: translateY(-1px);
+}
+.btn-neon-cyan:disabled {
+  background: #1e293b;
+  color: #64748b;
+  box-shadow: none;
+  transform: none;
+  cursor: not-allowed;
+}
+
+.btn-ghost {
+  background: rgba(15, 18, 35, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+}
+.btn-ghost:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* ======================================================
+   OUTPUT PANEL STYLES
+   ====================================================== */
+
+.output-success {
+  border-color: rgba(52, 211, 153, 0.4);
+  background: rgba(16, 185, 129, 0.06);
+}
+
+.output-fail {
+  border-color: rgba(251, 113, 133, 0.4);
+  background: rgba(244, 63, 94, 0.06);
+}
+
+/* ======================================================
+   DIFFICULTY BADGES
+   ====================================================== */
+
+.badge-easy {
+  background: rgba(52, 211, 153, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.25);
+}
+
+.badge-medium {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.badge-hard {
+  background: rgba(251, 113, 133, 0.12);
+  color: #fb7185;
+  border: 1px solid rgba(251, 113, 133, 0.25);
+}
+
+/* ======================================================
+   GRID BACKGROUND PATTERN
+   ====================================================== */
+
+.grid-pattern {
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
 }

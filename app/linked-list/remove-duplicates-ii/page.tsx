@@ -1,98 +1,74 @@
 // app/linked-list/remove-duplicates-ii/page.tsx
 "use client";
 
-import React, { useEffect, useState } from "react";
-
-import {
-  generateTrace,
-  RemoveDupIIStep,
-} from "@/components/linked-list/remove-duplicates-ii/generateTrace";
-
+import React, { useEffect, useState, useCallback } from "react";
+import { generateTrace, RemoveDupIIStep } from "@/components/linked-list/remove-duplicates-ii/generateTrace";
 import LinkedListTrack from "@/components/linked-list/remove-duplicates-ii/LinkedListTrack";
 import MicroscopeView from "@/components/linked-list/remove-duplicates-ii/MicroscopeView";
 import TracePanel from "@/components/linked-list/remove-duplicates-ii/TracePanel";
 import CodePanel from "@/components/linked-list/remove-duplicates-ii/CodePanel";
 import Controls from "@/components/linked-list/remove-duplicates-ii/Controls";
+import InputPanel, { InputField, PresetExample } from "@/components/ui/InputPanel";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
+import { sounds } from "@/components/ui/SoundManager";
+
+const inputFields: InputField[] = [
+  { key: "nodes", label: "Sorted list (comma-separated)", type: "array", placeholder: "e.g. 1,2,3,3,4,4,5", defaultValue: "1,2,3,3,4,4,5" },
+];
+
+const presetExamples: PresetExample[] = [
+  { name: "Example 1: [1,2,3,3,4,4,5]", values: { nodes: "1,2,3,3,4,4,5" } },
+  { name: "Example 2: [1,1,1,2,3]", values: { nodes: "1,1,1,2,3" } },
+];
 
 export default function Page() {
   const [trace, setTrace] = useState<RemoveDupIIStep[]>([]);
   const [cursor, setCursor] = useState(0);
-  const [input, setInput] = useState("1,2,3,3,4,4,5");
 
-  // helper to parse "1,2,3,3,4" → [1,2,3,3,4]
-  function parseInput(str: string): number[] {
-    return str
-      .split(",")
-      .map((s) => s.trim())
-      .filter((s) => s.length > 0)
-      .map((s) => Number(s))
-      .filter((n) => !Number.isNaN(n));
-  }
-
-  const regenerate = () => {
-    const arr = parseInput(input);
+  const handleRun = useCallback((values: Record<string, string>) => {
+    const arr = values.nodes.split(",").map((s) => parseInt(s.trim())).filter((n) => !isNaN(n));
+    if (arr.length === 0) return;
     const steps = generateTrace(arr);
     setTrace(steps);
     setCursor(0);
-  };
+    sounds.click();
+  }, []);
 
   useEffect(() => {
-    regenerate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const steps = generateTrace([1, 2, 3, 3, 4, 4, 5]);
+    setTrace(steps);
+    setCursor(0);
   }, []);
 
   const current = trace[cursor];
-
   const canPrev = cursor > 0;
   const canNext = trace.length > 0 && cursor < trace.length - 1;
+  const isDone = cursor === trace.length - 1 && trace.length > 0;
 
   return (
-    <div className="min-h-screen bg-black text-slate-100 p-6">
+    <div className="min-h-screen grid-pattern text-slate-100 p-6">
       <div className="max-w-6xl mx-auto space-y-6">
-        <header className="space-y-2">
+        <BackButton href="/linked-list" label="Linked List" />
+
+        <header className="space-y-2 mt-4">
           <h1 className="text-3xl font-extrabold tracking-tight">
-            Remove Duplicates from Sorted List II — Visualizer
+            Remove <span className="text-cyan-400 text-glow-cyan">Duplicates</span> II
           </h1>
           <p className="text-sm text-slate-400 max-w-2xl">
-            We keep only the values that appear exactly once in the sorted linked
-            list. Contiguous duplicate blocks are detected and skipped using a{" "}
-            <span className="text-cyan-300">dummy</span>,{" "}
-            <span className="text-emerald-300">prev</span>, and{" "}
-            <span className="text-cyan-300">curr</span> pointers.
+            Keep only values appearing exactly once in a sorted linked list.
           </p>
         </header>
 
-        {/* Input + controls */}
-        <div className="rounded-2xl border border-slate-800 bg-[#020617] p-4 space-y-4">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-slate-400 uppercase tracking-wide">
-              Input Sorted List (comma-separated)
-            </label>
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") regenerate();
-              }}
-              className="w-full rounded-lg bg-black border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400"
-              placeholder="e.g. 1,2,3,3,4,4,5"
-            />
-            <button
-              onClick={regenerate}
-              className="self-start px-3 py-1.5 text-xs rounded-lg border border-cyan-500 bg-cyan-600/10 hover:bg-cyan-500/20"
-            >
-              Visualize
-            </button>
-          </div>
+        <InputPanel fields={inputFields} presets={presetExamples} onRun={handleRun} accentColor="#22d3ee" />
 
-          <Controls
-            onPrev={() => setCursor((c) => Math.max(0, c - 1))}
-            onNext={() => setCursor((c) => Math.min(trace.length - 1, c + 1))}
-            onReset={() => setCursor(0)}
-            canPrev={canPrev}
-            canNext={canNext}
-          />
-        </div>
+        <Controls
+          onPrev={() => { setCursor((c) => Math.max(0, c - 1)); sounds.tick(); }}
+          onNext={() => { setCursor((c) => Math.min(trace.length - 1, c + 1)); sounds.tick(); }}
+          onReset={() => { setCursor(0); sounds.reset(); }}
+          canPrev={canPrev}
+          canNext={canNext}
+        />
 
         {current && (
           <div className="grid grid-cols-1 lg:grid-cols-[3fr,2fr] gap-6">
@@ -100,13 +76,20 @@ export default function Page() {
               <LinkedListTrack step={current} />
               <MicroscopeView step={current} />
             </div>
-
             <div className="space-y-4">
               <TracePanel step={current} />
               <CodePanel step={current} />
             </div>
           </div>
         )}
+
+        <OutputPanel
+          result={isDone && current ? `Completed — duplicates removed` : null}
+          success={isDone ? true : null}
+          stepCount={cursor + 1}
+          complexity="O(n)"
+          visible={isDone}
+        />
       </div>
     </div>
   );

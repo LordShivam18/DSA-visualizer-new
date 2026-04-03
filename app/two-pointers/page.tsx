@@ -1,29 +1,72 @@
 "use client";
 
 import Link from "next/link";
+import { motion } from "framer-motion";
+import BackButton from "@/components/ui/BackButton";
+
+const problems = [
+  { name: "Valid Palindrome", url: "/two-pointers/valid-palindrome", difficulty: "easy" as const, description: "Check if string is a valid palindrome" },
+  { name: "Two Sum II (Sorted Array)", url: "/two-pointers/two-sum-sorted", difficulty: "medium" as const, description: "Find two numbers that add to target in sorted array" },
+  { name: "3Sum", url: "/two-pointers/three-sum", difficulty: "medium" as const, description: "Find all unique triplets summing to zero" },
+  { name: "Container With Most Water", url: "/two-pointers/container-most-water", difficulty: "medium" as const, description: "Maximize water area between vertical lines" },
+  { name: "Is Subsequence", url: "/two-pointers/is-subsequence", difficulty: "easy" as const, description: "Check if s is a subsequence of t" },
+];
+
+const diffColors = {
+  easy: { badge: "badge-easy", glow: "hover:shadow-[0_0_25px_rgba(52,211,153,0.15)]", border: "border-emerald-500/20 hover:border-emerald-500/40" },
+  medium: { badge: "badge-medium", glow: "hover:shadow-[0_0_25px_rgba(251,191,36,0.15)]", border: "border-amber-500/20 hover:border-amber-500/40" },
+  hard: { badge: "badge-hard", glow: "hover:shadow-[0_0_25px_rgba(251,113,133,0.15)]", border: "border-rose-500/20 hover:border-rose-500/40" },
+};
 
 export default function TwoPointersTopics() {
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center p-10 gap-8">
-      <h1 className="text-4xl font-bold">Two Pointers</h1>
-      <p className="opacity-70">Choose a subtopic</p>
+    <div className="min-h-screen grid-pattern px-6 py-12">
+      <div className="max-w-3xl mx-auto">
+        <BackButton href="/topics" label="Topics" />
 
-      <div className="flex flex-col gap-6 w-full max-w-xl">
-        {/* Two Sum II (sorted array) */}
-        <Link href="/two-pointers/two-sum-sorted">
-          <button
-            className="
-              w-full py-4 rounded-xl text-lg font-medium
-              bg-[#013b47] border border-[#0ff]
-              shadow-[0_0_15px_#00eaff55]
-              hover:bg-[#024b58] transition
-            "
-          >
-            Two Sum II (Sorted Array)
-          </button>
-        </Link>
+        <motion.div
+          initial={{ opacity: 0, y: -15 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-6 mb-10"
+        >
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+            <span className="text-violet-400 text-glow-violet">Two Pointers</span>
+          </h1>
+          <p className="text-slate-400 mt-2">
+            Dual pointer technique problems — choose a problem to visualize
+          </p>
+        </motion.div>
 
-        {/* Future two-pointer problems can go here as more buttons */}
+        <div className="flex flex-col gap-3">
+          {problems.map((p, i) => {
+            const dc = diffColors[p.difficulty];
+            return (
+              <Link key={p.url} href={p.url}>
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.08, duration: 0.4 }}
+                  whileHover={{ x: 6 }}
+                  className={`glass-card p-5 flex items-center gap-4 border ${dc.border} ${dc.glow} transition-all duration-300 cursor-pointer group`}
+                >
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-slate-100 group-hover:text-violet-300 transition-colors">
+                      {p.name}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">{p.description}</p>
+                  </div>
+                  <span className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider ${dc.badge}`}>
+                    {p.difficulty}
+                  </span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+                    className="text-slate-600 group-hover:text-violet-400 transition-colors flex-shrink-0">
+                    <path d="M6 4L10 8L6 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </motion.div>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

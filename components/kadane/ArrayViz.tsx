@@ -16,7 +16,8 @@ export default function ArrayViz({
   height?: number;
 }) {
   const step = trace[cursor];
-  const nums = step?.nums || [];
+  if (!step) return null;
+  const nums = step.nums || [];
 
   const active = step.activeRange;
   const best = step.bestRange;

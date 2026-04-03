@@ -5,6 +5,8 @@ import ModeToggle from "@/components/two-sum/ModeToggle";
 import ValueNode from "@/components/three-sum/ValueNode";
 import PointerTag from "@/components/three-sum/PointerTag";
 import SumBar from "@/components/three-sum/SumBar";
+import OutputPanel from "@/components/ui/OutputPanel";
+import BackButton from "@/components/ui/BackButton";
 
 const NUMS = [-4, -1, -1, 0, 1, 2];
 
@@ -265,7 +267,8 @@ export default function ThreeSumPage() {
     phase === "scanning" && right >= 0 && right < n ? nums[right] : null;
 
   return (
-    <div className="min-h-screen bg-black text-slate-50 flex flex-col items-center py-10 px-4 gap-10">
+    <div className="min-h-screen grid-pattern text-slate-50 flex flex-col items-center py-10 px-4 gap-10">
+      <div className="w-full max-w-3xl"><BackButton href="/two-pointers" label="Two Pointers" /></div>
       {/* Title */}
       <header className="flex flex-col items-center gap-3">
         <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">
@@ -499,6 +502,9 @@ export default function ThreeSumPage() {
           Reset
         </button>
       </div>
+
+      <OutputPanel result={phase === "done" ? `Found ${triplets.length} triplet(s) summing to 0` : null}
+        success={phase === "done" ? true : null} stepCount={0} complexity="O(n\u00B2)" visible={phase === "done"} />
     </div>
   );
 }

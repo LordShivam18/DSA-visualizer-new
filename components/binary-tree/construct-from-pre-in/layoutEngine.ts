@@ -4,6 +4,7 @@ export type NodeLayout = {
   value: number;
   preorderIndex: number | null;
   inorderIndex: number | null;
+  parentId?: string | null;
   x: number; // canvas x
   y: number; // canvas y
 };
