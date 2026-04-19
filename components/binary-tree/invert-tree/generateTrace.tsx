@@ -5,7 +5,14 @@ export type Node = {
 };
 
 export type Trace = {
-  type: string;
+  type:
+    | "null"
+    | "visit"
+    | "swap-left"
+    | "swap-right"
+    | "recurse-left"
+    | "recurse-right"
+    | "return";
   depth: number;
   value?: number;
   explanation: string;
@@ -20,7 +27,7 @@ export function generateInvertTrace(): Trace[] {
       steps.push({
         type: "null",
         depth,
-        explanation: "Hit a null node, returning.",
+        explanation: "Hit a null node, so this recursive call returns immediately.",
         codeLine: 2,
       });
       return null;
@@ -30,27 +37,50 @@ export function generateInvertTrace(): Trace[] {
       type: "visit",
       depth,
       value: node.val,
-      explanation: `Visiting node ${node.val}`,
-      codeLine: 5,
+      explanation: `Visit node ${node.val} and prepare to swap its left and right children.`,
+      codeLine: 3,
     });
 
     steps.push({
-      type: "swap",
+      type: "swap-left",
       depth,
       value: node.val,
-      explanation: `Swapping children of node ${node.val}`,
-      codeLine: 7,
+      explanation: `Store the current left child of node ${node.val} in a temporary pointer.`,
+      codeLine: 3,
     });
 
+    steps.push({
+      type: "swap-right",
+      depth,
+      value: node.val,
+      explanation: `Swap the child pointers of node ${node.val}.`,
+      codeLine: 4,
+    });
+
+    steps.push({
+      type: "recurse-left",
+      depth,
+      value: node.val,
+      explanation: `Recurse into the new left subtree of node ${node.val}.`,
+      codeLine: 6,
+    });
     const left = invert(node.right ?? null, depth + 1);
+
+    steps.push({
+      type: "recurse-right",
+      depth,
+      value: node.val,
+      explanation: `Recurse into the new right subtree of node ${node.val}.`,
+      codeLine: 7,
+    });
     const right = invert(node.left ?? null, depth + 1);
 
     steps.push({
       type: "return",
       depth,
       value: node.val,
-      explanation: `Returning inverted node ${node.val}`,
-      codeLine: 11,
+      explanation: `Return the inverted subtree rooted at node ${node.val}.`,
+      codeLine: 8,
     });
 
     return { val: node.val, left, right };

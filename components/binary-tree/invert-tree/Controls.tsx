@@ -1,28 +1,38 @@
 "use client";
 
+type Mode = "beginner" | "expert";
+
 type Props = {
   cursor: number;
-  mode: string;
-  setMode: (m: any) => void;
+  mode: Mode;
+  setMode: (mode: Mode) => void;
+  canStep: boolean;
   onStep: () => void;
   onReset: () => void;
 };
 
-export default function Controls({ cursor, mode, setMode, onStep, onReset }: Props) {
+export default function Controls({
+  cursor,
+  mode,
+  setMode,
+  canStep,
+  onStep,
+  onReset,
+}: Props) {
   return (
-    <div className="bg-[#161b22] p-4 rounded-xl shadow-md flex items-center justify-between">
-      
+    <div className="flex items-center justify-between rounded-xl bg-[#161b22] p-4 shadow-md">
       <div className="flex items-center gap-4">
         <button
           onClick={onStep}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white"
+          disabled={!canStep}
+          className="rounded-lg bg-blue-600 px-4 py-2 text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
         >
-          Step →
+          Step
         </button>
 
         <button
           onClick={onReset}
-          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"
+          className="rounded-lg bg-gray-700 px-4 py-2 transition-colors hover:bg-gray-600"
         >
           Reset
         </button>
@@ -31,14 +41,16 @@ export default function Controls({ cursor, mode, setMode, onStep, onReset }: Pro
       <div className="flex items-center gap-3">
         <span className="text-sm text-gray-400">Mode</span>
         <select
-          className="bg-[#0d1117] border border-gray-600 rounded-lg px-3 py-1"
+          className="rounded-lg border border-gray-600 bg-[#0d1117] px-3 py-1"
           value={mode}
-          onChange={(e) => setMode(e.target.value as any)}
+          onChange={(event) => setMode(event.target.value as Mode)}
         >
           <option value="beginner">Beginner</option>
           <option value="expert">Expert</option>
         </select>
       </div>
+
+      <div className="text-sm text-gray-400">Step {cursor + 1}</div>
     </div>
   );
 }
