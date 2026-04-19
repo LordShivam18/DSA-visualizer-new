@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 interface OutputPanelProps {
   result: string | null;
@@ -25,7 +25,7 @@ export default function OutputPanel({
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 10, scale: 0.97 }}
           transition={{ duration: 0.4, ease: "easeOut" }}
-          className={`glass-card p-5 w-full max-w-3xl ${
+          className={`glass-card w-full max-w-3xl p-5 ${
             success === true
               ? "output-success"
               : success === false
@@ -33,9 +33,9 @@ export default function OutputPanel({
               : ""
           }`}
         >
-          <div className="flex items-center gap-2 mb-3">
+          <div className="mb-3 flex items-center gap-2">
             <div
-              className={`w-1.5 h-5 rounded-full ${
+              className={`h-5 w-1.5 rounded-full ${
                 success === true
                   ? "bg-emerald-400"
                   : success === false
@@ -43,24 +43,23 @@ export default function OutputPanel({
                   : "bg-slate-400"
               }`}
             />
-            <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-100">
               Output
             </h3>
 
             {success === true && (
-              <span className="ml-auto text-emerald-400 text-sm font-bold">
-                ✅ Success
+              <span className="ml-auto text-sm font-bold text-emerald-400">
+                Success
               </span>
             )}
             {success === false && (
-              <span className="ml-auto text-rose-400 text-sm font-bold">
-                ❌ Failed
+              <span className="ml-auto text-sm font-bold text-rose-400">
+                Failed
               </span>
             )}
           </div>
 
-          {/* Result */}
-          <div className="bg-slate-950/50 rounded-xl p-4 font-mono text-base">
+          <div className="rounded-xl bg-slate-950/50 p-4 font-mono text-base">
             <span
               className={
                 success === true
@@ -74,19 +73,18 @@ export default function OutputPanel({
             </span>
           </div>
 
-          {/* Stats row */}
           {(stepCount !== undefined || complexity) && (
-            <div className="flex gap-4 mt-3 text-xs text-slate-400">
+            <div className="mt-3 flex gap-4 text-xs text-slate-400">
               {stepCount !== undefined && (
                 <span>
                   Steps:{" "}
-                  <span className="text-slate-200 font-mono">{stepCount}</span>
+                  <span className="font-mono text-slate-200">{stepCount}</span>
                 </span>
               )}
               {complexity && (
                 <span>
                   Time:{" "}
-                  <span className="text-slate-200 font-mono">{complexity}</span>
+                  <span className="font-mono text-slate-200">{complexity}</span>
                 </span>
               )}
             </div>
