@@ -14,7 +14,7 @@ const topics = [
   { name: "Intervals", url: "/intervals", icon: "📏", accent: "rose", count: 0 },
   { name: "Stack", url: "/stack", icon: "📚", accent: "cyan", count: 1 },
   { name: "Linked List", url: "/linked-list", icon: "🔗", accent: "violet", count: 9 },
-  { name: "Binary Tree (General)", url: "/binary-tree", icon: "🌳", accent: "emerald", count: 5 },
+  { name: "Binary Tree (General)", url: "/binary-tree", icon: "🌳", accent: "emerald", count: 11 },
   { name: "Binary Tree BFS", url: "/binary-tree-bfs", icon: "🌊", accent: "blue", count: 0 },
   { name: "Binary Search Tree", url: "/bst", icon: "🔍", accent: "amber", count: 0 },
   { name: "Graph (General)", url: "/graph", icon: "🕸️", accent: "rose", count: 0 },
