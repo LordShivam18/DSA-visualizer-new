@@ -10,6 +10,7 @@ const problems = [
   { name: "Invert Binary Tree", url: "/binary-tree/invert-tree", difficulty: "easy" as const, description: "Mirror a binary tree" },
   { name: "Symmetric Tree", url: "/binary-tree/symmetric-tree", difficulty: "easy" as const, description: "Check if tree is a mirror of itself" },
   { name: "Populate Next Right Pointers II", url: "/binary-tree/populating-next-right-pointers-ii", difficulty: "medium" as const, description: "Connect each level with in-place next pointers" },
+  { name: "Flatten Binary Tree to Linked List", url: "/binary-tree/flatten-binary-tree-to-linked-list", difficulty: "medium" as const, description: "Rewire the tree into a preorder right-only chain" },
   { name: "Construct from Preorder + Inorder", url: "/binary-tree/construct-from-pre-in", difficulty: "medium" as const, description: "Build tree from traversal arrays" },
 ];
 
