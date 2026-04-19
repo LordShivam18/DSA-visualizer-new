@@ -8,6 +8,8 @@
 :root {
   --background: #050509;
   --foreground: #ededed;
+  --font-geist-sans: "Sora", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-geist-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   --neon-cyan: #22d3ee;
   --neon-violet: #a78bfa;
   --neon-emerald: #34d399;

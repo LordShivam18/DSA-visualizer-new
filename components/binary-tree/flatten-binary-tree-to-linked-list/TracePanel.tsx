@@ -3,6 +3,7 @@ import {
   type FlattenActionKind,
   type FlattenTraceStep,
 } from "./generateTrace";
+import FlattenChainStrip from "./FlattenChainStrip";
 
 type Props = {
   step: FlattenTraceStep;
@@ -126,6 +127,25 @@ export default function TracePanel({ step }: Props) {
             {formatSerializedOutput(step.state.serializedOutput)}
           </p>
         </div>
+      </div>
+
+      <div className="mt-5 space-y-3">
+        <FlattenChainStrip
+          title="Remaining Preorder"
+          ids={step.state.remainingIds}
+          nodes={step.state.nodes}
+          accent="cyan"
+          emptyLabel="No nodes remain to be flattened."
+          helperText="This is the preorder suffix that current still needs to lock in."
+        />
+        <FlattenChainStrip
+          title="Predecessor Scan Trail"
+          ids={step.pointers.scanTrailIds}
+          nodes={step.state.nodes}
+          accent="yellow"
+          emptyLabel="No predecessor search is happening on this step."
+          helperText="When the node has a left subtree, predecessor walks right through this trail."
+        />
       </div>
 
       <div className="mt-5 rounded-[1.15rem] border border-slate-800/80 bg-slate-950/55 p-4 text-sm text-slate-300">

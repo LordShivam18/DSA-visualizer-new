@@ -35,6 +35,18 @@ export default function CodePanel({ step }: Props) {
         </div>
       </div>
 
+      <div className="mt-5 flex flex-wrap gap-2 text-xs">
+        <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-cyan-100">
+          Time: O(n)
+        </span>
+        <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-100">
+          Extra Space: O(1)
+        </span>
+        <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-amber-100">
+          Active Lines: {step.codeLines.join(", ")}
+        </span>
+      </div>
+
       <div className="mt-5 rounded-[1.2rem] border border-slate-800/80 bg-[#050916] p-4 font-mono text-[12px] leading-6 text-slate-300">
         {codeLines.map((line, index) => {
           const lineNumber = index + 1;

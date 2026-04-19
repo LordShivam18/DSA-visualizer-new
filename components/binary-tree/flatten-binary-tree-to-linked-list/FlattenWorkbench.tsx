@@ -1,24 +1,10 @@
+import FlattenChainStrip from "./FlattenChainStrip";
+import TreeNodeCard from "./TreeNodeCard";
 import type { FlattenTraceStep } from "./generateTrace";
 
 type Point = {
   x: number;
   y: number;
-};
-
-type Accent = "amber" | "cyan" | "emerald" | "violet";
-
-type ChainProps = {
-  title: string;
-  ids: string[];
-  accent: Accent;
-  emptyLabel: string;
-};
-
-const accentClasses: Record<Accent, string> = {
-  amber: "border-amber-400/40 bg-amber-500/10 text-amber-100",
-  cyan: "border-cyan-400/40 bg-cyan-500/10 text-cyan-100",
-  emerald: "border-emerald-400/40 bg-emerald-500/10 text-emerald-100",
-  violet: "border-violet-400/40 bg-violet-500/10 text-violet-100",
 };
 
 function buildPositionMap(step: FlattenTraceStep) {
@@ -40,14 +26,6 @@ function buildPositionMap(step: FlattenTraceStep) {
   return { positions, canvasWidth, canvasHeight };
 }
 
-function labelOf(step: FlattenTraceStep, id: string | null) {
-  if (!id) {
-    return "none";
-  }
-
-  return String(step.state.nodes.find((node) => node.id === id)?.value ?? "none");
-}
-
 function rightPath(source: Point, target: Point) {
   const midX = (source.x + target.x) / 2;
   const lift = 54 + Math.abs(target.x - source.x) * 0.12;
@@ -62,44 +40,6 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
   const flattenedSet = new Set(step.state.flattenedIds);
   const scanTrailSet = new Set(step.pointers.scanTrailIds);
 
-  function renderChain({ title, ids, accent, emptyLabel }: ChainProps) {
-    return (
-      <div className="rounded-[1.2rem] border border-slate-800/80 bg-slate-950/55 p-4">
-        <div className="mb-3 flex items-center gap-2">
-          <span
-            className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.24em] ${accentClasses[accent]}`}
-          >
-            {title}
-          </span>
-        </div>
-
-        {ids.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-slate-700/80 px-3 py-4 text-sm text-slate-500">
-            {emptyLabel}
-          </div>
-        ) : (
-          <div className="flex flex-wrap items-center gap-2">
-            {ids.map((id, index) => (
-              <div key={`${title}-${id}`} className="flex items-center gap-2">
-                <div
-                  className={`min-w-10 rounded-xl border px-3 py-2 text-center font-mono text-sm shadow-[0_0_18px_rgba(15,23,42,0.55)] ${accentClasses[accent]}`}
-                >
-                  {nodesById.get(id)?.value ?? "?"}
-                </div>
-
-                {index < ids.length - 1 ? (
-                  <span className="text-sm text-slate-500">-&gt;</span>
-                ) : (
-                  <span className="text-xs font-mono text-slate-500">END</span>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
   return (
     <section className="glass-card overflow-hidden p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -111,9 +51,10 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
             Flatten the tree into one preorder right chain
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-            Dashed edges preserve the original tree shape for reference. The
-            live left pointers glow cyan, and the live right pointers glow amber
-            as the chain is rewired in place.
+            Dashed edges preserve the original tree shape for reference. Live
+            left pointers glow cyan, live right pointers glow amber, and the
+            green prefix marks nodes that are already fixed in their final
+            preorder position.
           </p>
         </div>
 
@@ -145,7 +86,9 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
             Current
           </p>
           <p className="mt-2 text-2xl font-semibold text-cyan-200">
-            {labelOf(step, step.pointers.currentId)}
+            {step.pointers.currentId
+              ? nodesById.get(step.pointers.currentId)?.value ?? "none"
+              : "none"}
           </p>
         </div>
 
@@ -154,7 +97,9 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
             Left Head
           </p>
           <p className="mt-2 text-2xl font-semibold text-violet-200">
-            {labelOf(step, step.pointers.leftHeadId)}
+            {step.pointers.leftHeadId
+              ? nodesById.get(step.pointers.leftHeadId)?.value ?? "none"
+              : "none"}
           </p>
         </div>
 
@@ -163,9 +108,29 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
             Predecessor
           </p>
           <p className="mt-2 text-2xl font-semibold text-amber-200">
-            {labelOf(step, step.pointers.predecessorId)}
+            {step.pointers.predecessorId
+              ? nodesById.get(step.pointers.predecessorId)?.value ?? "none"
+              : "none"}
           </p>
         </div>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2 text-xs text-slate-300">
+        <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-cyan-100 shadow-[0_0_18px_rgba(34,211,238,0.12)]">
+          Cyan: active left pointer / current node
+        </span>
+        <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-amber-100 shadow-[0_0_18px_rgba(251,191,36,0.12)]">
+          Amber: live right chain / predecessor
+        </span>
+        <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-100 shadow-[0_0_18px_rgba(52,211,153,0.12)]">
+          Green: flattened prefix
+        </span>
+        <span className="rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-violet-100 shadow-[0_0_18px_rgba(167,139,250,0.12)]">
+          Purple: left subtree head
+        </span>
+        <span className="rounded-full border border-yellow-400/30 bg-yellow-500/10 px-3 py-1 text-yellow-100 shadow-[0_0_18px_rgba(250,204,21,0.12)]">
+          Yellow: predecessor scan trail
+        </span>
       </div>
 
       <div className="mt-6 overflow-x-auto pb-2">
@@ -265,7 +230,8 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
                   stroke="#22d3ee"
                   strokeWidth="2.7"
                   markerEnd="url(#flatten-left-arrow)"
-                  opacity="0.92"
+                  opacity="0.94"
+                  className="drop-shadow-[0_0_10px_rgba(34,211,238,0.45)]"
                 />
               );
             })}
@@ -290,7 +256,8 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
                   stroke="#fbbf24"
                   strokeWidth="3"
                   markerEnd="url(#flatten-right-arrow)"
-                  opacity="0.95"
+                  opacity="0.96"
+                  className="drop-shadow-[0_0_12px_rgba(251,191,36,0.42)]"
                 />
               );
             })}
@@ -354,71 +321,61 @@ export default function FlattenWorkbench({ step }: { step: FlattenTraceStep }) {
                 : "border-slate-700/80 bg-slate-950/85 text-slate-100 shadow-[0_0_22px_rgba(15,23,42,0.5)]";
 
             const leftValue = node.leftId
-              ? nodesById.get(node.leftId)?.value ?? "?"
+              ? String(nodesById.get(node.leftId)?.value ?? "?")
               : "-";
             const rightValue = node.rightId
-              ? nodesById.get(node.rightId)?.value ?? "?"
+              ? String(nodesById.get(node.rightId)?.value ?? "?")
               : "-";
 
             return (
-              <div
+              <TreeNodeCard
                 key={node.id}
-                className="absolute -translate-x-1/2 -translate-y-1/2"
-                style={{ left: position.x, top: position.y }}
-              >
-                <div className="relative flex flex-col items-center gap-2">
-                  <div className="absolute -top-9 flex flex-wrap items-center justify-center gap-1">
-                    {badges.map((badge) => (
-                      <span
-                        key={`${node.id}-${badge.label}`}
-                        className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${badge.className}`}
-                      >
-                        {badge.label}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div
-                    className={`flex h-16 w-16 items-center justify-center rounded-full border text-lg font-semibold transition-all duration-500 ${toneClass}`}
-                  >
-                    {node.value}
-                  </div>
-
-                  <div className="rounded-full border border-slate-800/80 bg-slate-950/85 px-3 py-1 text-[10px] font-mono uppercase tracking-[0.16em] text-slate-400">
-                    L:{leftValue} | R:{rightValue}
-                  </div>
-                </div>
-              </div>
+                x={position.x}
+                y={position.y}
+                value={node.value}
+                leftValue={leftValue}
+                rightValue={rightValue}
+                toneClass={toneClass}
+                badges={badges}
+              />
             );
           })}
         </div>
       </div>
 
       <div className="mt-6 grid gap-3 lg:grid-cols-2">
-        {renderChain({
-          title: "Target Preorder",
-          ids: step.state.targetPreorderIds,
-          accent: "violet",
-          emptyLabel: "The input tree is empty.",
-        })}
-        {renderChain({
-          title: "Live Right Spine",
-          ids: step.state.liveRightChainIds,
-          accent: "amber",
-          emptyLabel: "No right chain exists yet.",
-        })}
-        {renderChain({
-          title: "Flattened Prefix",
-          ids: step.state.flattenedIds,
-          accent: "emerald",
-          emptyLabel: "No node has joined the final chain yet.",
-        })}
-        {renderChain({
-          title: "Remaining Nodes",
-          ids: step.state.remainingIds,
-          accent: "cyan",
-          emptyLabel: "No nodes remain. The flatten is complete.",
-        })}
+        <FlattenChainStrip
+          title="Target Preorder"
+          ids={step.state.targetPreorderIds}
+          nodes={step.state.nodes}
+          accent="violet"
+          emptyLabel="The input tree is empty."
+          helperText="This is the exact node order the final linked list must follow."
+        />
+        <FlattenChainStrip
+          title="Live Right Spine"
+          ids={step.state.liveRightChainIds}
+          nodes={step.state.nodes}
+          accent="amber"
+          emptyLabel="No right chain exists yet."
+          helperText="Follow only right pointers from the root to see the current in-place list backbone."
+        />
+        <FlattenChainStrip
+          title="Flattened Prefix"
+          ids={step.state.flattenedIds}
+          nodes={step.state.nodes}
+          accent="emerald"
+          emptyLabel="No node has joined the final chain yet."
+          helperText="Everything here is already fixed in final preorder order."
+        />
+        <FlattenChainStrip
+          title="Remaining Nodes"
+          ids={step.state.remainingIds}
+          nodes={step.state.nodes}
+          accent="cyan"
+          emptyLabel="No nodes remain. The flatten is complete."
+          helperText="These nodes still need to be visited by current."
+        />
       </div>
     </section>
   );

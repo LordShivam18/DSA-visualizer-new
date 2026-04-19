@@ -2,20 +2,21 @@
 
 import { useState } from "react";
 
-import BackButton from "@/components/ui/BackButton";
-import InputPanel, {
-  type InputField,
-  type PresetExample,
-} from "@/components/ui/InputPanel";
-import CodePanel from "@/components/binary-tree/flatten-binary-tree-to-linked-list/CodePanel";
-import Controls from "@/components/binary-tree/flatten-binary-tree-to-linked-list/Controls";
-import FlattenWorkbench from "@/components/binary-tree/flatten-binary-tree-to-linked-list/FlattenWorkbench";
-import TracePanel from "@/components/binary-tree/flatten-binary-tree-to-linked-list/TracePanel";
+import CodePanel from "../../../components/binary-tree/flatten-binary-tree-to-linked-list/CodePanel";
+import Controls from "../../../components/binary-tree/flatten-binary-tree-to-linked-list/Controls";
+import FlattenWorkbench from "../../../components/binary-tree/flatten-binary-tree-to-linked-list/FlattenWorkbench";
+import MicroscopeView from "../../../components/binary-tree/flatten-binary-tree-to-linked-list/MicroscopeView";
+import TracePanel from "../../../components/binary-tree/flatten-binary-tree-to-linked-list/TracePanel";
 import {
   formatSerializedOutput,
   generateTrace,
   type FlattenTraceStep,
-} from "@/components/binary-tree/flatten-binary-tree-to-linked-list/generateTrace";
+} from "../../../components/binary-tree/flatten-binary-tree-to-linked-list/generateTrace";
+import BackButton from "../../../components/ui/BackButton";
+import InputPanel, {
+  type InputField,
+  type PresetExample,
+} from "../../../components/ui/InputPanel";
 
 const defaultInput = "1,2,5,3,4,null,6";
 
@@ -56,7 +57,7 @@ export default function FlattenBinaryTreeToLinkedListPage() {
   const [cursor, setCursor] = useState(0);
   const [mode, setMode] = useState<"beginner" | "expert">("beginner");
 
-  const step = trace[cursor];
+  const step = trace[Math.min(cursor, trace.length - 1)];
   const canPrev = cursor > 0;
   const canNext = cursor < trace.length - 1;
 
@@ -137,6 +138,7 @@ export default function FlattenBinaryTreeToLinkedListPage() {
             />
 
             <FlattenWorkbench step={step} />
+            <MicroscopeView step={step} mode={mode} />
           </section>
 
           <aside className="space-y-5">

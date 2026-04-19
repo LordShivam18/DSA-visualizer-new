@@ -23,6 +23,9 @@ export default function Controls({
   canPrev,
   canNext,
 }: Props) {
+  const progress =
+    totalSteps <= 1 ? 100 : Math.round((stepIndex / (totalSteps - 1)) * 100);
+
   return (
     <div className="glass-card p-5">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
@@ -81,6 +84,19 @@ export default function Controls({
               Expert
             </button>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-slate-500">
+          <span>Trace Progress</span>
+          <span className="font-mono text-slate-300">{progress}%</span>
+        </div>
+        <div className="h-2 overflow-hidden rounded-full border border-slate-800 bg-slate-950/80">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-amber-300 to-emerald-400 shadow-[0_0_18px_rgba(34,211,238,0.28)] transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
         </div>
       </div>
     </div>
