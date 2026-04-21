@@ -12,6 +12,7 @@ const problems = [
   { name: "Count Complete Tree Nodes", url: "/binary-tree/count-complete-tree-nodes", difficulty: "easy" as const, description: "Count nodes faster than O(n) by detecting perfect subtrees from their boundary heights" },
   { name: "Path Sum", url: "/binary-tree/path-sum", difficulty: "easy" as const, description: "Check whether any root-to-leaf path matches a target sum" },
   { name: "Sum Root to Leaf Numbers", url: "/binary-tree/sum-root-to-leaf-numbers", difficulty: "medium" as const, description: "Build decimal numbers from root-to-leaf paths and add them all" },
+  { name: "Lowest Common Ancestor", url: "/binary-tree/lowest-common-ancestor-binary-tree", difficulty: "medium" as const, description: "Use recursive return values to find the first node where the two target searches merge" },
   { name: "Binary Search Tree Iterator", url: "/binary-tree/binary-search-tree-iterator", difficulty: "medium" as const, description: "Iterate through BST values lazily with a stack-backed inorder traversal" },
   { name: "Binary Tree Maximum Path Sum", url: "/binary-tree/maximum-path-sum", difficulty: "hard" as const, description: "Find the strongest path anywhere in the tree using recursive gains" },
   { name: "Populate Next Right Pointers II", url: "/binary-tree/populating-next-right-pointers-ii", difficulty: "medium" as const, description: "Connect each level with in-place next pointers" },
