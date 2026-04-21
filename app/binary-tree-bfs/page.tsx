@@ -12,6 +12,12 @@ const problems = [
     difficulty: "medium" as const,
     description: "Scan each tree level with a queue and keep the last node you pop.",
   },
+  {
+    name: "Average of Levels in Binary Tree",
+    url: "/binary-tree-bfs/average-of-levels-in-binary-tree",
+    difficulty: "easy" as const,
+    description: "Accumulate the sum of each BFS level, then divide by that level's node count.",
+  },
 ];
 
 const diffColors = {
