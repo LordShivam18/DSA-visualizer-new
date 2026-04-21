@@ -119,7 +119,7 @@ export default function CourseSchedulePage() {
                   onClick={() => runWithValue(preset.input)}
                   className="rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-cyan-400/40 hover:text-cyan-100"
                 >
-                  {preset.name} <span className="text-slate-500">-> {preset.output}</span>
+                  {preset.name} <span className="text-slate-500">-&gt; {preset.output}</span>
                 </button>
               ))}
             </div>

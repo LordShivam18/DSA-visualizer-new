@@ -3,59 +3,57 @@
 import { useState } from "react";
 
 import BackButton from "../../../components/ui/BackButton";
-import CodePanel from "../../../components/graph-traversal/evaluate-division/CodePanel";
-import Controls from "../../../components/graph-traversal/evaluate-division/Controls";
-import EvaluateDivisionWorkbench from "../../../components/graph-traversal/evaluate-division/EvaluateDivisionWorkbench";
-import MicroscopeView from "../../../components/graph-traversal/evaluate-division/MicroscopeView";
-import TracePanel from "../../../components/graph-traversal/evaluate-division/TracePanel";
+import CodePanel from "../../../components/graph-traversal/course-schedule-ii/CodePanel";
+import Controls from "../../../components/graph-traversal/course-schedule-ii/Controls";
+import CourseScheduleIIWorkbench from "../../../components/graph-traversal/course-schedule-ii/CourseScheduleIIWorkbench";
+import MicroscopeView from "../../../components/graph-traversal/course-schedule-ii/MicroscopeView";
+import TracePanel from "../../../components/graph-traversal/course-schedule-ii/TracePanel";
 import {
-  formatAnswerList,
+  formatOrderResult,
   generateTrace,
-  type EvaluateDivisionInput,
-  type EvaluateDivisionTraceStep,
-} from "../../../components/graph-traversal/evaluate-division/generateTrace";
+  type CourseScheduleIIInput,
+  type CourseScheduleIITraceStep,
+} from "../../../components/graph-traversal/course-schedule-ii/generateTrace";
 
-const defaultInput: EvaluateDivisionInput = {
-  equations: `[["a","b"],["b","c"]]`,
-  values: `[2.0,3.0]`,
-  queries: `[["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]`,
+const defaultInput: CourseScheduleIIInput = {
+  numCourses: "2",
+  prerequisites: `[[1,0]]`,
 };
 
 const presets = [
   {
     name: "Example 1",
-    output: "[6.00000, 0.50000, -1.00000, 1.00000, -1.00000]",
+    output: "[0, 1]",
     input: defaultInput,
   },
   {
-    name: "Three-Hop Chain",
-    output: "[24.00000, 0.04167, 0.12500]",
+    name: "Example 2",
+    output: "[0, 1, 2, 3]",
     input: {
-      equations: `[["a","b"],["b","c"],["c","d"]]`,
-      values: `[2.0,3.0,4.0]`,
-      queries: `[["a","d"],["d","a"],["b","d"]]`,
+      numCourses: "4",
+      prerequisites: `[[1,0],[2,0],[3,1],[3,2]]`,
     },
   },
   {
-    name: "Disconnected Graph",
-    output: "[-1.00000, 5.00000, 1.00000]",
+    name: "Cycle",
+    output: "[]",
     input: {
-      equations: `[["usd","eur"],["kg","g"]]`,
-      values: `[0.9,1000.0]`,
-      queries: `[["usd","g"],["kg","g"],["eur","eur"]]`,
+      numCourses: "3",
+      prerequisites: `[[1,0],[2,1],[0,2]]`,
     },
   },
 ] as const;
 
-function buildTrace(input: EvaluateDivisionInput) {
+function buildTrace(input: CourseScheduleIIInput) {
   return generateTrace(input);
 }
 
-export default function EvaluateDivisionPage() {
-  const [equationsInput, setEquationsInput] = useState(defaultInput.equations);
-  const [valuesInput, setValuesInput] = useState(defaultInput.values);
-  const [queriesInput, setQueriesInput] = useState(defaultInput.queries);
-  const [trace, setTrace] = useState<EvaluateDivisionTraceStep[]>(() =>
+export default function CourseScheduleIIPage() {
+  const [numCoursesInput, setNumCoursesInput] = useState(defaultInput.numCourses);
+  const [prerequisitesInput, setPrerequisitesInput] = useState(
+    defaultInput.prerequisites
+  );
+  const [trace, setTrace] = useState<CourseScheduleIITraceStep[]>(() =>
     buildTrace(defaultInput)
   );
   const [cursor, setCursor] = useState(0);
@@ -65,29 +63,27 @@ export default function EvaluateDivisionPage() {
   const canPrev = cursor > 0;
   const canNext = cursor < trace.length - 1;
 
-  function runWithValue(input: EvaluateDivisionInput) {
-    setEquationsInput(input.equations);
-    setValuesInput(input.values);
-    setQueriesInput(input.queries);
+  function runWithValue(input: CourseScheduleIIInput) {
+    setNumCoursesInput(input.numCourses);
+    setPrerequisitesInput(input.prerequisites);
     setTrace(buildTrace(input));
     setCursor(0);
   }
 
   function runCurrentInput() {
     const input = {
-      equations: equationsInput,
-      values: valuesInput,
-      queries: queriesInput,
+      numCourses: numCoursesInput,
+      prerequisites: prerequisitesInput,
     };
     setTrace(buildTrace(input));
     setCursor(0);
   }
 
-  const displayedResult = step.done ? step.state.result : step.state.answers;
+  const displayedResult = step.done ? step.state.result : step.state.order;
 
   return (
     <div className="relative min-h-screen overflow-hidden grid-pattern bg-[#030611] text-slate-50">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(167,139,250,0.1),transparent_24%),linear-gradient(180deg,rgba(3,6,17,0.94),rgba(3,6,17,1))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(52,211,153,0.08),transparent_24%),linear-gradient(180deg,rgba(3,6,17,0.94),rgba(3,6,17,1))]" />
 
       <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6">
         <div className="w-full max-w-4xl">
@@ -96,20 +92,20 @@ export default function EvaluateDivisionPage() {
 
         <header className="mx-auto flex w-full max-w-4xl flex-col items-center gap-4 text-center">
           <p className="text-xs uppercase tracking-[0.34em] text-slate-500">
-            Graph Traversal / Weighted Graph / DFS Ratios
+            Graph Traversal / Topological BFS / Order Construction
           </p>
           <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
             <span className="text-cyan-400 text-glow-cyan">
-              Evaluate Division
+              Course Schedule II
             </span>
           </h1>
           <p className="max-w-3xl text-sm leading-7 text-slate-400 md:text-base">
-            Build a weighted variable graph once, then answer each query by
-            traversing multiplicative paths and watching the running ratio evolve.
+            Build one legal course ordering step by step and see exactly why the
+            answer becomes empty when a cycle prevents a full topological sort.
           </p>
         </header>
 
-        <div className="mx-auto w-full max-w-5xl">
+        <div className="mx-auto w-full max-w-4xl">
           <div className="glass-card p-5">
             <div className="mb-4 flex items-center gap-2">
               <div className="h-5 w-1.5 rounded-full bg-cyan-400" />
@@ -125,51 +121,41 @@ export default function EvaluateDivisionPage() {
                   onClick={() => runWithValue(preset.input)}
                   className="rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-1.5 text-xs font-medium text-slate-300 transition-all hover:border-cyan-400/40 hover:text-cyan-100"
                 >
-                  {preset.name}{" "}
-                  <span className="text-slate-500">-&gt; {preset.output}</span>
+                  {preset.name} <span className="text-slate-500">-&gt; {preset.output}</span>
                 </button>
               ))}
             </div>
 
-            <div className="grid gap-4 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-[220px_minmax(0,1fr)]">
               <div>
                 <label className="text-xs font-medium text-slate-400">
-                  Equations
+                  Number of courses
                 </label>
-                <textarea
-                  value={equationsInput}
-                  onChange={(event) => setEquationsInput(event.target.value)}
-                  className="input-field mt-2 min-h-[140px] resize-y"
-                  placeholder='JSON like [["a","b"],["b","c"]]'
+                <input
+                  value={numCoursesInput}
+                  onChange={(event) => setNumCoursesInput(event.target.value)}
+                  className="input-field mt-2"
+                  placeholder="4"
+                  inputMode="numeric"
                 />
               </div>
+
               <div>
                 <label className="text-xs font-medium text-slate-400">
-                  Values
+                  Prerequisites
                 </label>
                 <textarea
-                  value={valuesInput}
-                  onChange={(event) => setValuesInput(event.target.value)}
+                  value={prerequisitesInput}
+                  onChange={(event) => setPrerequisitesInput(event.target.value)}
                   className="input-field mt-2 min-h-[140px] resize-y"
-                  placeholder='JSON like [2.0, 3.0]'
-                />
-              </div>
-              <div>
-                <label className="text-xs font-medium text-slate-400">
-                  Queries
-                </label>
-                <textarea
-                  value={queriesInput}
-                  onChange={(event) => setQueriesInput(event.target.value)}
-                  className="input-field mt-2 min-h-[140px] resize-y"
-                  placeholder='JSON like [["a","c"],["b","a"]]'
+                  placeholder='JSON like [[1,0],[2,0],[3,1],[3,2]]'
                 />
               </div>
             </div>
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
               <span>
-                Accepted format: JSON arrays. Queries run against the same graph in order.
+                Pair format: <span className="font-mono text-slate-200">[course, prerequisite]</span>
               </span>
               <button onClick={runCurrentInput} className="btn-neon btn-neon-cyan">
                 Run Visualization
@@ -201,7 +187,7 @@ export default function EvaluateDivisionPage() {
               canNext={canNext}
             />
 
-            <EvaluateDivisionWorkbench step={step} />
+            <CourseScheduleIIWorkbench step={step} />
             <MicroscopeView step={step} mode={mode} />
           </section>
 
@@ -211,18 +197,24 @@ export default function EvaluateDivisionPage() {
           </aside>
         </div>
 
-        <div className="mx-auto w-full max-w-5xl">
+        <div className="mx-auto w-full max-w-4xl">
           <div
             className={`glass-card p-5 ${
               step.done
-                ? "border-emerald-400/30 bg-emerald-500/5"
+                ? step.state.result && step.state.result.length === step.state.numCourses
+                  ? "border-emerald-400/30 bg-emerald-500/5"
+                  : "border-rose-400/30 bg-rose-500/5"
                 : "border-slate-800/80"
             }`}
           >
             <div className="mb-3 flex items-center gap-2">
               <div
                 className={`h-5 w-1.5 rounded-full ${
-                  step.done ? "bg-emerald-400" : "bg-cyan-400"
+                  step.done
+                    ? step.state.result && step.state.result.length === step.state.numCourses
+                      ? "bg-emerald-400"
+                      : "bg-rose-400"
+                    : "bg-cyan-400"
                 }`}
               />
               <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-100">
@@ -230,41 +222,44 @@ export default function EvaluateDivisionPage() {
               </h3>
               <span
                 className={`ml-auto text-sm font-bold ${
-                  step.done ? "text-emerald-400" : "text-cyan-300"
+                  step.done
+                    ? step.state.result && step.state.result.length === step.state.numCourses
+                      ? "text-emerald-400"
+                      : "text-rose-300"
+                    : "text-cyan-300"
                 }`}
               >
                 {step.done ? "Resolved" : "Building"}
               </span>
             </div>
 
-            <div className="rounded-xl bg-slate-950/50 p-4 font-mono text-sm leading-7 text-slate-200">
-              calcEquation(...) = {formatAnswerList(displayedResult)}
+            <div className="rounded-xl bg-slate-950/50 p-4 font-mono text-base text-slate-200">
+              findOrder(...) = {formatOrderResult(displayedResult)}
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-4">
               <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                  Variables
+                  Courses
                 </p>
                 <p className="mt-2 text-2xl font-semibold text-cyan-200">
-                  {step.state.graphNodes.length}
+                  {step.state.numCourses}
                 </p>
               </div>
               <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                  Equations
+                  Queue
                 </p>
                 <p className="mt-2 text-2xl font-semibold text-violet-200">
-                  {step.state.equations.length}
+                  {step.state.queue.length}
                 </p>
               </div>
               <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                  Queries Solved
+                  Order Size
                 </p>
                 <p className="mt-2 text-2xl font-semibold text-emerald-200">
-                  {step.state.answers.filter((value) => value !== null).length}/
-                  {step.state.queries.length}
+                  {step.state.order.length}/{step.state.numCourses}
                 </p>
               </div>
               <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-4 py-3">
@@ -281,13 +276,15 @@ export default function EvaluateDivisionPage() {
               <span>
                 Complexity:{" "}
                 <span className="font-mono text-slate-200">
-                  O(E) build + O(Q * (V + E)) query time
+                  O(V + E) time / O(V + E) space
                 </span>
               </span>
               <span>
-                Current path:{" "}
+                Remaining blocked:{" "}
                 <span className="font-mono text-slate-200">
-                  {step.state.activePath?.join(" -> ") ?? "none"}
+                  {step.state.remainingBlocked.length === 0
+                    ? "none"
+                    : step.state.remainingBlocked.join(", ")}
                 </span>
               </span>
             </div>

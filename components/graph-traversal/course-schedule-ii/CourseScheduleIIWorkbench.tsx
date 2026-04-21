@@ -1,8 +1,11 @@
 import CourseNodeCard from "./CourseNodeCard";
 import DirectedEdge from "./DirectedEdge";
-import OrderStrip from "./OrderStrip";
 import ReadyQueue from "./ReadyQueue";
-import type { CourseEdge, CourseScheduleTraceStep } from "./generateTrace";
+import TopologicalOrderStrip from "./TopologicalOrderStrip";
+import type {
+  CourseScheduleIIEdge,
+  CourseScheduleIITraceStep,
+} from "./generateTrace";
 
 type Point = {
   x: number;
@@ -36,7 +39,10 @@ function buildPositionMap(total: number, width: number, height: number) {
   return map;
 }
 
-function edgeMatches(edge: CourseEdge, focus: { from: number; to: number } | null) {
+function edgeMatches(
+  edge: CourseScheduleIIEdge,
+  focus: { from: number; to: number } | null
+) {
   if (!focus) {
     return false;
   }
@@ -44,14 +50,14 @@ function edgeMatches(edge: CourseEdge, focus: { from: number; to: number } | nul
   return edge.from === focus.from && edge.to === focus.to;
 }
 
-export default function CourseScheduleWorkbench({
+export default function CourseScheduleIIWorkbench({
   step,
 }: {
-  step: CourseScheduleTraceStep;
+  step: CourseScheduleIITraceStep;
 }) {
   const positions = buildPositionMap(step.state.numCourses, 420, 320);
   const queueSet = new Set(step.state.queue);
-  const takenSet = new Set(step.state.takenOrder);
+  const orderSet = new Set(step.state.order);
   const blockedSet = new Set(step.state.remainingBlocked);
 
   return (
@@ -62,11 +68,11 @@ export default function CourseScheduleWorkbench({
             Kahn Topological BFS
           </p>
           <h2 className="mt-2 text-2xl font-semibold text-slate-50">
-            Watch indegrees shrink until every course is unlocked or a cycle blocks progress
+            Build one valid course order while the ready queue keeps replenishing
           </h2>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-            Arrows point from prerequisite to dependent course. The queue only
-            contains courses whose indegree has dropped to zero.
+            The queue produces a topological order if the graph is acyclic.
+            Otherwise the process stalls and the output must be empty.
           </p>
         </div>
 
@@ -78,7 +84,7 @@ export default function CourseScheduleWorkbench({
             Queue: {step.state.queue.length}
           </span>
           <span className="rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-emerald-100">
-            Taken: {step.state.processedCount}
+            Order: {step.state.order.length}
           </span>
         </div>
       </div>
@@ -110,10 +116,10 @@ export default function CourseScheduleWorkbench({
         </div>
         <div className="rounded-[1.1rem] border border-slate-800/80 bg-slate-950/55 p-4">
           <p className="text-xs uppercase tracking-[0.22em] text-slate-500">
-            Blocked Courses
+            Output Size
           </p>
-          <p className="mt-2 text-2xl font-semibold text-rose-200">
-            {step.state.remainingBlocked.length}
+          <p className="mt-2 text-2xl font-semibold text-emerald-200">
+            {step.state.order.length}
           </p>
         </div>
       </div>
@@ -129,13 +135,13 @@ export default function CourseScheduleWorkbench({
           Purple: ready in queue
         </span>
         <span className="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-100 shadow-[0_0_18px_rgba(52,211,153,0.12)]">
-          Green: already taken
+          Green: fixed in order
         </span>
       </div>
 
       {step.state.numCourses === 0 ? (
         <div className="mt-6 rounded-[1.25rem] border border-dashed border-slate-700/80 px-4 py-10 text-center text-sm text-slate-500">
-          Enter a positive number of courses to build the prerequisite graph.
+          Enter a course count to build the graph and ordering trace.
         </div>
       ) : (
         <div className="mt-6 rounded-[1.35rem] border border-slate-800/80 bg-[#050916] p-4 shadow-[inset_0_1px_0_rgba(148,163,184,0.04)]">
@@ -144,8 +150,7 @@ export default function CourseScheduleWorkbench({
               Prerequisite Graph
             </h3>
             <p className="mt-1 text-sm text-slate-400">
-              Each arrow says &quot;finish the source course before taking the
-              target course.&quot;
+              Dequeue order is only valid if every arrow points from earlier to later in the final list.
             </p>
           </div>
 
@@ -161,7 +166,7 @@ export default function CourseScheduleWorkbench({
                 const active = edgeMatches(edge, step.pointers.edgeFocus);
                 const stroke = active
                   ? "#22d3ee"
-                  : takenSet.has(edge.from) && takenSet.has(edge.to)
+                  : orderSet.has(edge.from) && orderSet.has(edge.to)
                   ? "#34d399"
                   : "#334155";
                 const width = active ? 3.1 : 2.2;
@@ -199,13 +204,13 @@ export default function CourseScheduleWorkbench({
                 badges.push("READY");
               }
 
-              if (takenSet.has(node.course)) {
+              if (orderSet.has(node.course)) {
                 toneClass =
                   "border-emerald-400/80 bg-emerald-500/16 text-emerald-50 shadow-[0_0_28px_rgba(52,211,153,0.2)]";
-                badges.unshift("DONE");
+                badges.unshift("ORDER");
               }
 
-              if (blockedSet.has(node.course) && step.done && step.state.result === false) {
+              if (blockedSet.has(node.course) && step.done && step.state.result?.length === 0) {
                 toneClass =
                   "border-rose-400/70 bg-rose-500/16 text-rose-50 shadow-[0_0_28px_rgba(251,113,133,0.2)]";
                 badges.unshift("LOOP");
@@ -244,8 +249,8 @@ export default function CourseScheduleWorkbench({
           queue={step.state.queue}
           currentCourse={step.pointers.currentCourse}
         />
-        <OrderStrip
-          order={step.state.takenOrder}
+        <TopologicalOrderStrip
+          order={step.state.order}
           currentCourse={step.pointers.currentCourse}
         />
       </div>
@@ -265,7 +270,7 @@ export default function CourseScheduleWorkbench({
                   ? "border-yellow-400/45 bg-yellow-500/10 text-yellow-100"
                   : step.state.queue.includes(course)
                   ? "border-violet-400/35 bg-violet-500/10 text-violet-100"
-                  : step.state.takenOrder.includes(course)
+                  : step.state.order.includes(course)
                   ? "border-emerald-400/35 bg-emerald-500/10 text-emerald-100"
                   : "border-slate-800/80 bg-slate-950/70 text-slate-300"
               }`}
