@@ -23,7 +23,7 @@ const topics = [
   { name: "Backtracking", url: "/backtracking", icon: "↩️", accent: "emerald", count: 0 },
   { name: "Divide & Conquer", url: "/divide-conquer", icon: "✂️", accent: "amber", count: 4 },
   { name: "Kadane's Algorithm", url: "/kadane", icon: "📈", accent: "cyan", count: 1 },
-  { name: "Binary Search", url: "/binary-search", icon: "🎯", accent: "rose", count: 2 },
+  { name: "Binary Search", url: "/binary-search", icon: "🎯", accent: "rose", count: 7 },
   { name: "Heap", url: "/heap", icon: "⛰️", accent: "blue", count: 0 },
   { name: "Bit Manipulation", url: "/bit", icon: "💡", accent: "violet", count: 0 },
   { name: "Math", url: "/math", icon: "🧮", accent: "emerald", count: 2 },
