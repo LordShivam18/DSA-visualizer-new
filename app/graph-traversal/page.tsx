@@ -24,6 +24,27 @@ const problems = [
     description:
       "Use graph traversal plus a hash map to create brand-new nodes while preserving every edge in the original graph.",
   },
+  {
+    name: "Evaluate Division",
+    url: "/graph-traversal/evaluate-division",
+    difficulty: "medium",
+    description:
+      "Build a weighted variable graph, then traverse multiplicative paths to answer division queries.",
+  },
+  {
+    name: "Course Schedule",
+    url: "/graph-traversal/course-schedule",
+    difficulty: "medium",
+    description:
+      "Use topological BFS on the prerequisite graph to detect whether a cycle blocks completion.",
+  },
+  {
+    name: "Course Schedule II",
+    url: "/graph-traversal/course-schedule-ii",
+    difficulty: "medium",
+    description:
+      "Construct one valid topological order while indegrees shrink and the ready queue evolves.",
+  },
 ] as const;
 
 export default function GraphTraversalTopicsPage() {
@@ -47,8 +68,9 @@ export default function GraphTraversalTopicsPage() {
           </h1>
           <p className="mx-auto max-w-3xl text-sm leading-7 text-slate-400 md:text-base">
             These visualizers focus on how traversal explores connected
-            structure: cells in a grid, boundary-connected regions, and general
-            graph nodes linked by adjacency lists.
+            structure: cells in a grid, weighted variable graphs, directed
+            prerequisite graphs, and general graph nodes linked by adjacency
+            lists.
           </p>
         </header>
 
