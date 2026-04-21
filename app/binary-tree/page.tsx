@@ -9,6 +9,7 @@ const problems = [
   { name: "Same Tree", url: "/binary-tree/same-tree", difficulty: "easy" as const, description: "Check if two binary trees are identical" },
   { name: "Invert Binary Tree", url: "/binary-tree/invert-tree", difficulty: "easy" as const, description: "Mirror a binary tree" },
   { name: "Symmetric Tree", url: "/binary-tree/symmetric-tree", difficulty: "easy" as const, description: "Check if tree is a mirror of itself" },
+  { name: "Count Complete Tree Nodes", url: "/binary-tree/count-complete-tree-nodes", difficulty: "easy" as const, description: "Count nodes faster than O(n) by detecting perfect subtrees from their boundary heights" },
   { name: "Path Sum", url: "/binary-tree/path-sum", difficulty: "easy" as const, description: "Check whether any root-to-leaf path matches a target sum" },
   { name: "Sum Root to Leaf Numbers", url: "/binary-tree/sum-root-to-leaf-numbers", difficulty: "medium" as const, description: "Build decimal numbers from root-to-leaf paths and add them all" },
   { name: "Binary Search Tree Iterator", url: "/binary-tree/binary-search-tree-iterator", difficulty: "medium" as const, description: "Iterate through BST values lazily with a stack-backed inorder traversal" },
