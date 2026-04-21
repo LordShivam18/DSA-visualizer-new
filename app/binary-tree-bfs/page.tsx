@@ -18,6 +18,18 @@ const problems = [
     difficulty: "easy" as const,
     description: "Accumulate the sum of each BFS level, then divide by that level's node count.",
   },
+  {
+    name: "Binary Tree Level Order Traversal",
+    url: "/binary-tree-bfs/binary-tree-level-order-traversal",
+    difficulty: "medium" as const,
+    description: "Freeze the queue width for each row and append that row to the nested output.",
+  },
+  {
+    name: "Binary Tree Zigzag Level Order Traversal",
+    url: "/binary-tree-bfs/binary-tree-zigzag-level-order-traversal",
+    difficulty: "medium" as const,
+    description: "Keep BFS queue order stable while alternating each level's write direction.",
+  },
 ];
 
 const diffColors = {
