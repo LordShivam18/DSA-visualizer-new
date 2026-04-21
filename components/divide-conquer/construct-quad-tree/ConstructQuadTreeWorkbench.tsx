@@ -33,6 +33,7 @@ export default function ConstructQuadTreeWorkbench({
   step: QuadTreeTraceStep;
 }) {
   const { positions, canvasWidth, canvasHeight } = buildPositionMap(step.state.nodes);
+  const rootNode = step.state.nodes.find((node) => node.id === step.state.rootId);
   const frameNodeIds = new Set(
     step.state.frames.map((frame) => frame.nodeId).filter(Boolean) as string[]
   );
@@ -97,7 +98,9 @@ export default function ConstructQuadTreeWorkbench({
             Root Node
           </p>
           <p className="mt-2 text-lg font-semibold text-violet-200">
-            {step.state.rootId ? "[0, 1]" : "none"}
+            {rootNode
+              ? `[${rootNode.isLeaf ? 1 : 0}, ${rootNode.val ? 1 : 0}]`
+              : "none"}
           </p>
         </div>
       </div>

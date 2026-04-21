@@ -3,56 +3,54 @@
 import { useState } from "react";
 
 import BackButton from "../../../components/ui/BackButton";
-import CodePanel from "../../../components/divide-conquer/construct-quad-tree/CodePanel";
-import ConstructQuadTreeWorkbench from "../../../components/divide-conquer/construct-quad-tree/ConstructQuadTreeWorkbench";
-import Controls from "../../../components/divide-conquer/construct-quad-tree/Controls";
-import MicroscopeView from "../../../components/divide-conquer/construct-quad-tree/MicroscopeView";
-import TracePanel from "../../../components/divide-conquer/construct-quad-tree/TracePanel";
+import CodePanel from "../../../components/divide-conquer/merge-k-sorted-lists/CodePanel";
+import Controls from "../../../components/divide-conquer/merge-k-sorted-lists/Controls";
+import MergeKSortedListsWorkbench from "../../../components/divide-conquer/merge-k-sorted-lists/MergeKSortedListsWorkbench";
+import MicroscopeView from "../../../components/divide-conquer/merge-k-sorted-lists/MicroscopeView";
+import TracePanel from "../../../components/divide-conquer/merge-k-sorted-lists/TracePanel";
 import {
-  formatSerializedQuad,
+  formatList,
   generateTrace,
-  serializeQuadTree,
+  type MergeKTraceStep,
   type Mode,
-  type QuadTreeTraceStep,
-} from "../../../components/divide-conquer/construct-quad-tree/generateTrace";
+} from "../../../components/divide-conquer/merge-k-sorted-lists/generateTrace";
 
 const defaultInput = `[
-  [0, 1],
-  [1, 0]
+  [1, 4, 5],
+  [1, 3, 4],
+  [2, 6]
 ]`;
 
 const presets = [
   {
     name: "Example 1",
     value: `[
-  [0, 1],
-  [1, 0]
+  [1, 4, 5],
+  [1, 3, 4],
+  [2, 6]
 ]`,
-    output: "[[0, 1], [1, 0], [1, 1], [1, 1], [1, 0]]",
+    output: "[1, 1, 2, 3, 4, 4, 5, 6]",
   },
   {
-    name: "Uniform",
-    value: `[
-  [1, 1],
-  [1, 1]
-]`,
-    output: "[[1, 1]]",
+    name: "Empty",
+    value: "[]",
+    output: "[]",
   },
   {
-    name: "4x4 Split",
+    name: "Four lists",
     value: `[
-  [1, 1, 0, 0],
-  [1, 1, 0, 0],
-  [0, 0, 1, 1],
-  [0, 0, 1, 1]
+  [1, 5],
+  [2, 3, 4],
+  [6],
+  [0, 7]
 ]`,
-    output: "[[0, 1], [1, 1], [1, 0], [1, 0], [1, 1]]",
+    output: "[0, 1, 2, 3, 4, 5, 6, 7]",
   },
 ] as const;
 
-export default function ConstructQuadTreePage() {
+export default function MergeKSortedListsPage() {
   const [input, setInput] = useState(defaultInput);
-  const [trace, setTrace] = useState<QuadTreeTraceStep[]>(() =>
+  const [trace, setTrace] = useState<MergeKTraceStep[]>(() =>
     generateTrace(defaultInput)
   );
   const [cursor, setCursor] = useState(0);
@@ -68,8 +66,7 @@ export default function ConstructQuadTreePage() {
     setCursor(0);
   }
 
-  const liveSerialization = serializeQuadTree(step.state.rootId, step.state.nodes);
-  const displayedResult = step.state.result ?? liveSerialization;
+  const displayedResult = step.state.result ?? step.state.mergedList;
 
   return (
     <div className="relative min-h-screen overflow-hidden grid-pattern bg-[#030611] text-slate-50">
@@ -82,16 +79,16 @@ export default function ConstructQuadTreePage() {
 
         <header className="mx-auto flex w-full max-w-4xl flex-col items-center gap-4 text-center">
           <p className="text-xs uppercase tracking-[0.34em] text-slate-500">
-            Divide &amp; Conquer / Region Compression / Quad Tree
+            Divide &amp; Conquer / Linked Lists / Pairwise Merge
           </p>
           <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
             <span className="text-amber-300 [text-shadow:0_0_18px_rgba(251,191,36,0.55)]">
-              Construct Quad Tree
+              Merge k Sorted Lists
             </span>
           </h1>
           <p className="max-w-3xl text-sm leading-7 text-slate-400 md:text-base">
-            Watch the grid compress into a tree by collapsing uniform squares
-            and splitting only the mixed regions that need more detail.
+            Watch k sorted lists merge like a tournament bracket, where each
+            round produces fewer but larger winners until one final list remains.
           </p>
         </header>
 
@@ -118,17 +115,17 @@ export default function ConstructQuadTreePage() {
             </div>
 
             <label className="text-xs font-medium text-slate-400">
-              Power-of-two square grid
+              Array of sorted lists
             </label>
             <textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
               className="input-field mt-2 min-h-[180px] resize-y"
-              placeholder={"Use JSON like [[0,1],[1,0]] or plain rows like 01\n10"}
+              placeholder={"Use JSON like [[1,4,5],[1,3,4],[2,6]] or rows separated by |"}
             />
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-              <span>Accepted formats: JSON arrays or newline 0/1 rows</span>
+              <span>Accepted formats: JSON nested arrays or pipe-separated rows</span>
               <button onClick={() => runWithValue(input)} className="btn-neon btn-neon-cyan">
                 Run Visualization
               </button>
@@ -159,7 +156,7 @@ export default function ConstructQuadTreePage() {
               canNext={canNext}
             />
 
-            <ConstructQuadTreeWorkbench step={step} />
+            <MergeKSortedListsWorkbench step={step} />
             <MicroscopeView step={step} mode={mode} />
           </section>
 
@@ -197,32 +194,32 @@ export default function ConstructQuadTreePage() {
 
             <div className="rounded-xl bg-slate-950/50 p-4 font-mono text-base">
               <span className={step.done ? "text-emerald-300" : "text-amber-200"}>
-                serialized = {formatSerializedQuad(displayedResult)}
+                merged = {formatList(displayedResult)}
               </span>
             </div>
 
             <div className="mt-4 grid gap-3 md:grid-cols-3">
               <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                  Leaves
+                  Comparisons
                 </p>
-                <p className="mt-2 text-2xl font-semibold text-emerald-200">
-                  {step.state.leafCount}
+                <p className="mt-2 text-2xl font-semibold text-cyan-200">
+                  {step.state.comparisons}
                 </p>
               </div>
               <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                  Internal Nodes
+                  Merges Completed
                 </p>
-                <p className="mt-2 text-2xl font-semibold text-violet-200">
-                  {step.state.internalCount}
+                <p className="mt-2 text-2xl font-semibold text-emerald-200">
+                  {step.state.mergesCompleted}
                 </p>
               </div>
               <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-slate-500">
                   Trace Steps
                 </p>
-                <p className="mt-2 text-2xl font-semibold text-cyan-200">
+                <p className="mt-2 text-2xl font-semibold text-violet-200">
                   {trace.length}
                 </p>
               </div>
@@ -230,15 +227,15 @@ export default function ConstructQuadTreePage() {
 
             <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-400">
               <span>
-                Grid requirement:{" "}
+                Complexity:{" "}
                 <span className="font-mono text-slate-200">
-                  n x n, side length 1/2/4/8...
+                  O(n log k) time
                 </span>
               </span>
               <span>
-                Tree shape:{" "}
+                Strategy:{" "}
                 <span className="font-mono text-slate-200">
-                  non-leaf nodes always have four children
+                  balanced pairwise rounds
                 </span>
               </span>
             </div>
