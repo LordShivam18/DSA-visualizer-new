@@ -18,7 +18,7 @@ const topics = [
   { name: "Binary Tree BFS", url: "/binary-tree-bfs", icon: "🌊", accent: "blue", count: 2 },
   { name: "Binary Search Tree", url: "/bst", icon: "🔍", accent: "amber", count: 3 },
   { name: "Graph Traversal", url: "/graph-traversal", icon: "🕸️", accent: "rose", count: 6 },
-  { name: "Graph BFS", url: "/graph-bfs", icon: "🌐", accent: "cyan", count: 0 },
+  { name: "Graph BFS", url: "/graph-bfs", icon: "🌐", accent: "cyan", count: 3 },
   { name: "Trie", url: "/trie", icon: "🔤", accent: "violet", count: 0 },
   { name: "Backtracking", url: "/backtracking", icon: "↩️", accent: "emerald", count: 0 },
   { name: "Divide & Conquer", url: "/divide-conquer", icon: "✂️", accent: "amber", count: 0 },
