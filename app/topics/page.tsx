@@ -21,7 +21,7 @@ const topics = [
   { name: "Graph BFS", url: "/graph-bfs", icon: "🌐", accent: "cyan", count: 3 },
   { name: "Trie", url: "/trie", icon: "🔤", accent: "violet", count: 0 },
   { name: "Backtracking", url: "/backtracking", icon: "↩️", accent: "emerald", count: 0 },
-  { name: "Divide & Conquer", url: "/divide-conquer", icon: "✂️", accent: "amber", count: 0 },
+  { name: "Divide & Conquer", url: "/divide-conquer", icon: "✂️", accent: "amber", count: 4 },
   { name: "Kadane's Algorithm", url: "/kadane", icon: "📈", accent: "cyan", count: 1 },
   { name: "Binary Search", url: "/binary-search", icon: "🎯", accent: "rose", count: 2 },
   { name: "Heap", url: "/heap", icon: "⛰️", accent: "blue", count: 0 },

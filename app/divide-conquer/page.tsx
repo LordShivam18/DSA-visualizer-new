@@ -1,0 +1,121 @@
+import Link from "next/link";
+
+import BackButton from "../../components/ui/BackButton";
+
+const problems = [
+  {
+    name: "Convert Sorted Array to Binary Search Tree",
+    url: "/divide-conquer/convert-sorted-array-to-binary-search-tree",
+    difficulty: "easy",
+    description:
+      "Pick the middle value as the root, then recursively turn the left and right halves into balanced subtrees.",
+  },
+  {
+    name: "Sort List",
+    url: "/divide-conquer/sort-list",
+    difficulty: "medium",
+    description:
+      "Use linked-list merge sort: split the list into halves, sort each half, then weave the two sorted runs back together.",
+  },
+  {
+    name: "Construct Quad Tree",
+    url: "/divide-conquer/construct-quad-tree",
+    difficulty: "medium",
+    description:
+      "Keep cutting the grid into four quadrants until each region becomes uniform enough to collapse into a leaf node.",
+  },
+  {
+    name: "Merge k Sorted Lists",
+    url: "/divide-conquer/merge-k-sorted-lists",
+    difficulty: "hard",
+    description:
+      "Merge the lists in tournament rounds so the number of active lists shrinks by roughly half each pass.",
+  },
+] as const;
+
+const difficultyStyles = {
+  easy: "border-emerald-400/30 bg-emerald-500/10 text-emerald-200",
+  medium: "border-amber-400/30 bg-amber-500/10 text-amber-200",
+  hard: "border-rose-400/30 bg-rose-500/10 text-rose-200",
+} as const;
+
+export default function DivideConquerTopicsPage() {
+  return (
+    <div className="relative min-h-screen overflow-hidden grid-pattern bg-[#030611] text-slate-50">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(34,211,238,0.08),transparent_26%),linear-gradient(180deg,rgba(3,6,17,0.94),rgba(3,6,17,1))]" />
+
+      <div className="relative mx-auto flex max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6">
+        <div className="w-full">
+          <BackButton href="/topics" label="Topics" />
+        </div>
+
+        <header className="space-y-4 text-center">
+          <p className="text-xs uppercase tracking-[0.34em] text-slate-500">
+            Divide &amp; Conquer / Balanced Splits / Recursive Assembly
+          </p>
+          <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
+            <span className="text-amber-300 [text-shadow:0_0_18px_rgba(251,191,36,0.55)]">
+              Divide &amp; Conquer
+            </span>
+          </h1>
+          <p className="mx-auto max-w-3xl text-sm leading-7 text-slate-400 md:text-base">
+            These visualizers focus on the moment a problem becomes easier after
+            a split: choose a middle element, break a list into halves, divide a
+            grid into quadrants, or merge multiple sorted streams in rounds.
+          </p>
+        </header>
+
+        <section className="glass-card overflow-hidden p-6">
+          <div className="grid gap-4">
+            {problems.map((problem) => (
+              <Link
+                key={problem.url}
+                href={problem.url}
+                className="group rounded-[1.3rem] border border-slate-800/80 bg-slate-950/55 p-5 transition-all duration-300 hover:border-amber-300/35 hover:bg-slate-950/70 hover:shadow-[0_0_28px_rgba(251,191,36,0.12)]"
+              >
+                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <h2 className="text-2xl font-semibold text-slate-100 transition-colors group-hover:text-amber-100">
+                        {problem.name}
+                      </h2>
+                      <span
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] ${
+                          difficultyStyles[problem.difficulty]
+                        }`}
+                      >
+                        {problem.difficulty}
+                      </span>
+                    </div>
+                    <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+                      {problem.description}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-sm text-slate-500 transition-colors group-hover:text-amber-200">
+                    <span>Open visualizer</span>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 18 18"
+                      fill="none"
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    >
+                      <path
+                        d="M6.75 4.5L11.25 9L6.75 13.5"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
