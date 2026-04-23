@@ -24,7 +24,7 @@ const topics = [
   { name: "Divide & Conquer", url: "/divide-conquer", icon: "✂️", accent: "amber", count: 4 },
   { name: "Kadane's Algorithm", url: "/kadane", icon: "📈", accent: "cyan", count: 1 },
   { name: "Binary Search", url: "/binary-search", icon: "🎯", accent: "rose", count: 7 },
-  { name: "Heap", url: "/heap", icon: "⛰️", accent: "blue", count: 0 },
+  { name: "Heap", url: "/heap", icon: "⛰️", accent: "blue", count: 4 },
   { name: "Bit Manipulation", url: "/bit", icon: "💡", accent: "violet", count: 0 },
   { name: "Math", url: "/math", icon: "🧮", accent: "emerald", count: 2 },
   { name: "1D DP", url: "/dp-1d", icon: "📐", accent: "amber", count: 0 },
