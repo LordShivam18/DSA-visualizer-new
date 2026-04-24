@@ -10,7 +10,7 @@ const topics = [
   { name: "Array / String", url: "/array-string", icon: "ARR", accent: "cyan", count: 16 },
   { name: "Two Pointers", url: "/two-pointers", icon: "2P", accent: "violet", count: 5 },
   { name: "Sliding Window", url: "/sliding-window", icon: "WIN", accent: "emerald", count: 4 },
-  { name: "Matrix", url: "/matrix", icon: "MAT", accent: "amber", count: 0 },
+  { name: "Matrix", url: "/matrix", icon: "MAT", accent: "amber", count: 5 },
   { name: "Hashmap", url: "/hashmap", icon: "MAP", accent: "blue", count: 9 },
   { name: "Intervals", url: "/intervals", icon: "INT", accent: "rose", count: 0 },
   { name: "Stack", url: "/stack", icon: "STK", accent: "cyan", count: 1 },
