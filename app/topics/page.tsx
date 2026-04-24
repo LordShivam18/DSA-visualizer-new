@@ -7,7 +7,7 @@ import BackButton from "@/components/ui/BackButton";
 import ParticleBackground from "@/components/ui/ParticleBackground";
 
 const topics = [
-  { name: "Array / String", url: "/array-string", icon: "ARR", accent: "cyan", count: 12 },
+  { name: "Array / String", url: "/array-string", icon: "ARR", accent: "cyan", count: 16 },
   { name: "Two Pointers", url: "/two-pointers", icon: "2P", accent: "violet", count: 5 },
   { name: "Sliding Window", url: "/sliding-window", icon: "WIN", accent: "emerald", count: 4 },
   { name: "Matrix", url: "/matrix", icon: "MAT", accent: "amber", count: 0 },

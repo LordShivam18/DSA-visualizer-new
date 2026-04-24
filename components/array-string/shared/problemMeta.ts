@@ -96,6 +96,38 @@ export const arrayStringProblems: ArrayStringProblemMeta[] = [
     taxonomy: "Sorting / threshold scan / monotonic stopping point",
   },
   {
+    slug: "product-of-array-except-self",
+    title: "Product of Array Except Self",
+    difficulty: "Medium",
+    description:
+      "Build the answer in two sweeps by storing left products first and then folding right products back in.",
+    taxonomy: "Prefix and suffix products / two passes / no division",
+  },
+  {
+    slug: "gas-station",
+    title: "Gas Station",
+    difficulty: "Medium",
+    description:
+      "Track total net gas and reset the start candidate whenever the running tank goes negative.",
+    taxonomy: "Greedy proof / running tank / unique feasible start",
+  },
+  {
+    slug: "candy",
+    title: "Candy",
+    difficulty: "Hard",
+    description:
+      "Distribute the minimum candies with one left-to-right pass and one right-to-left correction pass.",
+    taxonomy: "Greedy constraints / two passes / local rating rules",
+  },
+  {
+    slug: "trapping-rain-water",
+    title: "Trapping Rain Water",
+    difficulty: "Hard",
+    description:
+      "Use two inward-moving pointers and boundary maxima to count trapped water one bar at a time.",
+    taxonomy: "Two pointers / boundary maxima / water accumulation",
+  },
+  {
     slug: "insert-delete-getrandom-o1",
     title: "Insert Delete GetRandom O(1)",
     difficulty: "Medium",
