@@ -28,8 +28,8 @@ const topics = [
   { name: "Heap", url: "/heap", icon: "HEAP", accent: "blue", count: 4 },
   { name: "Bit Manipulation", url: "/bit", icon: "BIT", accent: "violet", count: 0 },
   { name: "Math", url: "/math", icon: "MATH", accent: "emerald", count: 2 },
-  { name: "1D DP", url: "/dp-1d", icon: "DP1", accent: "amber", count: 0 },
-  { name: "Multidimensional DP", url: "/dp-2d", icon: "DP2", accent: "rose", count: 0 },
+  { name: "1D DP", url: "/dp-1d", icon: "DP1", accent: "amber", count: 5 },
+  { name: "Multidimensional DP", url: "/dp-2d", icon: "DP2", accent: "rose", count: 9 },
 ] as const;
 
 const accentColors: Record<string, { text: string; border: string; glow: string; bg: string }> = {

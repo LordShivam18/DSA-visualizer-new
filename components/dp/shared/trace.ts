@@ -14,10 +14,12 @@ export function createTraceRecorder() {
       highlights?: VisualHighlights;
     }
   ) {
+    const { highlights, ...rest } = step;
+
     trace.push({
       step: trace.length,
-      highlights: step.highlights ?? {},
-      ...step,
+      ...rest,
+      highlights: highlights ?? {},
     });
   }
 
