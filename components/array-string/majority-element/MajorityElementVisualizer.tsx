@@ -37,7 +37,7 @@ export default function MajorityElementVisualizer({
                   tags.push("cand");
                 }
 
-                let tone: "cyan" | "purple" | "red" | "slate" = "slate";
+                let tone: "cyan" | "green" | "purple" | "red" | "slate" = "slate";
                 if (step.state.candidate === value) {
                   tone = "purple";
                 }

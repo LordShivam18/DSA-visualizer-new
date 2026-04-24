@@ -28,7 +28,7 @@ export function generateTrace(rawCitations: string) {
   const sorted = [...original].sort((left, right) => right - left);
   const trace: HIndexTraceStep[] = [];
 
-  let index = 0;
+  let index: number | null = 0;
   let currentCitation: number | null = null;
   let requirement: number | null = null;
   let h = 0;
@@ -57,12 +57,20 @@ export function generateTrace(rawCitations: string) {
       hints,
       metrics: [
         { label: "Index", value: pointerValue(index), tone: "cyan" },
-        { label: "Requirement", value: requirement ?? "n/a", tone: "yellow" },
+        {
+          label: "Requirement",
+          value: requirement === null ? "n/a" : String(requirement),
+          tone: "yellow",
+        },
         { label: "Current h", value: h, tone: "green" },
       ],
       pointerChips: [
         { label: "index", value: pointerValue(index), tone: "cyan" },
-        { label: "requirement", value: requirement ?? "n/a", tone: "yellow" },
+        {
+          label: "requirement",
+          value: requirement === null ? "n/a" : String(requirement),
+          tone: "yellow",
+        },
       ],
       done,
       state: {
@@ -94,7 +102,7 @@ export function generateTrace(rawCitations: string) {
     ]
   );
 
-  while (index < sorted.length) {
+  while (index !== null && index < sorted.length) {
     currentCitation = sorted[index];
     requirement = index + 1;
 

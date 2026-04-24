@@ -50,9 +50,9 @@ export function generateTrace(
   const originalNums1 = [...working];
   const trace: MergeSortedArrayTraceStep[] = [];
 
-  let i = m - 1;
-  let j = n - 1;
-  let write = m + n - 1;
+  let i: number | null = m - 1;
+  let j: number | null = n - 1;
+  let write: number | null = m + n - 1;
   let source: "nums1" | "nums2" | null = null;
   let comparison = "Pointers are ready to compare the largest remaining values.";
   let result: number[] | null = null;
@@ -82,8 +82,16 @@ export function generateTrace(
       hints,
       metrics: [
         { label: "Placed Slots", value: placedSlots, tone: "green" },
-        { label: "nums1 Values Left", value: Math.max(i + 1, 0), tone: "purple" },
-        { label: "nums2 Values Left", value: Math.max(j + 1, 0), tone: "cyan" },
+        {
+          label: "nums1 Values Left",
+          value: i === null ? 0 : Math.max(i + 1, 0),
+          tone: "purple",
+        },
+        {
+          label: "nums2 Values Left",
+          value: j === null ? 0 : Math.max(j + 1, 0),
+          tone: "cyan",
+        },
       ],
       pointerChips: [
         { label: "i", value: pointerValue(i), tone: "purple" },
@@ -129,9 +137,9 @@ export function generateTrace(
     ]
   );
 
-  while (j >= 0) {
+  while (j !== null && j >= 0 && write !== null) {
     source = null;
-    if (i >= 0) {
+    if (i !== null && i >= 0) {
       comparison = `Compare nums1[${i}] = ${working[i]} with nums2[${j}] = ${nums2[j]}.`;
       pushStep(
         comparison,
@@ -165,7 +173,7 @@ export function generateTrace(
       );
     }
 
-    if (i >= 0 && working[i] > nums2[j]) {
+    if (i !== null && i >= 0 && working[i] > nums2[j]) {
       source = "nums1";
       working[write] = working[i];
       comparison = `nums1[${i}] = ${working[write]} is larger, so it takes final slot ${write}.`;

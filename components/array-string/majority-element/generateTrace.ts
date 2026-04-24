@@ -26,7 +26,7 @@ export function generateTrace(rawNums: string) {
   const nums = parseNumberList(rawNums);
   const trace: MajorityElementTraceStep[] = [];
 
-  let index = 0;
+  let index: number | null = 0;
   let currentValue: number | null = null;
   let candidate: number | null = null;
   let count = 0;
@@ -55,12 +55,20 @@ export function generateTrace(rawNums: string) {
       hints,
       metrics: [
         { label: "Index", value: pointerValue(index), tone: "cyan" },
-        { label: "Candidate", value: candidate ?? "none", tone: "purple" },
+        {
+          label: "Candidate",
+          value: candidate === null ? "none" : String(candidate),
+          tone: "purple",
+        },
         { label: "Vote Count", value: count, tone: "green" },
       ],
       pointerChips: [
         { label: "index", value: pointerValue(index), tone: "cyan" },
-        { label: "candidate", value: candidate ?? "none", tone: "purple" },
+        {
+          label: "candidate",
+          value: candidate === null ? "none" : String(candidate),
+          tone: "purple",
+        },
       ],
       done,
       state: {
@@ -91,7 +99,7 @@ export function generateTrace(rawNums: string) {
     ]
   );
 
-  while (index < nums.length) {
+  while (index !== null && index < nums.length) {
     currentValue = nums[index];
 
     if (count === 0) {

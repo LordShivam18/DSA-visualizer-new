@@ -32,7 +32,7 @@ export function generateTrace(rawPrices: string) {
   const prices = parseNumberList(rawPrices);
   const trace: StockTraceStep[] = [];
 
-  let day = 0;
+  let day: number | null = 0;
   let currentPrice: number | null = null;
   let minPrice: number | null = null;
   let minIndex: number | null = null;
@@ -108,7 +108,7 @@ export function generateTrace(rawPrices: string) {
     ]
   );
 
-  while (day < prices.length) {
+  while (day !== null && day < prices.length) {
     currentPrice = prices[day];
 
     pushStep(
@@ -148,7 +148,7 @@ export function generateTrace(rawPrices: string) {
     } else {
       currentProfit = currentPrice - minPrice;
 
-      if (currentProfit > maxProfit) {
+      if (currentProfit > maxProfit && day !== null) {
         maxProfit = currentProfit;
         bestBuy = minIndex;
         bestSell = day;

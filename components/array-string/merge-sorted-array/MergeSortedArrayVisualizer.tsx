@@ -26,7 +26,7 @@ export default function MergeSortedArrayVisualizer({
           tags.push("done");
         }
 
-        let tone: "cyan" | "purple" | "yellow" | "green" | "slate" = "slate";
+        let tone: "cyan" | "purple" | "yellow" | "green" | "red" | "slate" = "slate";
         if (step.pointers.write !== null && index > step.pointers.write) {
           tone = "green";
         }
@@ -54,7 +54,7 @@ export default function MergeSortedArrayVisualizer({
       description: "Cyan marks the current nums2 tail under comparison.",
       cells: step.state.nums2.map((value, index) => ({
         value,
-        tone: step.pointers.j === index ? "cyan" : "slate",
+        tone: step.pointers.j === index ? ("cyan" as const) : ("slate" as const),
         tags: step.pointers.j === index ? ["j"] : [],
       })),
       emptyLabel: "nums2 is empty.",

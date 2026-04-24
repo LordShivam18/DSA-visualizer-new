@@ -30,8 +30,8 @@ export function generateTrace(rawNums: string, rawTarget: string) {
   const target = parseInteger(rawTarget, 0);
   const trace: RemoveElementTraceStep[] = [];
 
-  let read = 0;
-  let write = 0;
+  let read: number | null = 0;
+  let write: number | null = 0;
   let currentValue: number | null = null;
   let result: number[] | null = null;
 
@@ -59,7 +59,7 @@ export function generateTrace(rawNums: string, rawTarget: string) {
       metrics: [
         { label: "Read Pointer", value: pointerValue(read), tone: "cyan" },
         { label: "Write Pointer", value: pointerValue(write), tone: "purple" },
-        { label: "Kept Length", value: write, tone: "green" },
+        { label: "Kept Length", value: write ?? 0, tone: "green" },
       ],
       pointerChips: [
         { label: "read", value: pointerValue(read), tone: "cyan" },
@@ -71,7 +71,7 @@ export function generateTrace(rawNums: string, rawTarget: string) {
         original: [...values],
         working: [...working],
         target,
-        keptLength: write,
+        keptLength: write ?? 0,
         currentValue,
         result: result ? [...result] : null,
       },
@@ -97,7 +97,7 @@ export function generateTrace(rawNums: string, rawTarget: string) {
     ]
   );
 
-  while (read < working.length) {
+  while (read !== null && write !== null && read < working.length) {
     currentValue = working[read];
     pushStep(
       `Inspect nums[${read}] = ${currentValue}.`,

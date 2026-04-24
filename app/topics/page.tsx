@@ -2,34 +2,35 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import ParticleBackground from "@/components/ui/ParticleBackground";
+
 import BackButton from "@/components/ui/BackButton";
+import ParticleBackground from "@/components/ui/ParticleBackground";
 
 const topics = [
-  { name: "Array / String", url: "/arrays", icon: "📊", accent: "cyan", count: 0 },
-  { name: "Two Pointers", url: "/two-pointers", icon: "👆", accent: "violet", count: 5 },
-  { name: "Sliding Window", url: "/sliding-window", icon: "🪟", accent: "emerald", count: 4 },
-  { name: "Matrix", url: "/matrix", icon: "🔢", accent: "amber", count: 0 },
-  { name: "Hashmap", url: "/hashmap", icon: "🗺️", accent: "blue", count: 9 },
-  { name: "Intervals", url: "/intervals", icon: "📏", accent: "rose", count: 0 },
-  { name: "Stack", url: "/stack", icon: "📚", accent: "cyan", count: 1 },
-  { name: "Linked List", url: "/linked-list", icon: "🔗", accent: "violet", count: 9 },
-  { name: "Binary Tree (General)", url: "/binary-tree", icon: "🌳", accent: "emerald", count: 11 },
-  { name: "Binary Tree BFS", url: "/binary-tree-bfs", icon: "🌊", accent: "blue", count: 2 },
-  { name: "Binary Search Tree", url: "/bst", icon: "🔍", accent: "amber", count: 3 },
-  { name: "Graph Traversal", url: "/graph-traversal", icon: "🕸️", accent: "rose", count: 6 },
-  { name: "Graph BFS", url: "/graph-bfs", icon: "🌐", accent: "cyan", count: 3 },
-  { name: "Trie", url: "/trie", icon: "🔤", accent: "violet", count: 0 },
-  { name: "Backtracking", url: "/backtracking", icon: "↩️", accent: "emerald", count: 7 },
-  { name: "Divide & Conquer", url: "/divide-conquer", icon: "✂️", accent: "amber", count: 4 },
-  { name: "Kadane's Algorithm", url: "/kadane", icon: "📈", accent: "cyan", count: 1 },
-  { name: "Binary Search", url: "/binary-search", icon: "🎯", accent: "rose", count: 7 },
-  { name: "Heap", url: "/heap", icon: "⛰️", accent: "blue", count: 4 },
-  { name: "Bit Manipulation", url: "/bit", icon: "💡", accent: "violet", count: 0 },
-  { name: "Math", url: "/math", icon: "🧮", accent: "emerald", count: 2 },
-  { name: "1D DP", url: "/dp-1d", icon: "📐", accent: "amber", count: 0 },
-  { name: "Multidimensional DP", url: "/dp-2d", icon: "🧊", accent: "rose", count: 0 },
-];
+  { name: "Array / String", url: "/array-string", icon: "ARR", accent: "cyan", count: 12 },
+  { name: "Two Pointers", url: "/two-pointers", icon: "2P", accent: "violet", count: 5 },
+  { name: "Sliding Window", url: "/sliding-window", icon: "WIN", accent: "emerald", count: 4 },
+  { name: "Matrix", url: "/matrix", icon: "MAT", accent: "amber", count: 0 },
+  { name: "Hashmap", url: "/hashmap", icon: "MAP", accent: "blue", count: 9 },
+  { name: "Intervals", url: "/intervals", icon: "INT", accent: "rose", count: 0 },
+  { name: "Stack", url: "/stack", icon: "STK", accent: "cyan", count: 1 },
+  { name: "Linked List", url: "/linked-list", icon: "LL", accent: "violet", count: 9 },
+  { name: "Binary Tree (General)", url: "/binary-tree", icon: "TREE", accent: "emerald", count: 11 },
+  { name: "Binary Tree BFS", url: "/binary-tree-bfs", icon: "BFS", accent: "blue", count: 2 },
+  { name: "Binary Search Tree", url: "/bst", icon: "BST", accent: "amber", count: 3 },
+  { name: "Graph Traversal", url: "/graph-traversal", icon: "GRT", accent: "rose", count: 6 },
+  { name: "Graph BFS", url: "/graph-bfs", icon: "GBFS", accent: "cyan", count: 3 },
+  { name: "Trie", url: "/trie", icon: "TRIE", accent: "violet", count: 0 },
+  { name: "Backtracking", url: "/backtracking", icon: "BT", accent: "emerald", count: 7 },
+  { name: "Divide & Conquer", url: "/divide-conquer", icon: "D&C", accent: "amber", count: 4 },
+  { name: "Kadane's Algorithm", url: "/kadane", icon: "KAD", accent: "cyan", count: 1 },
+  { name: "Binary Search", url: "/binary-search", icon: "BS", accent: "rose", count: 7 },
+  { name: "Heap", url: "/heap", icon: "HEAP", accent: "blue", count: 4 },
+  { name: "Bit Manipulation", url: "/bit", icon: "BIT", accent: "violet", count: 0 },
+  { name: "Math", url: "/math", icon: "MATH", accent: "emerald", count: 2 },
+  { name: "1D DP", url: "/dp-1d", icon: "DP1", accent: "amber", count: 0 },
+  { name: "Multidimensional DP", url: "/dp-2d", icon: "DP2", accent: "rose", count: 0 },
+] as const;
 
 const accentColors: Record<string, { text: string; border: string; glow: string; bg: string }> = {
   cyan: {
@@ -76,7 +77,6 @@ export default function Topics() {
       <ParticleBackground density={35} speed={0.25} color="167, 139, 250" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 py-12">
-        {/* Back + Header */}
         <div className="mb-4">
           <BackButton href="/" label="Home" />
         </div>
@@ -95,7 +95,6 @@ export default function Topics() {
           </p>
         </motion.div>
 
-        {/* Topic grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {topics.map((topic, i) => {
             const colors = accentColors[topic.accent] || accentColors.cyan;
@@ -109,16 +108,16 @@ export default function Topics() {
                   whileHover={{ y: -4, scale: 1.02 }}
                   className={`group glass-card p-5 flex items-center gap-4 border ${colors.border} ${colors.glow} transition-all duration-300 cursor-pointer`}
                 >
-                  {/* Icon */}
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${colors.bg}`}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center text-xs font-bold tracking-[0.18em] ${colors.bg}`}
                   >
                     {topic.icon}
                   </div>
 
-                  {/* Text */}
                   <div className="flex-1 min-w-0">
-                    <h3 className={`font-semibold text-sm ${colors.text} group-hover:brightness-125 transition-all truncate`}>
+                    <h3
+                      className={`font-semibold text-sm ${colors.text} group-hover:brightness-125 transition-all truncate`}
+                    >
                       {topic.name}
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
@@ -128,7 +127,6 @@ export default function Topics() {
                     </p>
                   </div>
 
-                  {/* Arrow */}
                   <svg
                     width="16"
                     height="16"

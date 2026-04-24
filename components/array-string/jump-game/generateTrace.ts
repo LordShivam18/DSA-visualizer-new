@@ -26,7 +26,7 @@ export function generateTrace(rawNums: string) {
   const nums = parseNumberList(rawNums);
   const trace: JumpGameTraceStep[] = [];
 
-  let index = 0;
+  let index: number | null = 0;
   let maxReach = 0;
   let reachFromCurrent: number | null = null;
   let result: boolean | null = null;
@@ -90,7 +90,7 @@ export function generateTrace(rawNums: string) {
     ]
   );
 
-  while (index < nums.length) {
+  while (index !== null && index < nums.length) {
     if (index > maxReach) {
       result = false;
       pushStep(
