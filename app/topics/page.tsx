@@ -10,7 +10,7 @@ const topics = [
   { name: "Two Pointers", url: "/two-pointers", icon: "👆", accent: "violet", count: 5 },
   { name: "Sliding Window", url: "/sliding-window", icon: "🪟", accent: "emerald", count: 0 },
   { name: "Matrix", url: "/matrix", icon: "🔢", accent: "amber", count: 0 },
-  { name: "Hashmap", url: "/hashmap", icon: "🗺️", accent: "blue", count: 0 },
+  { name: "Hashmap", url: "/hashmap", icon: "🗺️", accent: "blue", count: 9 },
   { name: "Intervals", url: "/intervals", icon: "📏", accent: "rose", count: 0 },
   { name: "Stack", url: "/stack", icon: "📚", accent: "cyan", count: 1 },
   { name: "Linked List", url: "/linked-list", icon: "🔗", accent: "violet", count: 9 },
