@@ -8,7 +8,7 @@ import BackButton from "@/components/ui/BackButton";
 const topics = [
   { name: "Array / String", url: "/arrays", icon: "📊", accent: "cyan", count: 0 },
   { name: "Two Pointers", url: "/two-pointers", icon: "👆", accent: "violet", count: 5 },
-  { name: "Sliding Window", url: "/sliding-window", icon: "🪟", accent: "emerald", count: 0 },
+  { name: "Sliding Window", url: "/sliding-window", icon: "🪟", accent: "emerald", count: 4 },
   { name: "Matrix", url: "/matrix", icon: "🔢", accent: "amber", count: 0 },
   { name: "Hashmap", url: "/hashmap", icon: "🗺️", accent: "blue", count: 9 },
   { name: "Intervals", url: "/intervals", icon: "📏", accent: "rose", count: 0 },
