@@ -8,6 +8,70 @@ export type ArrayStringProblemMeta = {
 
 export const arrayStringProblems: ArrayStringProblemMeta[] = [
   {
+    slug: "roman-to-integer",
+    title: "Roman to Integer",
+    difficulty: "Easy",
+    description:
+      "Compare each Roman glyph to its lookahead value so subtractive pairs and additive symbols become visually obvious.",
+    taxonomy: "String scan / lookahead comparison / subtractive notation",
+  },
+  {
+    slug: "integer-to-roman",
+    title: "Integer to Roman",
+    difficulty: "Medium",
+    description:
+      "Greedily peel off the largest Roman denomination, watch the remainder shrink, and build the numeral fragment by fragment.",
+    taxonomy: "Greedy decomposition / denomination board / numeral synthesis",
+  },
+  {
+    slug: "length-of-last-word",
+    title: "Length of Last Word",
+    difficulty: "Easy",
+    description:
+      "Sweep from the end, skip trailing spaces, and count only the final uninterrupted word segment.",
+    taxonomy: "Reverse scan / whitespace trim / tail segment length",
+  },
+  {
+    slug: "longest-common-prefix",
+    title: "Longest Common Prefix",
+    difficulty: "Easy",
+    description:
+      "Scan one character column at a time and stop the instant any word disagrees or runs out.",
+    taxonomy: "Column comparison / string array / early stopping",
+  },
+  {
+    slug: "reverse-words-in-a-string",
+    title: "Reverse Words in a String",
+    difficulty: "Medium",
+    description:
+      "Normalize the sentence into clean words, then rebuild the output from the last word back to the first.",
+    taxonomy: "Token extraction / reverse assembly / whitespace normalization",
+  },
+  {
+    slug: "zigzag-conversion",
+    title: "Zigzag Conversion",
+    difficulty: "Medium",
+    description:
+      "Drop characters through a bouncing row cursor, then read the zigzag rows back in order.",
+    taxonomy: "Simulation / row routing / zigzag matrix",
+  },
+  {
+    slug: "find-the-index-of-the-first-occurrence-in-a-string",
+    title: "Find the Index of the First Occurrence in a String",
+    difficulty: "Easy",
+    description:
+      "Slide the needle across the haystack, compare character-by-character, and stop on the first full match.",
+    taxonomy: "Substring scan / sliding alignment / first match",
+  },
+  {
+    slug: "text-justification",
+    title: "Text Justification",
+    difficulty: "Hard",
+    description:
+      "Greedily pack each line, distribute spaces across the gaps, and left-justify the final line with visible width accounting.",
+    taxonomy: "Greedy line packing / gap distribution / formatting rules",
+  },
+  {
     slug: "merge-sorted-array",
     title: "Merge Sorted Array",
     difficulty: "Easy",
