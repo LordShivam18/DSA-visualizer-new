@@ -1,23 +1,21 @@
 "use client";
 
-import LessonShell from "@/components/academy/LessonShell";
+import TraceLessonPage from "@/components/academy/TraceLessonPage";
+
 import CodePanel from "../../../components/array-string/jump-game/CodePanel";
-import Controls from "../../../components/array-string/jump-game/Controls";
 import JumpGameVisualizer from "../../../components/array-string/jump-game/JumpGameVisualizer";
 import MicroscopeView from "../../../components/array-string/jump-game/MicroscopeView";
 import TracePanel from "../../../components/array-string/jump-game/TracePanel";
 import {
   generateTrace,
 } from "../../../components/array-string/jump-game/generateTrace";
-import ProblemShell from "../../../components/array-string/shared/ProblemShell";
-import type { PresetConfig } from "../../../components/array-string/shared/types";
 import { lightPanelClassName } from "../../../components/array-string/shared/ui";
 
 const defaultInputs = {
   nums: "[2,3,1,1,4]",
 };
 
-const presets: PresetConfig[] = [
+const presets = [
   { name: "Example 1", summary: "=> true", values: defaultInputs },
   {
     name: "Example 2",
@@ -37,22 +35,21 @@ function buildTrace(values: typeof defaultInputs) {
 
 export default function JumpGamePage() {
   return (
-    <LessonShell
+    <TraceLessonPage
+      variant="light"
+      categoryHref="/array-string"
+      categoryLabel="Array / String"
+      taxonomy="Array / String / Greedy Frontier"
+      title="Jump Game"
+      difficulty="Medium"
+      description="Keep a single farthest-reachable frontier and decide whether the last index ever becomes reachable."
+      complexity="O(n) time / O(1) extra space"
       defaultInputs={defaultInputs}
+      inputFields={[
+        { id: "nums", label: "nums", placeholder: "[2,3,1,1,4]" },
+      ]}
+      presets={presets}
       buildTrace={buildTrace}
-      renderControls={({ teachingMode, setTeachingMode, timeline, trace }) => (
-        <Controls
-          stepIndex={timeline.activeIndex}
-          totalSteps={trace.length}
-          mode={teachingMode}
-          onModeChange={setTeachingMode}
-          onPrev={() => timeline.prev()}
-          onNext={() => timeline.next()}
-          onReset={() => timeline.reset()}
-          canPrev={timeline.canPrev}
-          canNext={timeline.canNext}
-        />
-      )}
       renderVisualization={({ step }) => <JumpGameVisualizer step={step} />}
       renderMicroscope={({ step, teachingMode }) => (
         <MicroscopeView step={step} mode={teachingMode} />
@@ -86,47 +83,6 @@ export default function JumpGamePage() {
             canJump = {String(step.state.result ?? (step.state.maxReach >= 0))}
           </div>
         </div>
-      )}
-      renderContainer={({
-        inputs,
-        setInputs,
-        run,
-        step,
-        teachingMode,
-        controls,
-        visualization,
-        microscope,
-        tracePanel,
-        codePanel,
-        output,
-      }) => (
-        <ProblemShell
-          categoryHref="/array-string"
-          categoryLabel="Array / String"
-          taxonomy="Array / String / Greedy Frontier"
-          title="Jump Game"
-          difficulty="Medium"
-          description="Keep a single farthest-reachable frontier and decide whether the last index ever becomes reachable."
-          complexity="O(n) time / O(1) extra space"
-          inputFields={[
-            { key: "nums", label: "nums", placeholder: "[2,3,1,1,4]" },
-          ]}
-          inputValues={inputs}
-          onInputChange={(key, value) =>
-            setInputs((current) => ({ ...current, [key]: value }))
-          }
-          onRun={() => run()}
-          presets={presets}
-          onPreset={(preset) => run(preset.values as typeof defaultInputs)}
-          step={step}
-          mode={teachingMode}
-          controls={controls}
-          visualization={visualization}
-          microscope={microscope}
-          tracePanel={tracePanel}
-          codePanel={codePanel}
-          output={output}
-        />
       )}
     />
   );
