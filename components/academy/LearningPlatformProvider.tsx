@@ -7,7 +7,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
-  useState,
+  useRef,
 } from "react";
 
 import { topicCatalog } from "@/lib/academy/catalog";
@@ -306,7 +306,7 @@ export function LearningPlatformProvider({
   const [state, dispatch] = useReducer(reducer, undefined, () =>
     seedMissingTopics(createDefaultLearningState())
   );
-  const [isHydrated, setIsHydrated] = useState(false);
+  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
     const stored = loadLearningState();
@@ -318,21 +318,21 @@ export function LearningPlatformProvider({
       });
     }
 
-    setIsHydrated(true);
+    hasLoadedRef.current = true;
   }, []);
 
   useEffect(() => {
-    if (!isHydrated) {
+    if (!hasLoadedRef.current) {
       return;
     }
 
     saveLearningState(state);
-  }, [isHydrated, state]);
+  }, [state]);
 
   const value = useMemo<LearningPlatformContextValue>(
     () => ({
       state,
-      isHydrated,
+      isHydrated: true,
       setActiveMode: (problemId, mode) =>
         dispatch({ type: "set-mode", payload: { problemId, mode } }),
       recordSession: (session) =>
@@ -340,7 +340,7 @@ export function LearningPlatformProvider({
           dispatch({ type: "record-session", payload: session });
         }),
     }),
-    [isHydrated, state]
+    [state]
   );
 
   return (

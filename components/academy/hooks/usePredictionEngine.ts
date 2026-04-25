@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import type {
   PredictionCheckpoint,
@@ -17,6 +17,20 @@ type AnswerRecord = {
   correct: boolean;
 };
 
+type PredictionState = {
+  resetKey: string;
+  answers: Record<string, AnswerRecord>;
+  feedback: PredictionFeedback | null;
+};
+
+function createPredictionState(resetKey: string): PredictionState {
+  return {
+    resetKey,
+    answers: {},
+    feedback: null,
+  };
+}
+
 export function usePredictionEngine<Step extends PredictableStep>({
   trace,
   activeIndex,
@@ -28,13 +42,12 @@ export function usePredictionEngine<Step extends PredictableStep>({
   enabled: boolean;
   resetKey: string;
 }) {
-  const [answers, setAnswers] = useState<Record<string, AnswerRecord>>({});
-  const [feedback, setFeedback] = useState<PredictionFeedback | null>(null);
-
-  useEffect(() => {
-    setAnswers({});
-    setFeedback(null);
-  }, [resetKey]);
+  const [state, setState] = useState<PredictionState>(() =>
+    createPredictionState(resetKey)
+  );
+  const currentState =
+    state.resetKey === resetKey ? state : createPredictionState(resetKey);
+  const { answers, feedback } = currentState;
 
   const upcomingStep = enabled ? trace[activeIndex + 1] ?? null : null;
   const checkpoint =
@@ -81,13 +94,22 @@ export function usePredictionEngine<Step extends PredictableStep>({
     };
 
     setAnswers((current) => ({
-      ...current,
-      [checkpoint.id]: {
-        choiceId: selectedChoice.id,
-        correct: selectedChoice.isCorrect,
-      },
-    }));
-    setFeedback(nextFeedback);
+    setState((current) => {
+      const base =
+        current.resetKey === resetKey ? current : createPredictionState(resetKey);
+
+      return {
+        ...base,
+        answers: {
+          ...base.answers,
+          [checkpoint.id]: {
+            choiceId: selectedChoice.id,
+            correct: selectedChoice.isCorrect,
+          },
+        },
+        feedback: nextFeedback,
+      };
+    });
 
     return nextFeedback;
   }
@@ -100,9 +122,6 @@ export function usePredictionEngine<Step extends PredictableStep>({
     accuracy: askedCount === 0 ? 0 : Math.round((correctCount / askedCount) * 100),
     lockedStepIndices,
     submitPrediction,
-    resetPrediction: () => {
-      setAnswers({});
-      setFeedback(null);
-    },
+    resetPrediction: () => setState(createPredictionState(resetKey)),
   };
 }
