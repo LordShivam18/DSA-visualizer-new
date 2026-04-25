@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-
-import { useTimeline } from "@/components/core/animation/useTimeline";
+import LessonShell from "@/components/academy/LessonShell";
 
 import CodePanel from "./CodePanel";
 import Controls from "./Controls";
@@ -37,46 +35,19 @@ export default function DPProblemPage<TInputs extends Record<string, string>>({
     <CodePanel step={step} lines={[]} complexity={[]} />
   )) as DpProblemPageProps<TInputs>["CodePanel"],
 }: DpProblemPageProps<TInputs>) {
-  const [inputs, setInputs] = useState<TInputs>(defaultInputs);
-  const [trace, setTrace] = useState<DpTraceStep[]>(() => buildTrace(defaultInputs));
-  const [mode, setMode] = useState<Mode>("beginner");
-
-  const timeline = useTimeline(trace);
-  const step = timeline.activeStep ?? trace[0];
-
-  function run(nextInputs = inputs) {
-    setInputs(nextInputs);
-    setTrace(buildTrace(nextInputs));
-  }
-
   return (
-    <DPProblemShell
-      categoryHref={categoryHref}
-      categoryLabel={categoryLabel}
-      taxonomy={taxonomy}
-      title={title}
-      difficulty={difficulty}
-      description={description}
-      complexity={complexity}
-      inputFields={inputFields}
-      inputValues={inputs}
-      onInputChange={(key, value) =>
-        setInputs((current) => ({ ...current, [key]: value }))
-      }
-      onRun={() => run()}
-      presets={presets as Array<PresetConfig<Record<string, string>>>}
-      onPreset={(preset) => run(preset.values as TInputs)}
-      step={step}
-      mode={mode}
-      controls={
+    <LessonShell
+      defaultInputs={defaultInputs}
+      buildTrace={buildTrace}
+      renderControls={({ teachingMode, setTeachingMode, timeline, trace }) => (
         <Controls
           stepIndex={timeline.activeIndex}
           totalSteps={trace.length}
-          mode={mode}
+          mode={teachingMode as Mode}
           isPlaying={timeline.isPlaying}
           speed={timeline.speed}
           transitionProgress={timeline.transitionProgress}
-          onModeChange={setMode}
+          onModeChange={(nextMode) => setTeachingMode(nextMode)}
           onPlay={() => timeline.play()}
           onPause={() => timeline.pause()}
           onPrev={() => timeline.prev()}
@@ -86,17 +57,19 @@ export default function DPProblemPage<TInputs extends Record<string, string>>({
           canPrev={timeline.canPrev}
           canNext={timeline.canNext}
         />
-      }
-      visualization={
+      )}
+      renderVisualization={({ step, timeline }) => (
         <ProblemMainVisualizer
           step={step}
           transitionProgress={timeline.transitionProgress}
         />
-      }
-      microscope={<ProblemMicroscopeView step={step} mode={mode} />}
-      tracePanel={<ProblemTracePanel step={step} />}
-      codePanel={<ProblemCodePanel step={step} />}
-      output={
+      )}
+      renderMicroscope={({ step, teachingMode }) => (
+        <ProblemMicroscopeView step={step} mode={teachingMode as Mode} />
+      )}
+      renderTracePanel={({ step }) => <ProblemTracePanel step={step} />}
+      renderCodePanel={({ step }) => <ProblemCodePanel step={step} />}
+      renderOutput={({ step }) => (
         <div
           className={`${glassPanelClassName} p-5 ${
             step.done ? "border-emerald-200 bg-emerald-50/70" : ""
@@ -120,7 +93,46 @@ export default function DPProblemPage<TInputs extends Record<string, string>>({
             {step.resultLabel} = {step.resultValue}
           </div>
         </div>
-      }
+      )}
+      renderContainer={({
+        inputs,
+        setInputs,
+        run,
+        step,
+        teachingMode,
+        controls,
+        visualization,
+        microscope,
+        tracePanel,
+        codePanel,
+        output,
+      }) => (
+        <DPProblemShell
+          categoryHref={categoryHref}
+          categoryLabel={categoryLabel}
+          taxonomy={taxonomy}
+          title={title}
+          difficulty={difficulty}
+          description={description}
+          complexity={complexity}
+          inputFields={inputFields}
+          inputValues={inputs}
+          onInputChange={(key, value) =>
+            setInputs((current) => ({ ...current, [key]: value }))
+          }
+          onRun={() => run()}
+          presets={presets as Array<PresetConfig<Record<string, string>>>}
+          onPreset={(preset) => run(preset.values as TInputs)}
+          step={step}
+          mode={teachingMode as Mode}
+          controls={controls}
+          visualization={visualization}
+          microscope={microscope}
+          tracePanel={tracePanel}
+          codePanel={codePanel}
+          output={output}
+        />
+      )}
     />
   );
 }

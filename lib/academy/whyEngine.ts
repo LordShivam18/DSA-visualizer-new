@@ -13,6 +13,8 @@ export type WhyStepLike = {
   actionKind?: string;
   beginnerNote?: string;
   expertNote?: string;
+  explanationBeginner?: string;
+  explanationExpert?: string;
   focus?: string;
   hints?: string[];
   metrics?: WhyMetric[];
@@ -123,7 +125,9 @@ function buildWhyExplanation(
     reason,
     detail:
       step.expertNote?.trim() ||
+      step.explanationExpert?.trim() ||
       step.beginnerNote?.trim() ||
+      step.explanationBeginner?.trim() ||
       step.focus?.trim() ||
       fallbackDetail,
     evidence: buildEvidence(step),
@@ -132,7 +136,11 @@ function buildWhyExplanation(
   };
 }
 
-function matchesRule(rule: WhyRule, step: WhyStepLike, actionKey: string) {
+function matchesRule<Step extends WhyStepLike>(
+  rule: WhyRule<Step>,
+  step: Step,
+  actionKey: string
+) {
   if (rule.actions?.includes(actionKey)) {
     return true;
   }
