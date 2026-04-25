@@ -187,17 +187,13 @@ function sessionInsightForMode(mode: AcademyMode) {
 
 export default function StockIIPage() {
   const { state, setActiveMode, recordSession } = useLearningPlatform();
-  const storedMode = state.activeModes[problemId];
+  const mode = state.activeModes[problemId] ?? "prediction";
 
   const [inputs, setInputs] = useState(defaultInputs);
   const [trace, setTrace] = useState<StockIITraceStep[]>(() =>
     buildTrace(defaultInputs)
   );
-  const [mode, setMode] = useState<AcademyMode>(storedMode ?? "prediction");
   const [runId, setRunId] = useState(0);
-  const [lastSessionMessage, setLastSessionMessage] = useState(
-    sessionInsightForMode(storedMode ?? "prediction")
-  );
 
   const sessionStartedAtRef = useRef(0);
   const recordedCycleKeyRef = useRef<string | null>(null);
@@ -244,19 +240,8 @@ export default function StockIIPage() {
     useProgressTracker(problemId);
 
   useEffect(() => {
-    if (storedMode) {
-      setMode(storedMode);
-    }
-  }, [storedMode]);
-
-  useEffect(() => {
-    setActiveMode(problemId, mode);
-  }, [mode, setActiveMode]);
-
-  useEffect(() => {
     sessionStartedAtRef.current = Date.now();
     recordedCycleKeyRef.current = null;
-    setLastSessionMessage(sessionInsightForMode(mode));
   }, [cycleKey, mode]);
 
   const lockState = useMemo(() => {
@@ -336,7 +321,6 @@ export default function StockIIPage() {
     };
 
     recordSession(session);
-    setLastSessionMessage(extras.message);
   }, [cycleKey, inputs.prices, recordSession]);
 
   useEffect(() => {
@@ -344,16 +328,22 @@ export default function StockIIPage() {
       return;
     }
 
-    completeSession(
-      "learn",
-      buildLearnEvaluation(Date.now() - sessionStartedAtRef.current),
-      {
-        hintsUsed: 0,
-        prediction: { asked: 0, correct: 0 },
-        completed: true,
-        message: "Guided learn session completed and recorded in your dashboard.",
-      }
-    );
+    const timeoutId = window.setTimeout(() => {
+      completeSession(
+        "learn",
+        buildLearnEvaluation(Date.now() - sessionStartedAtRef.current),
+        {
+          hintsUsed: 0,
+          prediction: { asked: 0, correct: 0 },
+          completed: true,
+          message: "Guided learn session completed and recorded in your dashboard.",
+        }
+      );
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [completeSession, mode, step.done]);
 
   useEffect(() => {
@@ -361,24 +351,30 @@ export default function StockIIPage() {
       return;
     }
 
-    completeSession(
-      "prediction",
-      buildPredictionEvaluation(
-        Date.now() - sessionStartedAtRef.current,
-        prediction.accuracy,
-        prediction.askedCount,
-        prediction.correctCount
-      ),
-      {
-        hintsUsed: 0,
-        prediction: {
-          asked: prediction.askedCount,
-          correct: prediction.correctCount,
-        },
-        completed: prediction.accuracy >= 70,
-        message: "Prediction round scored and synced to your progress profile.",
-      }
-    );
+    const timeoutId = window.setTimeout(() => {
+      completeSession(
+        "prediction",
+        buildPredictionEvaluation(
+          Date.now() - sessionStartedAtRef.current,
+          prediction.accuracy,
+          prediction.askedCount,
+          prediction.correctCount
+        ),
+        {
+          hintsUsed: 0,
+          prediction: {
+            asked: prediction.askedCount,
+            correct: prediction.correctCount,
+          },
+          completed: prediction.accuracy >= 70,
+          message: "Prediction round scored and synced to your progress profile.",
+        }
+      );
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [
     completeSession,
     mode,
@@ -393,20 +389,26 @@ export default function StockIIPage() {
       return;
     }
 
-    completeSession("interview", interview.evaluation, {
-      hintsUsed: interview.hintRequests,
-      prediction: { asked: 0, correct: 0 },
-      interview: {
-        strategyId: interview.selectedStrategyId,
-        expectedAnswer: interview.answer,
-        selfConfidence: interview.selfConfidence,
-        timedOut: interview.timedOut,
-        timeLimitSec: interviewConfig.timeLimitSec,
-        timeRemainingSec: interview.timeRemainingSec,
-      },
-      completed: interview.evaluation.correctness,
-      message: "Interview simulation evaluated and written to session history.",
-    });
+    const timeoutId = window.setTimeout(() => {
+      completeSession("interview", interview.evaluation, {
+        hintsUsed: interview.hintRequests,
+        prediction: { asked: 0, correct: 0 },
+        interview: {
+          strategyId: interview.selectedStrategyId,
+          expectedAnswer: interview.answer,
+          selfConfidence: interview.selfConfidence,
+          timedOut: interview.timedOut,
+          timeLimitSec: interviewConfig.timeLimitSec,
+          timeRemainingSec: interview.timeRemainingSec,
+        },
+        completed: interview.evaluation.correctness,
+        message: "Interview simulation evaluated and written to session history.",
+      });
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
   }, [
     completeSession,
     interview.answer,
@@ -436,19 +438,11 @@ export default function StockIIPage() {
 
     pause();
     reset();
-    setMode(nextMode);
+    setActiveMode(problemId, nextMode);
   }
 
   function handlePredictionSelection(choiceId: string) {
-    const feedback = prediction.submitPrediction(choiceId);
-
-    if (feedback) {
-      setLastSessionMessage(
-        feedback.correct
-          ? "Correct prediction unlocked the next step."
-          : "Feedback delivered. The next step is still unlocked so the learner can compare mental model to reality."
-      );
-    }
+    prediction.submitPrediction(choiceId);
   }
 
   function handlePracticeEvaluation() {
@@ -491,6 +485,17 @@ export default function StockIIPage() {
       ? lockState.reason
       : "Timeline is fully unlocked for this mode.";
   const mastery = problemProgress?.mastery ?? 0;
+  const latestProblemSession = recentSessions.find(
+    (session) => session.problemId === problemId
+  );
+  const lastSessionMessage =
+    (mode === "prediction" && prediction.feedback
+      ? prediction.feedback.correct
+        ? "Correct prediction unlocked the next step."
+        : "Prediction feedback is live. Compare the misconception against the revealed trace."
+      : undefined) ??
+    latestProblemSession?.evaluation.notes[0] ??
+    sessionInsightForMode(mode);
 
   const inputArea = (
     <div className={`${lightPanelClassName} p-5`}>

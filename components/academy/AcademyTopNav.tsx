@@ -19,6 +19,9 @@ export default function AcademyTopNav({
   const navLinkClassName = inverted
     ? "border-white/10 bg-white/8 text-slate-100 hover:bg-white/14"
     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50";
+  const badgeClassName = inverted
+    ? "border-amber-300/40 bg-amber-400/15 text-amber-200"
+    : "border-amber-200 bg-amber-50 text-amber-700";
 
   return (
     <div
@@ -29,13 +32,15 @@ export default function AcademyTopNav({
           <Link href="/" className="text-lg font-semibold tracking-tight">
             Guided DSA Academy
           </Link>
-          <span className="rounded-full border border-amber-300/40 bg-amber-400/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-200 md:text-[10px]">
+          <span
+            className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] md:text-[10px] ${badgeClassName}`}
+          >
             Premium Learning Flow
           </span>
         </div>
         <p className={`mt-2 text-sm ${mutedTextClassName}`}>
-          {learner.streakDays}-day streak · {solvedProblems}/{totalProblems} lessons solved ·
-          {` `}{learner.totalStudyMinutes.toFixed(0)} guided minutes logged
+          {learner.streakDays}-day streak · {solvedProblems}/{totalProblems} lessons
+          solved · {learner.totalStudyMinutes.toFixed(0)} guided minutes logged
         </p>
       </div>
 
