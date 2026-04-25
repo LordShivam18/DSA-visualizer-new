@@ -2,7 +2,7 @@
 
 import type {
   Dispatch,
-  HTMLInputTypeAttribute,
+  HTMLAttributes,
   ReactNode,
   SetStateAction,
 } from "react";
@@ -18,13 +18,14 @@ import LightControls from "../array-string/shared/LightControls";
 import type {
   InputFieldConfig as ArrayStringInputFieldConfig,
   PresetConfig as ArrayStringPresetConfig,
+  TeachingTraceFrame as ArrayStringTeachingTraceFrame,
 } from "../array-string/shared/types";
-import { difficultyTone as hashmapDifficultyTone } from "../hashmap/shared/tone";
 import MatrixProblemShell from "../matrix/shared/MatrixProblemShell";
 import MatrixControls from "../matrix/shared/MatrixControls";
 import type {
   InputFieldConfig as MatrixInputFieldConfig,
   PresetConfig as MatrixPresetConfig,
+  TeachingTraceFrame as MatrixTeachingTraceFrame,
 } from "../matrix/shared/types";
 import BacktrackingTraceControls from "../backtracking/shared/TraceControls";
 import BackButton from "../ui/BackButton";
@@ -39,7 +40,7 @@ type TraceInputField<TInputs extends Record<string, string>> = {
   helper?: string;
   multiline?: boolean;
   rows?: number;
-  inputMode?: HTMLInputTypeAttribute;
+  inputMode?: HTMLAttributes<HTMLInputElement>["inputMode"];
 };
 
 type TracePreset<TInputs extends Record<string, string>> = {
@@ -100,7 +101,17 @@ function toTitleCaseDifficulty(value: Difficulty): "Easy" | "Medium" | "Hard" {
 }
 
 function darkDifficultyTone(value: Difficulty) {
-  return hashmapDifficultyTone(value.toLowerCase() as "easy" | "medium" | "hard");
+  const normalized = value.toLowerCase();
+
+  if (normalized === "easy") {
+    return "border-emerald-400/30 bg-emerald-500/10 text-emerald-200";
+  }
+
+  if (normalized === "hard") {
+    return "border-rose-400/30 bg-rose-500/10 text-rose-200";
+  }
+
+  return "border-yellow-400/30 bg-yellow-500/10 text-yellow-200";
 }
 
 function defaultDarkInputHint() {
@@ -392,7 +403,7 @@ export default function TraceLessonPage<
                 values: preset.values,
               }))}
               onPreset={(preset) => run(preset.values as TInputs)}
-              step={step}
+              step={step as unknown as ArrayStringTeachingTraceFrame}
               mode={teachingMode}
               controls={controls}
               visualization={visualization}
@@ -433,7 +444,7 @@ export default function TraceLessonPage<
                 values: preset.values,
               }))}
               onPreset={(preset) => run(preset.values as TInputs)}
-              step={step}
+              step={step as unknown as MatrixTeachingTraceFrame}
               mode={teachingMode}
               controls={controls}
               visualization={visualization}
