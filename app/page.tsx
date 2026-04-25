@@ -1,154 +1,198 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Link from "next/link";
+
+import AcademyTopNav from "@/components/academy/AcademyTopNav";
+import { useProgressTracker } from "@/components/academy/hooks/useProgressTracker";
 import ParticleBackground from "@/components/ui/ParticleBackground";
 
-const features = [
+const valuePillars = [
   {
-    icon: "🎬",
-    title: "Visualize",
-    desc: "Watch algorithms execute step-by-step with stunning neon animations",
-    color: "#22d3ee",
+    title: "Prediction Mode",
+    body: "Pause before every reveal and force next-step reasoning, not passive watching.",
   },
   {
-    icon: "🧠",
-    title: "Learn",
-    desc: "Beginner & expert modes with code mapping and detailed explanations",
-    color: "#a78bfa",
+    title: "Practice Lab",
+    body: "Hide the answer, meter hints in tiers, and unlock the trace only after effort.",
   },
   {
-    icon: "⚡",
-    title: "Practice",
-    desc: "Input your own test cases and see the algorithm process your data",
-    color: "#34d399",
+    title: "Interview Simulator",
+    body: "Run timed rounds with limited hints and a final score for correctness, efficiency, and confidence.",
   },
 ];
 
 export default function Home() {
+  const { learner, solvedProblems, totalProblems, averageAccuracy, recommendations } =
+    useProgressTracker();
+
   return (
-    <div className="relative min-h-screen flex flex-col justify-center items-center overflow-hidden">
-      <ParticleBackground density={70} />
+    <div className="relative min-h-screen overflow-hidden bg-[#09111f] text-slate-100">
+      <ParticleBackground density={55} speed={0.28} color="59, 130, 246" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(56,189,248,0.18),transparent_24%),radial-gradient(circle_at_top_right,rgba(249,115,22,0.14),transparent_18%),radial-gradient(circle_at_bottom_right,rgba(168,85,247,0.14),transparent_22%),linear-gradient(180deg,#07101d_0%,#0b1527_48%,#09111f_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.05)_1px,transparent_1px)] bg-[size:58px_58px] opacity-45" />
 
-      {/* Decorative background orbs */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-cyan-500/5 blur-[120px] animate-glow-pulse pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full bg-violet-500/5 blur-[120px] animate-glow-pulse pointer-events-none" style={{ animationDelay: "1.5s" }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-emerald-500/3 blur-[160px] pointer-events-none" />
+      <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:px-6">
+        <AcademyTopNav inverted />
 
-      {/* Hero section */}
-      <div className="relative z-10 flex flex-col items-center px-4 text-center">
-        {/* Badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6 px-4 py-1.5 rounded-full text-xs font-medium tracking-wider uppercase
-                     bg-cyan-500/8 border border-cyan-500/20 text-cyan-300"
-        >
-          Interactive Algorithm Visualizer
-        </motion.div>
+        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(0,0.82fr)]">
+          <div className="rounded-[2rem] border border-white/10 bg-white/6 p-7 shadow-[0_24px_80px_rgba(2,8,23,0.45)] backdrop-blur-xl md:p-10">
+            <p className="text-xs uppercase tracking-[0.34em] text-cyan-300/80">
+              Guided DSA Learning Platform
+            </p>
+            <h1 className="mt-4 text-5xl font-semibold tracking-tight text-white md:text-7xl">
+              Turn every trace into a paid learning experience
+            </h1>
+            <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
+              The visualizer foundation is still here, but the product layer is now
+              built for retention and monetization: prediction checkpoints,
+              practice gating, interview pressure, persistent progress, and adaptive
+              recommendations on top of the same algorithm trace engine.
+            </p>
 
-        {/* Title */}
-        <motion.h1
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="text-6xl md:text-8xl font-extrabold tracking-tight leading-tight"
-        >
-          <span className="gradient-text-hero">DSA</span>
-          <br />
-          <span className="text-white">Visualizer</span>
-        </motion.h1>
-
-        {/* Subtitle */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-          className="mt-6 text-lg md:text-xl text-slate-400 max-w-xl leading-relaxed"
-        >
-          Understand Data Structures & Algorithms through{" "}
-          <span className="text-cyan-300 font-medium">beautiful animations</span>,{" "}
-          <span className="text-violet-300 font-medium">step-by-step traces</span>, and{" "}
-          <span className="text-emerald-300 font-medium">custom inputs</span>.
-        </motion.p>
-
-        {/* CTA buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
-          className="mt-10 flex gap-4"
-        >
-          <Link href="/topics">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.97 }}
-              className="px-8 py-3.5 rounded-2xl text-lg font-bold
-                         bg-gradient-to-r from-cyan-500 via-blue-500 to-violet-500
-                         text-white shadow-[0_0_40px_rgba(34,211,238,0.4)]
-                         hover:shadow-[0_0_60px_rgba(34,211,238,0.6)]
-                         transition-shadow duration-300"
-            >
-              Explore Topics →
-            </motion.button>
-          </Link>
-        </motion.div>
-
-        {/* Feature cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.9, duration: 0.6 }}
-          className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl w-full"
-        >
-          {features.map((feat, i) => (
-            <motion.div
-              key={feat.title}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1 + i * 0.15, duration: 0.5 }}
-              className="glass-card p-6 text-center group"
-              style={{
-                borderColor: `${feat.color}22`,
-              }}
-            >
-              <div className="text-4xl mb-3">{feat.icon}</div>
-              <h3
-                className="text-lg font-bold mb-2"
-                style={{ color: feat.color }}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link
+                href="/array-string/best-time-to-buy-and-sell-stock-ii"
+                className="rounded-[1rem] bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_0_36px_rgba(59,130,246,0.35)] transition-all hover:-translate-y-0.5"
               >
-                {feat.title}
-              </h3>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                {feat.desc}
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Stats strip */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.4, duration: 0.6 }}
-          className="mt-14 flex gap-10 text-center"
-        >
-          {[
-            { value: "7+", label: "Topics" },
-            { value: "20+", label: "Problems" },
-            { value: "∞", label: "Custom Inputs" },
-          ].map((stat) => (
-            <div key={stat.label}>
-              <div className="text-2xl font-extrabold gradient-text-hero">
-                {stat.value}
-              </div>
-              <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider">
-                {stat.label}
-              </div>
+                Open flagship lesson
+              </Link>
+              <Link
+                href="/dashboard"
+                className="rounded-[1rem] border border-white/14 bg-white/8 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/12"
+              >
+                View learner dashboard
+              </Link>
             </div>
-          ))}
-        </motion.div>
+
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {[
+                {
+                  label: "Solved",
+                  value: `${solvedProblems}/${totalProblems}`,
+                  detail: "tracked lessons",
+                },
+                {
+                  label: "Accuracy",
+                  value: `${averageAccuracy}%`,
+                  detail: "blended score",
+                },
+                {
+                  label: "Streak",
+                  value: `${learner.streakDays} days`,
+                  detail: "persistent study habit",
+                },
+              ].map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-[1.2rem] border border-white/10 bg-white/6 px-4 py-4"
+                >
+                  <p className="text-xs uppercase tracking-[0.18em] text-slate-400">
+                    {item.label}
+                  </p>
+                  <p className="mt-2 text-3xl font-semibold text-white">{item.value}</p>
+                  <p className="mt-2 text-sm text-slate-400">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-5">
+            <section className="rounded-[2rem] border border-orange-300/20 bg-orange-400/10 p-6 shadow-[0_24px_80px_rgba(2,8,23,0.35)] backdrop-blur-xl">
+              <p className="text-xs uppercase tracking-[0.24em] text-orange-200/80">
+                Why users pay
+              </p>
+              <div className="mt-5 space-y-3">
+                {valuePillars.map((pillar) => (
+                  <div
+                    key={pillar.title}
+                    className="rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-4"
+                  >
+                    <p className="text-sm font-semibold text-white">{pillar.title}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">
+                      {pillar.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="rounded-[2rem] border border-white/10 bg-white/6 p-6 shadow-[0_24px_80px_rgba(2,8,23,0.35)] backdrop-blur-xl">
+              <p className="text-xs uppercase tracking-[0.24em] text-violet-200/80">
+                Adaptive next step
+              </p>
+              {recommendations[0] ? (
+                <div className="mt-5 rounded-[1.2rem] border border-white/10 bg-white/8 px-4 py-4">
+                  <p className="text-lg font-semibold text-white">
+                    {recommendations[0].title}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-slate-300">
+                    {recommendations[0].reason}
+                  </p>
+                  <Link
+                    href={recommendations[0].route}
+                    className="mt-4 inline-flex rounded-full border border-cyan-300/30 bg-cyan-400/10 px-4 py-2 text-sm font-semibold text-cyan-200 transition-all hover:bg-cyan-400/16"
+                  >
+                    Continue learning
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-5 rounded-[1.2rem] border border-dashed border-white/12 bg-white/4 px-4 py-5 text-sm text-slate-400">
+                  Recommendations appear after your first scored session.
+                </div>
+              )}
+            </section>
+          </div>
+        </section>
+
+        <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <div className="rounded-[2rem] border border-white/10 bg-white/6 p-7 shadow-[0_24px_80px_rgba(2,8,23,0.35)] backdrop-blur-xl">
+            <p className="text-xs uppercase tracking-[0.3em] text-cyan-300/80">
+              Product Transformation
+            </p>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              {[
+                "Global persisted learner state with backend-ready session records",
+                "Reusable hooks for prediction, practice, interview, and progress",
+                "Timeline locking so the trace can enforce active engagement",
+                "Dashboard analytics with mastery, weak topics, and recommendations",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="rounded-[1.15rem] border border-white/10 bg-white/8 px-4 py-4 text-sm leading-6 text-slate-300"
+                >
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/6 p-7 shadow-[0_24px_80px_rgba(2,8,23,0.35)] backdrop-blur-xl">
+            <p className="text-xs uppercase tracking-[0.3em] text-orange-200/80">
+              Current flagship
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold text-white">
+              Best Time to Buy and Sell Stock II
+            </h2>
+            <p className="mt-4 text-sm leading-7 text-slate-300">
+              The stock-II lesson is fully upgraded end-to-end and acts as the
+              pattern for rolling the academy layer across the rest of the catalog.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link
+                href="/array-string/best-time-to-buy-and-sell-stock-ii"
+                className="rounded-full border border-white/12 bg-white/8 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/12"
+              >
+                Launch premium lesson
+              </Link>
+              <Link
+                href="/topics"
+                className="rounded-full border border-white/12 bg-white/4 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all hover:bg-white/10"
+              >
+                Browse all topics
+              </Link>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   );

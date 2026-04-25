@@ -15,7 +15,7 @@ export default function ArrayStringTopicsPage() {
 
         <header className="space-y-4 text-center">
           <p className="text-xs uppercase tracking-[0.34em] text-slate-500">
-            Array / String / Greedy / String Simulation
+            Array / String / Guided Learning Track
           </p>
           <h1 className="text-4xl font-semibold tracking-tight md:text-6xl">
             <span className="text-cyan-400 text-glow-cyan">Array / String</span>
@@ -23,9 +23,42 @@ export default function ArrayStringTopicsPage() {
           <p className="mx-auto max-w-3xl text-sm leading-7 text-slate-400 md:text-base">
             Explore greedy scans, Roman numeral transforms, string packing,
             substring search, whitespace normalization, and other array/string
-            patterns through step-by-step dark-neon teaching visualizers.
+            patterns through premium lesson flows built on top of the original
+            visualizer engine.
           </p>
         </header>
+
+        <section className="glass-card rounded-[1.75rem] p-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
+                Flagship Premium Lesson
+              </p>
+              <h2 className="mt-2 text-3xl font-semibold text-slate-50">
+                Best Time to Buy and Sell Stock II
+              </h2>
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-400">
+                This lesson now includes prediction mode, practice mode, interview
+                mode, adaptive recommendations, and persistent progress tracking.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/array-string/best-time-to-buy-and-sell-stock-ii"
+                className="rounded-[1rem] border border-cyan-400/30 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-200 transition-all hover:-translate-y-0.5 hover:bg-cyan-400/16"
+              >
+                Open premium lesson
+              </Link>
+              <Link
+                href="/dashboard"
+                className="rounded-[1rem] border border-slate-700 bg-slate-900/70 px-5 py-3 text-sm font-semibold text-slate-200 transition-all hover:-translate-y-0.5 hover:border-slate-500"
+              >
+                View dashboard
+              </Link>
+            </div>
+          </div>
+        </section>
 
         <section className="glass-card rounded-[1.75rem] p-6">
           <div className="grid gap-4">
@@ -62,7 +95,11 @@ export default function ArrayStringTopicsPage() {
                   </div>
 
                   <div className="flex items-center gap-3 text-sm text-slate-400 transition-colors group-hover:text-cyan-300">
-                    <span>Open visualizer</span>
+                    <span>
+                      {problem.slug === "best-time-to-buy-and-sell-stock-ii"
+                        ? "Open premium lesson"
+                        : "Open lesson"}
+                    </span>
                     <svg
                       width="18"
                       height="18"
