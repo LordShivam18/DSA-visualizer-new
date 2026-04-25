@@ -93,7 +93,6 @@ export function usePredictionEngine<Step extends PredictableStep>({
       explanation: checkpoint.explanation,
     };
 
-    setAnswers((current) => ({
     setState((current) => {
       const base =
         current.resetKey === resetKey ? current : createPredictionState(resetKey);
