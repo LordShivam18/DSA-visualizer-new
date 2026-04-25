@@ -20,6 +20,9 @@ type LessonShellContainerContext<
   TInputs extends Record<string, string>,
   Step extends LessonStepLike
 > = LessonShellViewModel<TInputs, Step> & {
+  lessonModeToggle: ReactNode;
+  predictionCard: ReactNode;
+  whyPanel: ReactNode;
   controls: ReactNode;
   visualization: ReactNode;
   microscope: ReactNode;
@@ -59,34 +62,46 @@ export default function LessonShell<
     buildTrace,
   });
 
+  const lessonModeToggle = (
+    <LessonModeToggle
+      value={lesson.lessonMode}
+      onChange={lesson.setLessonMode}
+    />
+  );
+
+  const predictionCard =
+    lesson.lessonMode === "prediction" ? (
+      <PredictionCheckpointCard
+        checkpoint={lesson.prediction.checkpoint}
+        feedback={lesson.prediction.feedback}
+        askedCount={lesson.prediction.askedCount}
+        correctCount={lesson.prediction.correctCount}
+        onSelect={lesson.prediction.submitPrediction}
+      />
+    ) : null;
+
   const controls = (
     <>
-      <LessonModeToggle
-        value={lesson.lessonMode}
-        onChange={lesson.setLessonMode}
-      />
+      {lessonModeToggle}
       {renderControls(lesson)}
-      {lesson.lessonMode === "prediction" ? (
-        <PredictionCheckpointCard
-          checkpoint={lesson.prediction.checkpoint}
-          feedback={lesson.prediction.feedback}
-          askedCount={lesson.prediction.askedCount}
-          correctCount={lesson.prediction.correctCount}
-          onSelect={lesson.prediction.submitPrediction}
-        />
-      ) : null}
+      {predictionCard}
     </>
   );
 
+  const whyPanel = <WhyPanel insight={lesson.whyInsight} />;
+
   const tracePanel = (
     <>
-      <WhyPanel insight={lesson.whyInsight} />
+      {whyPanel}
       {renderTracePanel(lesson)}
     </>
   );
 
   return renderContainer({
     ...lesson,
+    lessonModeToggle,
+    predictionCard,
+    whyPanel,
     controls,
     visualization: renderVisualization(lesson),
     microscope: renderMicroscope(lesson),

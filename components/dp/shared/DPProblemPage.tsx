@@ -1,10 +1,9 @@
 "use client";
 
-import LessonShell from "@/components/academy/LessonShell";
+import TraceLessonPage from "@/components/academy/TraceLessonPage";
 
 import CodePanel from "./CodePanel";
 import Controls from "./Controls";
-import DPProblemShell from "./DPProblemShell";
 import MainVisualizer from "./MainVisualizer";
 import MicroscopeView from "./MicroscopeView";
 import TracePanel from "./TracePanel";
@@ -13,7 +12,6 @@ import type {
   DpProblemPageProps,
   DpTraceStep,
   Mode,
-  PresetConfig,
 } from "./types";
 
 export default function DPProblemPage<TInputs extends Record<string, string>>({
@@ -36,9 +34,31 @@ export default function DPProblemPage<TInputs extends Record<string, string>>({
   )) as DpProblemPageProps<TInputs>["CodePanel"],
 }: DpProblemPageProps<TInputs>) {
   return (
-    <LessonShell
+    <TraceLessonPage
+      variant="dark"
+      categoryHref={categoryHref}
+      categoryLabel={categoryLabel}
+      taxonomy={taxonomy}
+      title={title}
+      difficulty={difficulty}
+      description={description}
+      complexity={complexity}
       defaultInputs={defaultInputs}
+      inputFields={inputFields.map((field) => ({
+        id: field.key,
+        label: field.label,
+        placeholder: field.placeholder,
+        helper: field.help,
+        multiline: field.multiline,
+        rows: field.rows,
+      }))}
+      presets={presets.map((preset) => ({
+        name: preset.name,
+        summary: preset.summary,
+        values: preset.values,
+      }))}
       buildTrace={buildTrace}
+      inputHint="DP presets rebuild the same recurrence trace, so learn and prediction modes stay aligned."
       renderControls={({ teachingMode, setTeachingMode, timeline, trace }) => (
         <Controls
           stepIndex={timeline.activeIndex}
@@ -93,45 +113,6 @@ export default function DPProblemPage<TInputs extends Record<string, string>>({
             {step.resultLabel} = {step.resultValue}
           </div>
         </div>
-      )}
-      renderContainer={({
-        inputs,
-        setInputs,
-        run,
-        step,
-        teachingMode,
-        controls,
-        visualization,
-        microscope,
-        tracePanel,
-        codePanel,
-        output,
-      }) => (
-        <DPProblemShell
-          categoryHref={categoryHref}
-          categoryLabel={categoryLabel}
-          taxonomy={taxonomy}
-          title={title}
-          difficulty={difficulty}
-          description={description}
-          complexity={complexity}
-          inputFields={inputFields}
-          inputValues={inputs}
-          onInputChange={(key, value) =>
-            setInputs((current) => ({ ...current, [key]: value }))
-          }
-          onRun={() => run()}
-          presets={presets as Array<PresetConfig<Record<string, string>>>}
-          onPreset={(preset) => run(preset.values as TInputs)}
-          step={step}
-          mode={teachingMode as Mode}
-          controls={controls}
-          visualization={visualization}
-          microscope={microscope}
-          tracePanel={tracePanel}
-          codePanel={codePanel}
-          output={output}
-        />
       )}
     />
   );
