@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   TimelineEngine,
@@ -29,15 +29,22 @@ export function useTimeline<Step extends TimelineStep>(steps: Step[]) {
     };
   }, [engine]);
 
+  const controls = useMemo(
+    () => ({
+      play: () => engine.play(),
+      pause: () => engine.pause(),
+      next: () => engine.next(),
+      prev: () => engine.prev(),
+      reset: () => engine.reset(),
+      setSpeed: (speed: TimelineSpeed) => engine.setSpeed(speed),
+      setLockedSteps: (indices: number[], reason?: string) =>
+        engine.setLockedSteps(indices, reason),
+    }),
+    [engine]
+  );
+
   return {
     ...snapshot,
-    play: () => engine.play(),
-    pause: () => engine.pause(),
-    next: () => engine.next(),
-    prev: () => engine.prev(),
-    reset: () => engine.reset(),
-    setSpeed: (speed: TimelineSpeed) => engine.setSpeed(speed),
-    setLockedSteps: (indices: number[], reason?: string) =>
-      engine.setLockedSteps(indices, reason),
+    ...controls,
   };
 }
