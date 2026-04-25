@@ -389,8 +389,9 @@ export default function StockIIPage() {
       return;
     }
 
+    const interviewEvaluation = interview.evaluation;
     const timeoutId = window.setTimeout(() => {
-      completeSession("interview", interview.evaluation, {
+      completeSession("interview", interviewEvaluation, {
         hintsUsed: interview.hintRequests,
         prediction: { asked: 0, correct: 0 },
         interview: {
@@ -401,7 +402,7 @@ export default function StockIIPage() {
           timeLimitSec: interviewConfig.timeLimitSec,
           timeRemainingSec: interview.timeRemainingSec,
         },
-        completed: interview.evaluation.correctness,
+        completed: interviewEvaluation.correctness,
         message: "Interview simulation evaluated and written to session history.",
       });
     }, 0);

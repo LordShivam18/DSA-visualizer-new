@@ -17,6 +17,7 @@ export type AccentTone =
   | "emerald"
   | "amber"
   | "rose"
+  | "blue"
   | "slate";
 
 export type TopicCatalogEntry = {
