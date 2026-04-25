@@ -36,6 +36,9 @@ export type TimelineSnapshot<Step extends TimelineStep = TimelineStep> = {
   canPrev: boolean;
   canNext: boolean;
   queue: number[];
+  lockedStepIndices: number[];
+  lockedTargetIndex: number | null;
+  lockReason: string | null;
 };
 
 type TransitionState = {
@@ -59,6 +62,9 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   private isPlaying = false;
   private speed: TimelineSpeed = 1;
   private queue: number[] = [];
+  private lockedSteps = new Set<number>();
+  private lockReason: string | null = null;
+  private blockedTarget: number | null = null;
   private transition: TransitionState | null = null;
   private subscribers = new Set<Subscriber<Step>>();
   private frameId: number | null = null;
@@ -86,7 +92,24 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     this.steps = steps;
     this.settledIndex = 0;
     this.queue = [];
+    this.lockedSteps.clear();
+    this.lockReason = null;
+    this.blockedTarget = null;
     this.transition = null;
+    this.emit();
+  }
+
+  setLockedSteps(indices: number[], reason?: string) {
+    this.lockedSteps = new Set(indices);
+    this.lockReason = indices.length > 0 ? reason ?? null : null;
+
+    if (
+      this.blockedTarget !== null &&
+      !this.lockedSteps.has(this.blockedTarget)
+    ) {
+      this.blockedTarget = null;
+    }
+
     this.emit();
   }
 
@@ -115,8 +138,13 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
       isPlaying: this.isPlaying,
       speed: this.speed,
       canPrev: clampedActiveIndex > 0,
-      canNext: clampedActiveIndex < lastIndex,
+      canNext:
+        clampedActiveIndex < lastIndex &&
+        !this.lockedSteps.has(clampedActiveIndex + 1),
       queue: [...this.queue],
+      lockedStepIndices: [...this.lockedSteps].sort((left, right) => left - right),
+      lockedTargetIndex: this.blockedTarget,
+      lockReason: this.lockReason,
     };
   }
 
@@ -167,6 +195,7 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   reset() {
     this.pause();
     this.settledIndex = 0;
+    this.blockedTarget = null;
     this.transition = null;
     this.emit();
   }
@@ -194,11 +223,21 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     const lastIndex = Math.max(this.steps.length - 1, 0);
     const safeTarget = clampIndex(targetIndex, lastIndex);
 
+     if (
+      safeTarget !== this.settledIndex &&
+      this.lockedSteps.has(safeTarget)
+    ) {
+      this.blockedTarget = safeTarget;
+      this.pause();
+      return;
+    }
+
     if (safeTarget === this.settledIndex && this.transition === null) {
       this.emit();
       return;
     }
 
+    this.blockedTarget = null;
     this.transition = {
       from: this.settledIndex,
       to: safeTarget,
@@ -211,6 +250,15 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   }
 
   private beginQueuedTransition(targetIndex: number, now: number) {
+    if (this.lockedSteps.has(targetIndex)) {
+      this.isPlaying = false;
+      this.queue = [];
+      this.blockedTarget = targetIndex;
+      this.emit();
+      return;
+    }
+
+    this.blockedTarget = null;
     this.transition = {
       from: this.settledIndex,
       to: targetIndex,
@@ -244,17 +292,17 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   private tick = (now: number) => {
     this.frameId = null;
 
-    if (!this.transition) {
-      if (this.isPlaying && this.queue.length > 0) {
-        const nextIndex = this.queue.shift();
+      if (!this.transition) {
+        if (this.isPlaying && this.queue.length > 0) {
+          const nextIndex = this.queue.shift();
 
-        if (typeof nextIndex === "number") {
-          this.beginQueuedTransition(nextIndex, now);
-          this.emit();
-        }
-      } else if (this.isPlaying && this.settledIndex < this.steps.length - 1) {
-        this.queue = this.buildForwardQueue(this.settledIndex);
-      } else {
+          if (typeof nextIndex === "number") {
+            this.beginQueuedTransition(nextIndex, now);
+            this.emit();
+          }
+        } else if (this.isPlaying && this.settledIndex < this.steps.length - 1) {
+          this.queue = this.buildForwardQueue(this.settledIndex);
+        } else {
         this.isPlaying = false;
         this.emit();
       }

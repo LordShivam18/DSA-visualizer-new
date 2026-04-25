@@ -37,5 +37,7 @@ export function useTimeline<Step extends TimelineStep>(steps: Step[]) {
     prev: () => engine.prev(),
     reset: () => engine.reset(),
     setSpeed: (speed: TimelineSpeed) => engine.setSpeed(speed),
+    setLockedSteps: (indices: number[], reason?: string) =>
+      engine.setLockedSteps(indices, reason),
   };
 }
