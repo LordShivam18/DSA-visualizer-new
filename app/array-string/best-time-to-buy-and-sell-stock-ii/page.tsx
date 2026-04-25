@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import AcademyLessonShell from "@/components/academy/AcademyLessonShell";
 import AdaptiveRecommendationRail from "@/components/academy/AdaptiveRecommendationRail";
@@ -199,10 +199,11 @@ export default function StockIIPage() {
     sessionInsightForMode(storedMode ?? "prediction")
   );
 
-  const sessionStartedAtRef = useRef(Date.now());
+  const sessionStartedAtRef = useRef(0);
   const recordedCycleKeyRef = useRef<string | null>(null);
 
   const timeline = useTimeline(trace);
+  const { pause, play, prev, next, reset, setLockedSteps, setSpeed } = timeline;
   const step = timeline.activeStep ?? trace[0];
   const finalStep = trace[trace.length - 1];
   const practiceConfig = stockIILessonDefinition.practice!;
@@ -293,10 +294,10 @@ export default function StockIIPage() {
   ]);
 
   useEffect(() => {
-    timeline.setLockedSteps(lockState.indices, lockState.reason);
-  }, [lockState.indices, lockState.reason, timeline.setLockedSteps]);
+    setLockedSteps(lockState.indices, lockState.reason);
+  }, [lockState.indices, lockState.reason, setLockedSteps]);
 
-  function completeSession(
+  const completeSession = useCallback((
     sessionMode: AcademyMode,
     evaluation: SessionEvaluation,
     extras: Pick<SessionRecord, "hintsUsed" | "prediction" | "completed"> & {
@@ -304,7 +305,7 @@ export default function StockIIPage() {
       interview?: SessionRecord["interview"];
       message: string;
     }
-  ) {
+  ) => {
     if (recordedCycleKeyRef.current === cycleKey) {
       return;
     }
@@ -336,20 +337,24 @@ export default function StockIIPage() {
 
     recordSession(session);
     setLastSessionMessage(extras.message);
-  }
+  }, [cycleKey, inputs.prices, recordSession]);
 
   useEffect(() => {
     if (mode !== "learn" || !step.done) {
       return;
     }
 
-    completeSession("learn", buildLearnEvaluation(Date.now() - sessionStartedAtRef.current), {
-      hintsUsed: 0,
-      prediction: { asked: 0, correct: 0 },
-      completed: true,
-      message: "Guided learn session completed and recorded in your dashboard.",
-    });
-  }, [mode, step.done]);
+    completeSession(
+      "learn",
+      buildLearnEvaluation(Date.now() - sessionStartedAtRef.current),
+      {
+        hintsUsed: 0,
+        prediction: { asked: 0, correct: 0 },
+        completed: true,
+        message: "Guided learn session completed and recorded in your dashboard.",
+      }
+    );
+  }, [completeSession, mode, step.done]);
 
   useEffect(() => {
     if (mode !== "prediction" || !step.done || prediction.askedCount === 0) {
@@ -375,6 +380,7 @@ export default function StockIIPage() {
       }
     );
   }, [
+    completeSession,
     mode,
     prediction.accuracy,
     prediction.askedCount,
@@ -402,6 +408,7 @@ export default function StockIIPage() {
       message: "Interview simulation evaluated and written to session history.",
     });
   }, [
+    completeSession,
     interview.answer,
     interview.evaluation,
     interview.hintRequests,
@@ -409,6 +416,7 @@ export default function StockIIPage() {
     interview.selfConfidence,
     interview.timeRemainingSec,
     interview.timedOut,
+    interviewConfig.timeLimitSec,
     mode,
   ]);
 
@@ -418,7 +426,7 @@ export default function StockIIPage() {
     setInputs(nextValues);
     setTrace(nextTrace);
     setRunId((current) => current + 1);
-    timeline.pause();
+    pause();
   }
 
   function switchMode(nextMode: AcademyMode) {
@@ -426,8 +434,8 @@ export default function StockIIPage() {
       return;
     }
 
-    timeline.pause();
-    timeline.reset();
+    pause();
+    reset();
     setMode(nextMode);
   }
 
@@ -540,21 +548,21 @@ export default function StockIIPage() {
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="flex flex-wrap items-center gap-3">
           <button
-            onClick={timeline.prev}
+            onClick={prev}
             disabled={!timeline.canPrev}
             className="rounded-xl border border-slate-200 bg-white px-5 py-2 text-sm font-medium text-slate-700 transition-all hover:border-violet-300 hover:text-violet-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:bg-slate-50 disabled:text-slate-400"
           >
             Prev Step
           </button>
           <button
-            onClick={timeline.next}
+            onClick={next}
             disabled={!timeline.canNext}
             className="rounded-xl border border-cyan-200 bg-cyan-500 px-5 py-2 text-sm font-semibold text-white shadow-[0_0_26px_rgba(34,211,238,0.2)] transition-all hover:-translate-y-0.5 hover:bg-cyan-600 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
           >
             Next Step
           </button>
           <button
-            onClick={timeline.isPlaying ? timeline.pause : timeline.play}
+            onClick={timeline.isPlaying ? pause : play}
             disabled={mode !== "learn"}
             className="rounded-xl border border-violet-200 bg-white px-5 py-2 text-sm font-medium text-violet-700 transition-all hover:border-violet-300 hover:bg-violet-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
           >
@@ -562,9 +570,9 @@ export default function StockIIPage() {
           </button>
           <button
             onClick={() => {
-              timeline.reset();
-              timeline.pause();
-            }}
+                reset();
+                pause();
+              }}
             className="rounded-xl border border-emerald-200 bg-white px-5 py-2 text-sm font-medium text-emerald-700 transition-all hover:border-emerald-300 hover:bg-emerald-50"
           >
             Reset
@@ -582,7 +590,7 @@ export default function StockIIPage() {
             {[0.5, 1, 2].map((speed) => (
               <button
                 key={speed}
-                onClick={() => timeline.setSpeed(speed as 0.5 | 1 | 2)}
+                onClick={() => setSpeed(speed as 0.5 | 1 | 2)}
                 className={`rounded-full px-4 py-1.5 text-xs transition-all ${
                   timeline.speed === speed
                     ? "bg-slate-900 text-white"
