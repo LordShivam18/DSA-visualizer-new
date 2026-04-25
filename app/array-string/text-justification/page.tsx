@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import CodePanel from "../../../components/array-string/text-justification/CodePanel";
 import Controls from "../../../components/array-string/text-justification/Controls";
 import MicroscopeView from "../../../components/array-string/text-justification/MicroscopeView";
@@ -9,18 +7,16 @@ import TextJustificationVisualizer from "../../../components/array-string/text-j
 import TracePanel from "../../../components/array-string/text-justification/TracePanel";
 import {
   generateTrace,
-  type TextJustificationTraceStep,
 } from "../../../components/array-string/text-justification/generateTrace";
-import DarkProblemShell from "../../../components/array-string/shared/DarkProblemShell";
-import type { PresetConfig } from "../../../components/array-string/shared/types";
 import { darkPanelClassName } from "../../../components/array-string/shared/darkUi";
+import DarkTraceProblemPage from "@/components/academy/DarkTraceProblemPage";
 
 const defaultInputs = {
   words: '["This","is","an","example","of","text","justification."]',
   maxWidth: "16",
 };
 
-const presets: PresetConfig[] = [
+const presets = [
   {
     name: "Example 1",
     summary: "=> 3 lines",
@@ -52,29 +48,18 @@ function buildTrace(values: typeof defaultInputs) {
 }
 
 export default function TextJustificationPage() {
-  const [inputs, setInputs] = useState(defaultInputs);
-  const [trace, setTrace] = useState<TextJustificationTraceStep[]>(() =>
-    buildTrace(defaultInputs)
-  );
-  const [cursor, setCursor] = useState(0);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
-  const step = trace[Math.min(cursor, trace.length - 1)];
-
-  function run(nextValues = inputs) {
-    setInputs(nextValues);
-    setTrace(buildTrace(nextValues));
-    setCursor(0);
-  }
-
   return (
-    <DarkProblemShell
-      categoryHref="/array-string"
-      categoryLabel="Array / String"
-      taxonomy="Array / String / Greedy Packing / Formatting"
-      title="Text Justification"
-      difficulty="Hard"
-      description="Greedily pack words into each line, distribute the remaining spaces across the gaps, and left-justify the final line."
-      complexity="O(total chars) time / O(total output) extra space"
+    <DarkTraceProblemPage
+      meta={{
+        categoryHref: "/array-string",
+        categoryLabel: "Array / String",
+        taxonomy: "Array / String / Greedy Packing / Formatting",
+        title: "Text Justification",
+        difficulty: "Hard",
+        description: "Greedily pack words into each line, distribute the remaining spaces across the gaps, and left-justify the final line.",
+        complexity: "O(total chars) time / O(total output) extra space",
+      }}
+      defaultInputs={defaultInputs}
       inputFields={[
         {
           key: "words",
@@ -90,35 +75,14 @@ export default function TextJustificationPage() {
           placeholder: "16",
         },
       ]}
-      inputValues={inputs}
-      onInputChange={(key, value) =>
-        setInputs((current) => ({ ...current, [key]: value }))
-      }
-      onRun={() => run()}
       presets={presets}
-      onPreset={(preset) => run(preset.values as typeof defaultInputs)}
-      step={step}
-      mode={mode}
-      controls={
-        <Controls
-          stepIndex={cursor}
-          totalSteps={trace.length}
-          mode={mode}
-          onModeChange={setMode}
-          onPrev={() => setCursor((current) => Math.max(current - 1, 0))}
-          onNext={() =>
-            setCursor((current) => Math.min(current + 1, trace.length - 1))
-          }
-          onReset={() => setCursor(0)}
-          canPrev={cursor > 0}
-          canNext={cursor < trace.length - 1}
-        />
-      }
-      visualization={<TextJustificationVisualizer step={step} />}
-      microscope={<MicroscopeView step={step} mode={mode} />}
-      tracePanel={<TracePanel step={step} />}
-      codePanel={<CodePanel step={step} />}
-      output={
+      buildTrace={buildTrace}
+      Controls={Controls}
+      Visualization={TextJustificationVisualizer}
+      Microscope={MicroscopeView}
+      TracePanel={TracePanel}
+      CodePanel={CodePanel}
+      renderOutput={({ step }) => (
         <div
           className={`${darkPanelClassName} p-5 ${
             step.done ? "border-emerald-400/30 bg-emerald-500/5" : ""
@@ -143,7 +107,7 @@ export default function TextJustificationPage() {
               .join("\n")}
           </div>
         </div>
-      }
+      )}
     />
   );
 }

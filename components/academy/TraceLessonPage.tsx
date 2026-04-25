@@ -64,7 +64,8 @@ type TraceLessonPageProps<
   defaultInputs: TInputs;
   inputFields: TraceInputField<TInputs>[];
   presets: TracePreset<TInputs>[];
-  buildTrace: (inputs: TInputs) => Step[];
+  buildTrace?: (inputs: TInputs) => Step[];
+  generateTrace?: (inputs: TInputs) => Step[];
   inputHint?: string;
   renderControls?: (
     context: LessonControllerState<TInputs, Step>
@@ -338,6 +339,7 @@ export default function TraceLessonPage<
   inputFields,
   presets,
   buildTrace,
+  generateTrace,
   inputHint,
   renderControls,
   renderVisualization,
@@ -350,6 +352,7 @@ export default function TraceLessonPage<
     <LessonShell
       defaultInputs={defaultInputs}
       buildTrace={buildTrace}
+      generateTrace={generateTrace}
       renderControls={(context) =>
         renderControls
           ? renderControls(context)

@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import CodePanel from "../../../components/array-string/find-the-index-of-the-first-occurrence-in-a-string/CodePanel";
 import Controls from "../../../components/array-string/find-the-index-of-the-first-occurrence-in-a-string/Controls";
 import FirstOccurrenceVisualizer from "../../../components/array-string/find-the-index-of-the-first-occurrence-in-a-string/FirstOccurrenceVisualizer";
@@ -9,18 +7,16 @@ import MicroscopeView from "../../../components/array-string/find-the-index-of-t
 import TracePanel from "../../../components/array-string/find-the-index-of-the-first-occurrence-in-a-string/TracePanel";
 import {
   generateTrace,
-  type FirstOccurrenceTraceStep,
 } from "../../../components/array-string/find-the-index-of-the-first-occurrence-in-a-string/generateTrace";
-import DarkProblemShell from "../../../components/array-string/shared/DarkProblemShell";
-import type { PresetConfig } from "../../../components/array-string/shared/types";
 import { darkPanelClassName } from "../../../components/array-string/shared/darkUi";
+import DarkTraceProblemPage from "@/components/academy/DarkTraceProblemPage";
 
 const defaultInputs = {
   haystack: "sadbutsad",
   needle: "sad",
 };
 
-const presets: PresetConfig[] = [
+const presets = [
   {
     name: "Example 1",
     summary: "=> 0",
@@ -43,29 +39,18 @@ function buildTrace(values: typeof defaultInputs) {
 }
 
 export default function FirstOccurrencePage() {
-  const [inputs, setInputs] = useState(defaultInputs);
-  const [trace, setTrace] = useState<FirstOccurrenceTraceStep[]>(() =>
-    buildTrace(defaultInputs)
-  );
-  const [cursor, setCursor] = useState(0);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
-  const step = trace[Math.min(cursor, trace.length - 1)];
-
-  function run(nextValues = inputs) {
-    setInputs(nextValues);
-    setTrace(buildTrace(nextValues));
-    setCursor(0);
-  }
-
   return (
-    <DarkProblemShell
-      categoryHref="/array-string"
-      categoryLabel="Array / String"
-      taxonomy="Array / String / Substring Search / Sliding Alignment"
-      title="Find the Index of the First Occurrence in a String"
-      difficulty="Easy"
-      description="Return the first index where the needle appears in the haystack by testing candidate windows left to right."
-      complexity="O((n - m + 1) * m) time / O(1) extra space"
+    <DarkTraceProblemPage
+      meta={{
+        categoryHref: "/array-string",
+        categoryLabel: "Array / String",
+        taxonomy: "Array / String / Substring Search / Sliding Alignment",
+        title: "Find the Index of the First Occurrence in a String",
+        difficulty: "Easy",
+        description: "Return the first index where the needle appears in the haystack by testing candidate windows left to right.",
+        complexity: "O((n - m + 1) * m) time / O(1) extra space",
+      }}
+      defaultInputs={defaultInputs}
       inputFields={[
         {
           key: "haystack",
@@ -78,35 +63,14 @@ export default function FirstOccurrencePage() {
           placeholder: "sad",
         },
       ]}
-      inputValues={inputs}
-      onInputChange={(key, value) =>
-        setInputs((current) => ({ ...current, [key]: value }))
-      }
-      onRun={() => run()}
       presets={presets}
-      onPreset={(preset) => run(preset.values as typeof defaultInputs)}
-      step={step}
-      mode={mode}
-      controls={
-        <Controls
-          stepIndex={cursor}
-          totalSteps={trace.length}
-          mode={mode}
-          onModeChange={setMode}
-          onPrev={() => setCursor((current) => Math.max(current - 1, 0))}
-          onNext={() =>
-            setCursor((current) => Math.min(current + 1, trace.length - 1))
-          }
-          onReset={() => setCursor(0)}
-          canPrev={cursor > 0}
-          canNext={cursor < trace.length - 1}
-        />
-      }
-      visualization={<FirstOccurrenceVisualizer step={step} />}
-      microscope={<MicroscopeView step={step} mode={mode} />}
-      tracePanel={<TracePanel step={step} />}
-      codePanel={<CodePanel step={step} />}
-      output={
+      buildTrace={buildTrace}
+      Controls={Controls}
+      Visualization={FirstOccurrenceVisualizer}
+      Microscope={MicroscopeView}
+      TracePanel={TracePanel}
+      CodePanel={CodePanel}
+      renderOutput={({ step }) => (
         <div
           className={`${darkPanelClassName} p-5 ${
             step.done && (step.state.result ?? -1) >= 0
@@ -137,7 +101,7 @@ export default function FirstOccurrencePage() {
             index = {step.state.result ?? "searching"}
           </div>
         </div>
-      }
+      )}
     />
   );
 }

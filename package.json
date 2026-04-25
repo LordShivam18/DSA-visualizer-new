@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:lesson-shell": "node scripts/verify-lesson-shell.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.23.24",

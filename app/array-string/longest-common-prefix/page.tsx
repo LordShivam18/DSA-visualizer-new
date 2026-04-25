@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import CodePanel from "../../../components/array-string/longest-common-prefix/CodePanel";
 import Controls from "../../../components/array-string/longest-common-prefix/Controls";
 import LongestCommonPrefixVisualizer from "../../../components/array-string/longest-common-prefix/LongestCommonPrefixVisualizer";
@@ -9,17 +7,15 @@ import MicroscopeView from "../../../components/array-string/longest-common-pref
 import TracePanel from "../../../components/array-string/longest-common-prefix/TracePanel";
 import {
   generateTrace,
-  type LongestCommonPrefixTraceStep,
 } from "../../../components/array-string/longest-common-prefix/generateTrace";
-import DarkProblemShell from "../../../components/array-string/shared/DarkProblemShell";
-import type { PresetConfig } from "../../../components/array-string/shared/types";
 import { darkPanelClassName } from "../../../components/array-string/shared/darkUi";
+import DarkTraceProblemPage from "@/components/academy/DarkTraceProblemPage";
 
 const defaultInputs = {
   strs: '["flower","flow","flight"]',
 };
 
-const presets: PresetConfig[] = [
+const presets = [
   {
     name: "Example 1",
     summary: '=> "fl"',
@@ -42,29 +38,18 @@ function buildTrace(values: typeof defaultInputs) {
 }
 
 export default function LongestCommonPrefixPage() {
-  const [inputs, setInputs] = useState(defaultInputs);
-  const [trace, setTrace] = useState<LongestCommonPrefixTraceStep[]>(() =>
-    buildTrace(defaultInputs)
-  );
-  const [cursor, setCursor] = useState(0);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
-  const step = trace[Math.min(cursor, trace.length - 1)];
-
-  function run(nextValues = inputs) {
-    setInputs(nextValues);
-    setTrace(buildTrace(nextValues));
-    setCursor(0);
-  }
-
   return (
-    <DarkProblemShell
-      categoryHref="/array-string"
-      categoryLabel="Array / String"
-      taxonomy="Array / String / Prefix Scan / Column Comparison"
-      title="Longest Common Prefix"
-      difficulty="Easy"
-      description="Find the longest shared prefix across a list of strings by comparing one character column at a time."
-      complexity="O(total compared chars) time / O(1) extra space"
+    <DarkTraceProblemPage
+      meta={{
+        categoryHref: "/array-string",
+        categoryLabel: "Array / String",
+        taxonomy: "Array / String / Prefix Scan / Column Comparison",
+        title: "Longest Common Prefix",
+        difficulty: "Easy",
+        description: "Find the longest shared prefix across a list of strings by comparing one character column at a time.",
+        complexity: "O(total compared chars) time / O(1) extra space",
+      }}
+      defaultInputs={defaultInputs}
       inputFields={[
         {
           key: "strs",
@@ -75,35 +60,14 @@ export default function LongestCommonPrefixPage() {
           help: "Use JSON arrays, comma-separated words, or newline-separated entries.",
         },
       ]}
-      inputValues={inputs}
-      onInputChange={(key, value) =>
-        setInputs((current) => ({ ...current, [key]: value }))
-      }
-      onRun={() => run()}
       presets={presets}
-      onPreset={(preset) => run(preset.values as typeof defaultInputs)}
-      step={step}
-      mode={mode}
-      controls={
-        <Controls
-          stepIndex={cursor}
-          totalSteps={trace.length}
-          mode={mode}
-          onModeChange={setMode}
-          onPrev={() => setCursor((current) => Math.max(current - 1, 0))}
-          onNext={() =>
-            setCursor((current) => Math.min(current + 1, trace.length - 1))
-          }
-          onReset={() => setCursor(0)}
-          canPrev={cursor > 0}
-          canNext={cursor < trace.length - 1}
-        />
-      }
-      visualization={<LongestCommonPrefixVisualizer step={step} />}
-      microscope={<MicroscopeView step={step} mode={mode} />}
-      tracePanel={<TracePanel step={step} />}
-      codePanel={<CodePanel step={step} />}
-      output={
+      buildTrace={buildTrace}
+      Controls={Controls}
+      Visualization={LongestCommonPrefixVisualizer}
+      Microscope={MicroscopeView}
+      TracePanel={TracePanel}
+      CodePanel={CodePanel}
+      renderOutput={({ step }) => (
         <div
           className={`${darkPanelClassName} p-5 ${
             step.done ? "border-emerald-400/30 bg-emerald-500/5" : ""
@@ -126,7 +90,7 @@ export default function LongestCommonPrefixPage() {
             prefix = {step.state.result ?? step.state.prefix}
           </div>
         </div>
-      }
+      )}
     />
   );
 }

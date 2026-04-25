@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import CodePanel from "../../../components/array-string/zigzag-conversion/CodePanel";
 import Controls from "../../../components/array-string/zigzag-conversion/Controls";
 import MicroscopeView from "../../../components/array-string/zigzag-conversion/MicroscopeView";
@@ -9,18 +7,16 @@ import TracePanel from "../../../components/array-string/zigzag-conversion/Trace
 import ZigzagConversionVisualizer from "../../../components/array-string/zigzag-conversion/ZigzagConversionVisualizer";
 import {
   generateTrace,
-  type ZigzagConversionTraceStep,
 } from "../../../components/array-string/zigzag-conversion/generateTrace";
-import DarkProblemShell from "../../../components/array-string/shared/DarkProblemShell";
-import type { PresetConfig } from "../../../components/array-string/shared/types";
 import { darkPanelClassName } from "../../../components/array-string/shared/darkUi";
+import DarkTraceProblemPage from "@/components/academy/DarkTraceProblemPage";
 
 const defaultInputs = {
   s: "PAYPALISHIRING",
   numRows: "3",
 };
 
-const presets: PresetConfig[] = [
+const presets = [
   {
     name: "Example 1",
     summary: '=> "PAHNAPLSIIGYIR"',
@@ -43,29 +39,18 @@ function buildTrace(values: typeof defaultInputs) {
 }
 
 export default function ZigzagConversionPage() {
-  const [inputs, setInputs] = useState(defaultInputs);
-  const [trace, setTrace] = useState<ZigzagConversionTraceStep[]>(() =>
-    buildTrace(defaultInputs)
-  );
-  const [cursor, setCursor] = useState(0);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
-  const step = trace[Math.min(cursor, trace.length - 1)];
-
-  function run(nextValues = inputs) {
-    setInputs(nextValues);
-    setTrace(buildTrace(nextValues));
-    setCursor(0);
-  }
-
   return (
-    <DarkProblemShell
-      categoryHref="/array-string"
-      categoryLabel="Array / String"
-      taxonomy="Array / String / Simulation / Zigzag Routing"
-      title="Zigzag Conversion"
-      difficulty="Medium"
-      description="Route characters through a bouncing row pointer, then read the row buffers back in order to form the zigzag-converted string."
-      complexity="O(n) time / O(n) extra space"
+    <DarkTraceProblemPage
+      meta={{
+        categoryHref: "/array-string",
+        categoryLabel: "Array / String",
+        taxonomy: "Array / String / Simulation / Zigzag Routing",
+        title: "Zigzag Conversion",
+        difficulty: "Medium",
+        description: "Route characters through a bouncing row pointer, then read the row buffers back in order to form the zigzag-converted string.",
+        complexity: "O(n) time / O(n) extra space",
+      }}
+      defaultInputs={defaultInputs}
       inputFields={[
         {
           key: "s",
@@ -78,35 +63,14 @@ export default function ZigzagConversionPage() {
           placeholder: "3",
         },
       ]}
-      inputValues={inputs}
-      onInputChange={(key, value) =>
-        setInputs((current) => ({ ...current, [key]: value }))
-      }
-      onRun={() => run()}
       presets={presets}
-      onPreset={(preset) => run(preset.values as typeof defaultInputs)}
-      step={step}
-      mode={mode}
-      controls={
-        <Controls
-          stepIndex={cursor}
-          totalSteps={trace.length}
-          mode={mode}
-          onModeChange={setMode}
-          onPrev={() => setCursor((current) => Math.max(current - 1, 0))}
-          onNext={() =>
-            setCursor((current) => Math.min(current + 1, trace.length - 1))
-          }
-          onReset={() => setCursor(0)}
-          canPrev={cursor > 0}
-          canNext={cursor < trace.length - 1}
-        />
-      }
-      visualization={<ZigzagConversionVisualizer step={step} />}
-      microscope={<MicroscopeView step={step} mode={mode} />}
-      tracePanel={<TracePanel step={step} />}
-      codePanel={<CodePanel step={step} />}
-      output={
+      buildTrace={buildTrace}
+      Controls={Controls}
+      Visualization={ZigzagConversionVisualizer}
+      Microscope={MicroscopeView}
+      TracePanel={TracePanel}
+      CodePanel={CodePanel}
+      renderOutput={({ step }) => (
         <div
           className={`${darkPanelClassName} p-5 ${
             step.done ? "border-emerald-400/30 bg-emerald-500/5" : ""
@@ -129,7 +93,7 @@ export default function ZigzagConversionPage() {
             zigzag = {step.state.finalResult ?? step.state.result}
           </div>
         </div>
-      }
+      )}
     />
   );
 }

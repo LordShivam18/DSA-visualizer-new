@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import CodePanel from "../../../components/array-string/majority-element/CodePanel";
 import Controls from "../../../components/array-string/majority-element/Controls";
 import MajorityElementVisualizer from "../../../components/array-string/majority-element/MajorityElementVisualizer";
@@ -9,17 +7,15 @@ import MicroscopeView from "../../../components/array-string/majority-element/Mi
 import TracePanel from "../../../components/array-string/majority-element/TracePanel";
 import {
   generateTrace,
-  type MajorityElementTraceStep,
 } from "../../../components/array-string/majority-element/generateTrace";
-import ProblemShell from "../../../components/array-string/shared/ProblemShell";
-import type { PresetConfig } from "../../../components/array-string/shared/types";
 import { lightPanelClassName } from "../../../components/array-string/shared/ui";
+import ArrayStringLessonPage from "@/components/array-string/shared/ArrayStringLessonPage";
 
 const defaultInputs = {
   nums: "[2,2,1,1,1,2,2]",
 };
 
-const presets: PresetConfig[] = [
+const presets = [
   { name: "Example 1", summary: "=> 3", values: { nums: "[3,2,3]" } },
   { name: "Example 2", summary: "=> 2", values: defaultInputs },
   {
@@ -34,62 +30,29 @@ function buildTrace(values: typeof defaultInputs) {
 }
 
 export default function MajorityElementPage() {
-  const [inputs, setInputs] = useState(defaultInputs);
-  const [trace, setTrace] = useState<MajorityElementTraceStep[]>(() =>
-    buildTrace(defaultInputs)
-  );
-  const [cursor, setCursor] = useState(0);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
-
-  const step = trace[Math.min(cursor, trace.length - 1)];
-
-  function run(nextValues = inputs) {
-    setInputs(nextValues);
-    setTrace(buildTrace(nextValues));
-    setCursor(0);
-  }
-
   return (
-    <ProblemShell
-      categoryHref="/array-string"
-      categoryLabel="Array / String"
-      taxonomy="Array / String / Voting Invariant"
-      title="Majority Element"
-      difficulty="Easy"
-      description="Watch Boyer-Moore pair off competing values until the majority element remains as the final survivor."
-      complexity="O(n) time / O(1) extra space"
+    <ArrayStringLessonPage
+      meta={{
+        categoryHref: "/array-string",
+        categoryLabel: "Array / String",
+        taxonomy: "Array / String / Voting Invariant",
+        title: "Majority Element",
+        difficulty: "Easy",
+        description: "Watch Boyer-Moore pair off competing values until the majority element remains as the final survivor.",
+        complexity: "O(n) time / O(1) extra space",
+      }}
+      defaultInputs={defaultInputs}
       inputFields={[
         { key: "nums", label: "nums", placeholder: "[2,2,1,1,1,2,2]" },
       ]}
-      inputValues={inputs}
-      onInputChange={(key, value) =>
-        setInputs((current) => ({ ...current, [key]: value }))
-      }
-      onRun={() => run()}
       presets={presets}
-      onPreset={(preset) => run(preset.values as typeof defaultInputs)}
-      step={step}
-      mode={mode}
-      controls={
-        <Controls
-          stepIndex={cursor}
-          totalSteps={trace.length}
-          mode={mode}
-          onModeChange={setMode}
-          onPrev={() => setCursor((current) => Math.max(current - 1, 0))}
-          onNext={() =>
-            setCursor((current) => Math.min(current + 1, trace.length - 1))
-          }
-          onReset={() => setCursor(0)}
-          canPrev={cursor > 0}
-          canNext={cursor < trace.length - 1}
-        />
-      }
-      visualization={<MajorityElementVisualizer step={step} />}
-      microscope={<MicroscopeView step={step} mode={mode} />}
-      tracePanel={<TracePanel step={step} />}
-      codePanel={<CodePanel step={step} />}
-      output={
+      buildTrace={buildTrace}
+      Controls={Controls}
+      Visualization={MajorityElementVisualizer}
+      Microscope={MicroscopeView}
+      TracePanel={TracePanel}
+      CodePanel={CodePanel}
+      renderOutput={({ step }) => (
         <div
           className={`${lightPanelClassName} p-5 ${
             step.done ? "border-emerald-200 bg-emerald-50/60" : ""
@@ -112,7 +75,7 @@ export default function MajorityElementPage() {
             majority = {step.state.result ?? step.state.candidate ?? "none"}
           </div>
         </div>
-      }
+      )}
     />
   );
 }

@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import CodePanel from "../../../components/array-string/product-of-array-except-self/CodePanel";
 import Controls from "../../../components/array-string/product-of-array-except-self/Controls";
 import MicroscopeView from "../../../components/array-string/product-of-array-except-self/MicroscopeView";
@@ -9,18 +7,16 @@ import ProductExceptSelfVisualizer from "../../../components/array-string/produc
 import TracePanel from "../../../components/array-string/product-of-array-except-self/TracePanel";
 import {
   generateTrace,
-  type ProductExceptSelfTraceStep,
 } from "../../../components/array-string/product-of-array-except-self/generateTrace";
 import { formatArray } from "../../../components/array-string/shared/parsers";
-import ProblemShell from "../../../components/array-string/shared/ProblemShell";
-import type { PresetConfig } from "../../../components/array-string/shared/types";
 import { lightPanelClassName } from "../../../components/array-string/shared/ui";
+import ArrayStringLessonPage from "@/components/array-string/shared/ArrayStringLessonPage";
 
 const defaultInputs = {
   nums: "[1,2,3,4]",
 };
 
-const presets: PresetConfig[] = [
+const presets = [
   { name: "Example 1", summary: "=> [24,12,8,6]", values: defaultInputs },
   {
     name: "Example 2",
@@ -39,62 +35,29 @@ function buildTrace(values: typeof defaultInputs) {
 }
 
 export default function ProductOfArrayExceptSelfPage() {
-  const [inputs, setInputs] = useState(defaultInputs);
-  const [trace, setTrace] = useState<ProductExceptSelfTraceStep[]>(() =>
-    buildTrace(defaultInputs)
-  );
-  const [cursor, setCursor] = useState(0);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
-
-  const step = trace[Math.min(cursor, trace.length - 1)];
-
-  function run(nextValues = inputs) {
-    setInputs(nextValues);
-    setTrace(buildTrace(nextValues));
-    setCursor(0);
-  }
-
   return (
-    <ProblemShell
-      categoryHref="/array-string"
-      categoryLabel="Array / String"
-      taxonomy="Array / String / Prefix and Suffix Products"
-      title="Product of Array Except Self"
-      difficulty="Medium"
-      description="Compute the product for every index without division by first storing left products and then multiplying in right products."
-      complexity="O(n) time / O(1) extra space beyond output"
+    <ArrayStringLessonPage
+      meta={{
+        categoryHref: "/array-string",
+        categoryLabel: "Array / String",
+        taxonomy: "Array / String / Prefix and Suffix Products",
+        title: "Product of Array Except Self",
+        difficulty: "Medium",
+        description: "Compute the product for every index without division by first storing left products and then multiplying in right products.",
+        complexity: "O(n) time / O(1) extra space beyond output",
+      }}
+      defaultInputs={defaultInputs}
       inputFields={[
         { key: "nums", label: "nums", placeholder: "[1,2,3,4]" },
       ]}
-      inputValues={inputs}
-      onInputChange={(key, value) =>
-        setInputs((current) => ({ ...current, [key]: value }))
-      }
-      onRun={() => run()}
       presets={presets}
-      onPreset={(preset) => run(preset.values as typeof defaultInputs)}
-      step={step}
-      mode={mode}
-      controls={
-        <Controls
-          stepIndex={cursor}
-          totalSteps={trace.length}
-          mode={mode}
-          onModeChange={setMode}
-          onPrev={() => setCursor((current) => Math.max(current - 1, 0))}
-          onNext={() =>
-            setCursor((current) => Math.min(current + 1, trace.length - 1))
-          }
-          onReset={() => setCursor(0)}
-          canPrev={cursor > 0}
-          canNext={cursor < trace.length - 1}
-        />
-      }
-      visualization={<ProductExceptSelfVisualizer step={step} />}
-      microscope={<MicroscopeView step={step} mode={mode} />}
-      tracePanel={<TracePanel step={step} />}
-      codePanel={<CodePanel step={step} />}
-      output={
+      buildTrace={buildTrace}
+      Controls={Controls}
+      Visualization={ProductExceptSelfVisualizer}
+      Microscope={MicroscopeView}
+      TracePanel={TracePanel}
+      CodePanel={CodePanel}
+      renderOutput={({ step }) => (
         <div
           className={`${lightPanelClassName} p-5 ${
             step.done ? "border-emerald-200 bg-emerald-50/60" : ""
@@ -117,7 +80,7 @@ export default function ProductOfArrayExceptSelfPage() {
             answer = {formatArray(step.state.result ?? step.state.answer)}
           </div>
         </div>
-      }
+      )}
     />
   );
 }

@@ -6,7 +6,9 @@ import {
   useLessonController,
   type LessonControllerState,
   type LessonStepLike,
+  type TeachingMode,
 } from "./hooks/useLessonController";
+import type { LessonFeatureMode } from "./LessonModeToggle";
 import LessonModeToggle from "./LessonModeToggle";
 import PredictionCheckpointCard from "./PredictionCheckpointCard";
 import WhyPanel from "./WhyPanel";
@@ -37,6 +39,9 @@ export default function LessonShell<
 >({
   defaultInputs,
   buildTrace,
+  generateTrace,
+  initialTeachingMode,
+  initialLessonMode,
   renderControls,
   renderVisualization,
   renderMicroscope,
@@ -46,7 +51,10 @@ export default function LessonShell<
   renderContainer,
 }: {
   defaultInputs: TInputs;
-  buildTrace: (inputs: TInputs) => Step[];
+  buildTrace?: (inputs: TInputs) => Step[];
+  generateTrace?: (inputs: TInputs) => Step[];
+  initialTeachingMode?: TeachingMode;
+  initialLessonMode?: LessonFeatureMode;
   renderControls: (context: LessonShellViewModel<TInputs, Step>) => ReactNode;
   renderVisualization: (context: LessonShellViewModel<TInputs, Step>) => ReactNode;
   renderMicroscope: (context: LessonShellViewModel<TInputs, Step>) => ReactNode;
@@ -57,9 +65,19 @@ export default function LessonShell<
     context: LessonShellContainerContext<TInputs, Step>
   ) => ReactNode;
 }) {
+  const traceBuilder = generateTrace ?? buildTrace;
+
+  if (!traceBuilder) {
+    throw new Error(
+      "LessonShell requires a generateTrace function (or legacy buildTrace alias)."
+    );
+  }
+
   const lesson = useLessonController({
     defaultInputs,
-    buildTrace,
+    buildTrace: traceBuilder,
+    initialTeachingMode,
+    initialLessonMode,
   });
 
   const lessonModeToggle = (
