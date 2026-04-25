@@ -1,20 +1,32 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import { diagnoseMistake } from "@/lib/academy/mistakeEngine";
 import type {
   PredictionCheckpoint,
   PredictionFeedback,
+  PredictionValidation,
 } from "@/lib/academy/models";
 
 type PredictableStep = {
   step: number;
+  action: string;
+  actionKind?: string;
+  beginnerNote?: string;
+  expertNote?: string;
+  focus?: string;
+  hints?: string[];
+  done?: boolean;
   checkpoint?: PredictionCheckpoint;
 };
 
 type AnswerRecord = {
-  choiceId: string;
-  correct: boolean;
+  firstChoiceId: string;
+  lastChoiceId: string;
+  firstAttemptCorrect: boolean;
+  resolved: boolean;
+  attemptCount: number;
 };
 
 type PredictionState = {
@@ -36,11 +48,16 @@ export function usePredictionEngine<Step extends PredictableStep>({
   activeIndex,
   enabled,
   resetKey,
+  timeline,
 }: {
   trace: Step[];
   activeIndex: number;
   enabled: boolean;
   resetKey: string;
+  timeline?: {
+    pause: () => void;
+    resume: () => void;
+  };
 }) {
   const [state, setState] = useState<PredictionState>(() =>
     createPredictionState(resetKey)
@@ -51,12 +68,15 @@ export function usePredictionEngine<Step extends PredictableStep>({
 
   const upcomingStep = enabled ? trace[activeIndex + 1] ?? null : null;
   const checkpoint =
-    upcomingStep?.checkpoint && !answers[upcomingStep.checkpoint.id]
+    upcomingStep?.checkpoint &&
+    !answers[upcomingStep.checkpoint.id]?.resolved
       ? upcomingStep.checkpoint
       : null;
 
   const askedCount = Object.keys(answers).length;
-  const correctCount = Object.values(answers).filter((answer) => answer.correct).length;
+  const correctCount = Object.values(answers).filter(
+    (answer) => answer.firstAttemptCorrect
+  ).length;
 
   const lockedStepIndices = useMemo(
     () =>
@@ -66,17 +86,27 @@ export function usePredictionEngine<Step extends PredictableStep>({
               (step, index) =>
                 index > activeIndex &&
                 step.checkpoint &&
-                !answers[step.checkpoint.id]
+                !answers[step.checkpoint.id]?.resolved
             )
             .map((step) => step.step)
         : [],
     [activeIndex, answers, enabled, trace]
   );
 
-  function submitPrediction(choiceId: string) {
+  useEffect(() => {
+    if (!enabled || !checkpoint) {
+      return;
+    }
+
+    timeline?.pause();
+  }, [checkpoint, enabled, timeline]);
+
+  function submitPrediction(choiceId: string): PredictionValidation | null {
     if (!checkpoint) {
       return null;
     }
+
+    timeline?.pause();
 
     const selectedChoice = checkpoint.choices.find((choice) => choice.id === choiceId);
     const correctChoice = checkpoint.choices.find((choice) => choice.isCorrect);
@@ -85,32 +115,62 @@ export function usePredictionEngine<Step extends PredictableStep>({
       return null;
     }
 
+    const currentStep = trace[activeIndex];
+    const diagnosis = selectedChoice.isCorrect
+      ? undefined
+      : diagnoseMistake({
+          userAnswer: selectedChoice.label,
+          correctAnswer: correctChoice.label,
+          step: upcomingStep ?? currentStep,
+          selectedChoiceId: selectedChoice.id,
+          selectedChoiceLabel: selectedChoice.label,
+          selectedChoiceDetail: selectedChoice.detail,
+          correctChoiceId: correctChoice.id,
+          correctChoiceLabel: correctChoice.label,
+          correctChoiceDetail: correctChoice.detail,
+          checkpointSkill: checkpoint.skill,
+        });
     const nextFeedback: PredictionFeedback = {
       checkpointId: checkpoint.id,
       selectedChoiceId: selectedChoice.id,
       correctChoiceId: correctChoice.id,
       correct: selectedChoice.isCorrect,
       explanation: checkpoint.explanation,
+      diagnosis,
     };
 
     setState((current) => {
       const base =
         current.resetKey === resetKey ? current : createPredictionState(resetKey);
+      const previousAnswer = base.answers[checkpoint.id];
 
       return {
         ...base,
         answers: {
           ...base.answers,
           [checkpoint.id]: {
-            choiceId: selectedChoice.id,
-            correct: selectedChoice.isCorrect,
+            firstChoiceId: previousAnswer?.firstChoiceId ?? selectedChoice.id,
+            lastChoiceId: selectedChoice.id,
+            firstAttemptCorrect:
+              previousAnswer?.firstAttemptCorrect ?? selectedChoice.isCorrect,
+            resolved: previousAnswer?.resolved ? true : selectedChoice.isCorrect,
+            attemptCount: (previousAnswer?.attemptCount ?? 0) + 1,
           },
         },
         feedback: nextFeedback,
       };
     });
 
-    return nextFeedback;
+    if (selectedChoice.isCorrect) {
+      requestAnimationFrame(() => {
+        timeline?.resume();
+      });
+    }
+
+    return {
+      correct: selectedChoice.isCorrect,
+      diagnosis,
+    };
   }
 
   return {

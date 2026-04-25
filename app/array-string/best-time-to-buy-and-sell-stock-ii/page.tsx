@@ -8,10 +8,12 @@ import InterviewWorkbench from "@/components/academy/InterviewWorkbench";
 import { useLearningPlatform } from "@/components/academy/LearningPlatformProvider";
 import PracticeWorkbench from "@/components/academy/PracticeWorkbench";
 import PredictionCheckpointCard from "@/components/academy/PredictionCheckpointCard";
+import WhyPanel from "@/components/academy/WhyPanel";
 import { useInterviewMode } from "@/components/academy/hooks/useInterviewMode";
 import { usePracticeMode } from "@/components/academy/hooks/usePracticeMode";
 import { usePredictionEngine } from "@/components/academy/hooks/usePredictionEngine";
 import { useProgressTracker } from "@/components/academy/hooks/useProgressTracker";
+import { useWhyPanel } from "@/components/academy/hooks/useWhyPanel";
 import { useTimeline } from "@/components/core/animation/useTimeline";
 import { stockIILessonDefinition } from "@/lib/academy/catalog";
 import type { AcademyMode, SessionEvaluation, SessionRecord } from "@/lib/academy/models";
@@ -213,13 +215,22 @@ export default function StockIIPage() {
   const expectedMoves = finalStep.state.transactions;
   const resetKey = `${runId}:${mode}:${inputs.prices}`;
   const cycleKey = `${runId}:${mode}`;
+  const predictionTimeline = useMemo(
+    () => ({
+      pause,
+      resume: play,
+    }),
+    [pause, play]
+  );
 
   const prediction = usePredictionEngine({
     trace,
     activeIndex: timeline.activeIndex,
     enabled: mode === "prediction",
     resetKey,
+    timeline: predictionTimeline,
   });
+  const whyInsight = useWhyPanel(step);
 
   const practice = usePracticeMode({
     config: practiceConfig,
@@ -803,6 +814,7 @@ export default function StockIIPage() {
       </section>
 
       <AdaptiveRecommendationRail items={recommendations} title="Adaptive Recommendations" />
+      <WhyPanel insight={whyInsight} />
       <TracePanel step={step} />
       <CodePanel step={step} />
     </>

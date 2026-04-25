@@ -96,6 +96,12 @@ export type PredictionFeedback = {
   correctChoiceId: string;
   correct: boolean;
   explanation: string;
+  diagnosis?: string;
+};
+
+export type PredictionValidation = {
+  correct: boolean;
+  diagnosis?: string;
 };
 
 export type AdaptiveRecommendation = {

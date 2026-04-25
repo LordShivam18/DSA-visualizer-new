@@ -100,6 +100,11 @@ export default function PredictionCheckpointCard({
             {feedback.correct ? "Correct prediction." : "Not quite."}
           </span>{" "}
           {feedback.explanation}
+          {!feedback.correct && feedback.diagnosis ? (
+            <p className="mt-3 border-t border-current/15 pt-3">
+              <span className="font-semibold">Diagnosis:</span> {feedback.diagnosis}
+            </p>
+          ) : null}
         </div>
       ) : null}
     </section>
