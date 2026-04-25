@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 import type { PracticeConfig } from "@/lib/academy/models";
 
@@ -13,6 +13,30 @@ type PracticeEvaluation = {
   weakSignals: string[];
   notes: string[];
 };
+
+type PracticeState = {
+  resetKey: string;
+  selectedStrategyId: string | null;
+  answer: string;
+  movePlan: string;
+  selfConfidence: number;
+  hintLevel: number;
+  evaluation: PracticeEvaluation | null;
+  solutionUnlocked: boolean;
+};
+
+function createPracticeState(resetKey: string): PracticeState {
+  return {
+    resetKey,
+    selectedStrategyId: null,
+    answer: "",
+    movePlan: "",
+    selfConfidence: 65,
+    hintLevel: 0,
+    evaluation: null,
+    solutionUnlocked: false,
+  };
+}
 
 function normalize(value: string) {
   return value.trim().toLowerCase();
@@ -40,23 +64,20 @@ export function usePracticeMode({
   expectedMoves: string[];
   resetKey: string;
 }) {
-  const [selectedStrategyId, setSelectedStrategyId] = useState<string | null>(null);
-  const [answer, setAnswer] = useState("");
-  const [movePlan, setMovePlan] = useState("");
-  const [selfConfidence, setSelfConfidence] = useState(65);
-  const [hintLevel, setHintLevel] = useState(0);
-  const [evaluation, setEvaluation] = useState<PracticeEvaluation | null>(null);
-  const [solutionUnlocked, setSolutionUnlocked] = useState(false);
-
-  useEffect(() => {
-    setSelectedStrategyId(null);
-    setAnswer("");
-    setMovePlan("");
-    setSelfConfidence(65);
-    setHintLevel(0);
-    setEvaluation(null);
-    setSolutionUnlocked(false);
-  }, [resetKey]);
+  const [state, setState] = useState<PracticeState>(() =>
+    createPracticeState(resetKey)
+  );
+  const currentState =
+    state.resetKey === resetKey ? state : createPracticeState(resetKey);
+  const {
+    selectedStrategyId,
+    answer,
+    movePlan,
+    selfConfidence,
+    hintLevel,
+    evaluation,
+    solutionUnlocked,
+  } = currentState;
 
   const strategy = config.strategyOptions.find(
     (option) => option.id === selectedStrategyId
@@ -68,14 +89,16 @@ export function usePracticeMode({
   );
 
   function unlockNextHint() {
-    setHintLevel((current) => {
-      const nextLevel = Math.min(current + 1, config.hints.length);
+    setState((current) => {
+      const base =
+        current.resetKey === resetKey ? current : createPracticeState(resetKey);
+      const nextLevel = Math.min(base.hintLevel + 1, config.hints.length);
 
-      if (nextLevel >= 3) {
-        setSolutionUnlocked(true);
-      }
-
-      return nextLevel;
+      return {
+        ...base,
+        hintLevel: nextLevel,
+        solutionUnlocked: nextLevel >= 3 ? true : base.solutionUnlocked,
+      };
     });
   }
 
@@ -126,34 +149,58 @@ export function usePracticeMode({
       notes,
     };
 
-    setEvaluation(nextEvaluation);
-    setSolutionUnlocked(true);
+    setState((current) => {
+      const base =
+        current.resetKey === resetKey ? current : createPracticeState(resetKey);
+
+      return {
+        ...base,
+        evaluation: nextEvaluation,
+        solutionUnlocked: true,
+      };
+    });
     return nextEvaluation;
   }
 
   return {
     selectedStrategyId,
-    setSelectedStrategyId,
+    setSelectedStrategyId: (nextValue: string | null) =>
+      setState((current) => ({
+        ...(current.resetKey === resetKey
+          ? current
+          : createPracticeState(resetKey)),
+        selectedStrategyId: nextValue,
+      })),
     answer,
-    setAnswer,
+    setAnswer: (nextValue: string) =>
+      setState((current) => ({
+        ...(current.resetKey === resetKey
+          ? current
+          : createPracticeState(resetKey)),
+        answer: nextValue,
+      })),
     movePlan,
-    setMovePlan,
+    setMovePlan: (nextValue: string) =>
+      setState((current) => ({
+        ...(current.resetKey === resetKey
+          ? current
+          : createPracticeState(resetKey)),
+        movePlan: nextValue,
+      })),
     selfConfidence,
-    setSelfConfidence,
+    setSelfConfidence: (nextValue: number) =>
+      setState((current) => ({
+        ...(current.resetKey === resetKey
+          ? current
+          : createPracticeState(resetKey)),
+        selfConfidence: nextValue,
+      })),
     hintLevel,
     visibleHints,
     evaluation,
     solutionUnlocked,
     unlockNextHint,
     evaluateAttempt,
-    resetPractice: () => {
-      setSelectedStrategyId(null);
-      setAnswer("");
-      setMovePlan("");
-      setSelfConfidence(65);
-      setHintLevel(0);
-      setEvaluation(null);
-      setSolutionUnlocked(false);
-    },
+    resetPractice: () => setState(createPracticeState(resetKey)),
   };
 }
