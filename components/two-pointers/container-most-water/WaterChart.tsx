@@ -94,7 +94,7 @@ export default function WaterChart({
 
             const barHeight = (h / maxHeight) * 100;
 
-            let base =
+            const base =
               "w-7 md:w-8 rounded-2xl border transition-all duration-500 ease-out translate-y-0";
             let color =
               "bg-slate-800/80 border-slate-700 shadow-[0_0_8px_rgba(15,23,42,0.8)]";

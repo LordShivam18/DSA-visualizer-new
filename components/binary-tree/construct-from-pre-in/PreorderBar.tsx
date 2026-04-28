@@ -1,12 +1,13 @@
 // components/binary-tree/construct-from-pre-in/PreorderBar.tsx
 "use client";
 import React from "react";
-import { NodeLayout, computeBarsLayout } from "./layoutEngine";
+import { computeBarsLayout } from "./layoutEngine";
+import type { ConstructTraceStep } from "./generateTrace";
 
 type Props = {
   pre: number[];
   cursor: number;
-  trace: any[];
+  trace: ConstructTraceStep[];
   containerWidth?: number;
 };
 

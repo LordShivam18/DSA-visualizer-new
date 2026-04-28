@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function ExplainButton({ traceStep }: { traceStep: any }) {
+export default function ExplainButton({ traceStep }: { traceStep: unknown }) {
   const [loading, setLoading] = useState(false);
   const [explain, setExplain] = useState<string | null>(null);
 
@@ -20,7 +20,7 @@ export default function ExplainButton({ traceStep }: { traceStep: any }) {
       } else {
         setExplain("AI explain endpoint not implemented. Implement /api/explain for full functionality.");
       }
-    } catch (e) {
+    } catch {
       setExplain("Network or server error calling /api/explain.");
     } finally {
       setLoading(false);

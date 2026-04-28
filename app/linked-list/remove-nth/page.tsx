@@ -42,7 +42,7 @@ export default function RemoveNthNodeFromEndofListPage() {
       presets={presets}
       generateTrace={generateLessonTrace}
       renderVisualization={({ step }) => <LinkedListTrack step={step} />}
-      renderMicroscope={({ step, teachingMode }) => <MicroscopeView step={step}  />}
+      renderMicroscope={({ step }) => <MicroscopeView step={step}  />}
       renderTracePanel={({ step }) => <TracePanel step={step} />}
       renderCodePanel={({ step }) => <CodePanel step={step} />}
     />

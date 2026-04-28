@@ -2,11 +2,12 @@
 "use client";
 import React from "react";
 import { computeBarsLayout } from "./layoutEngine";
+import type { ConstructTraceStep } from "./generateTrace";
 
 type Props = {
   ino: number[];
   cursor: number;
-  trace: any[];
+  trace: ConstructTraceStep[];
   containerWidth?: number;
 };
 

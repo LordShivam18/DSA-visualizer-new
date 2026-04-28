@@ -1,8 +1,9 @@
 // components/binary-tree/construct-from-pre-in/RecursionStack.tsx
 "use client";
 import React, { useEffect, useRef } from "react";
+import type { ConstructTraceStep } from "./generateTrace";
 
-type Props = { trace: any[]; cursor: number };
+type Props = { trace: ConstructTraceStep[]; cursor: number };
 
 export default function RecursionStack({ trace, cursor }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);

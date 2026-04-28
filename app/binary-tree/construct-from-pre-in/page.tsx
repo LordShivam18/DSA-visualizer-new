@@ -9,7 +9,10 @@ import PreorderBar from "@/components/binary-tree/construct-from-pre-in/Preorder
 import RecursionStack from "@/components/binary-tree/construct-from-pre-in/RecursionStack";
 import TreeCanvas from "@/components/binary-tree/construct-from-pre-in/TreeCanvas";
 import { buildNodeLayouts, computeBarsLayout } from "@/components/binary-tree/construct-from-pre-in/layoutEngine";
-import { generateTrace } from "@/components/binary-tree/construct-from-pre-in/generateTrace";
+import {
+  generateTrace,
+  type ConstructTraceStep,
+} from "@/components/binary-tree/construct-from-pre-in/generateTrace";
 
 const defaultInputs = { preorder: "3,9,20,15,7", inorder: "9,3,15,20,7" };
 const presets = [{ name: "Default", summary: "Build sample tree", values: defaultInputs }];
@@ -18,7 +21,7 @@ function generateLessonTrace(values: typeof defaultInputs) {
   return toLessonTrace(generateTrace(values.preorder, values.inorder));
 }
 
-function buildLayouts(trace: any[]) {
+function buildLayouts(trace: ConstructTraceStep[]) {
   const nodesFound = trace
     .filter((step) => step.nodeId)
     .map((step) => {

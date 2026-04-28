@@ -29,7 +29,13 @@ export default function Controls({
       </div>
 
       <div className="ml-4">
-        <select value={mode} onChange={(e) => setMode(e.target.value as any)} className="bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-sm">
+        <select
+          value={mode}
+          onChange={(event) =>
+            setMode(event.target.value === "expert" ? "expert" : "beginner")
+          }
+          className="bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-sm"
+        >
           <option value="beginner">Beginner</option>
           <option value="expert">Expert</option>
         </select>

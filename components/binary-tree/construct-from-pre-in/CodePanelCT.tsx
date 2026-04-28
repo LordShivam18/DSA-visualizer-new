@@ -1,8 +1,13 @@
 // components/binary-tree/construct-from-pre-in/CodePanelCT.tsx
 "use client";
 import React from "react";
+import type { ConstructTraceStep } from "./generateTrace";
 
-type Props = { trace: any[]; cursor: number; mode?: "beginner" | "expert" };
+type Props = {
+  trace: ConstructTraceStep[];
+  cursor: number;
+  mode?: "beginner" | "expert";
+};
 
 const SAMPLE_CODE = [
   "// 1. Build map from inorder values to indices",

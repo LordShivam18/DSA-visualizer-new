@@ -12,7 +12,7 @@ export default function StatsPanelCT({
   idx: number;
   total: number;
   stackDepth: number;
-  currentAction: any;
+  currentAction: unknown;
   mode: ModeCT;
 }) {
   return (

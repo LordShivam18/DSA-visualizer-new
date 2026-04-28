@@ -63,7 +63,6 @@ export default function TreeCanvas({ trace, cursor, width = 940, height = 420 }:
       {/* nodes */}
       {positions.map((p) => {
         // highlight rules: if any compare involving this node (either as left or right) happened and failed, mark red.
-        let state = "";
         // find any compare where leftId or rightId equals id
         let ok = undefined as boolean | undefined;
         trace.slice(0, cursor + 1).forEach((s) => {

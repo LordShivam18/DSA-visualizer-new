@@ -1,6 +1,8 @@
 "use client";
 
-export default function NumberCanvas({ step }: any) {
+import type { TraceStep } from "./generateTrace";
+
+export default function NumberCanvas({ step }: { step: TraceStep }) {
   return (
     <div className="flex flex-col items-center gap-4 p-4">
 

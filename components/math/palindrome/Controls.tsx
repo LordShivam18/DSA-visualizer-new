@@ -1,6 +1,12 @@
 "use client";
 
-export default function Controls({ step, reset }: any) {
+export default function Controls({
+  step,
+  reset,
+}: {
+  step: () => void;
+  reset: () => void;
+}) {
   return (
     <div className="flex gap-4 mt-6">
       <button

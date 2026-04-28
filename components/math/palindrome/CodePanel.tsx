@@ -10,7 +10,7 @@ const codeLines = [
   "}"
 ];
 
-export default function CodePanel({ highlight }: any) {
+export default function CodePanel({ highlight }: { highlight: number }) {
   return (
     <pre className="bg-black border border-slate-600 rounded p-4 text-cyan-300 max-w-xl mt-4">
       {codeLines.map((line, i) => (

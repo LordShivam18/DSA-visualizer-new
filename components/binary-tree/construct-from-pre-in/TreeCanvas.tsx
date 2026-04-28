@@ -1,38 +1,24 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useMemo } from "react";
 import { NodeLayout } from "./layoutEngine";
-
-type TraceStep = any;
+import type { ConstructTraceStep } from "./generateTrace";
 
 type NodeState = {
   x: number;
   y: number;
-  vx: number;
-  vy: number;
-  targetX: number;
-  targetY: number;
   visible: boolean;
   value: number;
   glow: number;
 };
 
 type Props = {
-  trace: TraceStep[];
+  trace: ConstructTraceStep[];
   cursor: number;
   nodeLayouts: NodeLayout[];
   width?: number;
   height?: number;
 };
-
-function springStep(current: number, target: number, velocity: number) {
-  const stiffness = 0.12;
-  const damping = 0.82;
-
-  const force = (target - current) * stiffness;
-  velocity = (velocity + force) * damping;
-  return { next: current + velocity, velocity };
-}
 
 export default function TreeCanvas({
   trace,
@@ -41,99 +27,38 @@ export default function TreeCanvas({
   width = 940,
   height = 440,
 }: Props) {
-  const [nodes, setNodes] = useState<Record<string, NodeState>>({});
-  const raf = useRef<number | null>(null);
-
-  // ---- CENTER TREE ----
   const minX = Math.min(...nodeLayouts.map((n) => n.x));
   const maxX = Math.max(...nodeLayouts.map((n) => n.x));
   const offsetX = width / 2 - (minX + (maxX - minX) / 2);
 
-  // ---- INIT NODES ----
-  useEffect(() => {
-    const initial: Record<string, NodeState> = {};
-
-    for (const n of nodeLayouts) {
-      initial[n.id] = {
-        x: (n.parentId ? nodeLayouts.find(p => p.id === n.parentId)?.x || n.x : n.x) + offsetX,
-        y: (n.parentId ? nodeLayouts.find(p => p.id === n.parentId)?.y || n.y : n.y),
-        vx: 0,
-        vy: 0,
-        targetX: n.x + offsetX,
-        targetY: n.y,
-        visible: false,
-        value: n.value,
-        glow: 0,
-      };
+  const visibleNodeIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const step of trace.slice(0, cursor + 1)) {
+      const nodeId = step.nodeId;
+      if (nodeId) {
+        ids.add(nodeId);
+      }
     }
-
-    setNodes(initial);
-  }, [nodeLayouts, offsetX]);
-
-  // ---- REVEAL LOGIC ----
-  useEffect(() => {
-    const step = trace[cursor];
-    if (!step) return;
-
-    const nid = step.nodeId || step.nodeIdCreated || step.rootNodeId;
-    if (!nid) return;
-
-    setNodes((prev) => {
-      if (!prev[nid] || prev[nid].visible) return prev;
-
-      return {
-        ...prev,
-        [nid]: {
-          ...prev[nid],
-          visible: true,
-          glow: 1,
-        },
-      };
-    });
+    return ids;
   }, [cursor, trace]);
 
-  // ---- ANIMATION LOOP ----
-  useEffect(() => {
-    if (Object.keys(nodes).length === 0) return;
+  const nodes = useMemo(() => {
+    const initial: Record<string, NodeState> = {};
+    for (const n of nodeLayouts) {
+      const parent = n.parentId
+        ? nodeLayouts.find((candidate) => candidate.id === n.parentId)
+        : null;
 
-    let cancel = false;
-
-    function tick() {
-      if (cancel) return;
-
-      let changed = false;
-      const next: Record<string, NodeState> = {};
-
-      for (const [id, s] of Object.entries(nodes)) {
-        const sx = springStep(s.x, s.targetX, s.vx);
-        const sy = springStep(s.y, s.targetY, s.vy);
-
-        const glowFade = Math.max(0, s.glow - 0.03);
-
-        next[id] = {
-          ...s,
-          x: sx.next,
-          y: sy.next,
-          vx: sx.velocity,
-          vy: sy.velocity,
-          glow: glowFade,
-        };
-
-        if (Math.abs(sx.next - s.targetX) > 0.2 || Math.abs(sy.next - s.targetY) > 0.2 || glowFade > 0) {
-          changed = true;
-        }
-      }
-
-      if (changed) setNodes(next);
-      raf.current = requestAnimationFrame(tick);
+      initial[n.id] = {
+        x: (parent?.x ?? n.x) + offsetX,
+        y: parent?.y ?? n.y,
+        visible: visibleNodeIds.has(n.id),
+        value: n.value,
+        glow: visibleNodeIds.has(n.id) ? 1 : 0,
+      };
     }
-
-    raf.current = requestAnimationFrame(tick);
-    return () => {
-      cancel = true;
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
-  }, [nodes]);
+    return initial;
+  }, [nodeLayouts, offsetX, visibleNodeIds]);
 
   // ---- EDGES ----
   const renderEdges = () => {

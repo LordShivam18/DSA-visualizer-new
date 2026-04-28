@@ -21,17 +21,17 @@ export default function MicroscopeView({
         <p>
           Matched prefix:{" "}
           {matchedPrefix.length === 0 ? (
-            <span className="text-slate-500">""</span>
+            <span className="text-slate-500">&quot;&quot;</span>
           ) : (
-            <span className="text-emerald-300">"{matchedPrefix}"</span>
+            <span className="text-emerald-300">&quot;{matchedPrefix}&quot;</span>
           )}
         </p>
         <p>
           Remaining to match:{" "}
           {remaining.length === 0 ? (
-            <span className="text-slate-500">""</span>
+            <span className="text-slate-500">&quot;&quot;</span>
           ) : (
-            <span className="text-cyan-300">"{remaining}"</span>
+            <span className="text-cyan-300">&quot;{remaining}&quot;</span>
           )}
         </p>
       </div>

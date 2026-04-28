@@ -15,7 +15,7 @@ interface ArrayCellProps {
 }
 
 export default function ArrayCell({ value, role }: ArrayCellProps) {
-  let base =
+  const base =
     "w-12 h-16 md:w-14 md:h-18 flex items-center justify-center rounded-2xl font-semibold text-lg transition-all duration-300 border";
 
   let classes = "";

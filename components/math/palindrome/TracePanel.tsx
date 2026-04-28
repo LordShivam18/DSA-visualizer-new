@@ -1,4 +1,6 @@
-export default function TracePanel({ step }: any) {
+import type { TraceStep } from "./generateTrace";
+
+export default function TracePanel({ step }: { step: TraceStep | null }) {
   if (!step) return null;
 
   return (
