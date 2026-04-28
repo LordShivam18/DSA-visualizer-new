@@ -7,6 +7,7 @@ import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 const problems = getProblemCardsByCategory("backtracking");
 
 const difficultyStyles = {
+  easy: "border-emerald-400/30 bg-emerald-500/10 text-emerald-200",
   medium: "border-amber-400/30 bg-amber-500/10 text-amber-200",
   hard: "border-rose-400/30 bg-rose-500/10 text-rose-200",
 } as const;
