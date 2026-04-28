@@ -59,3 +59,10 @@ export function generatePalindromeTrace(n: number): TraceStep[] {
 
   return steps;
 }
+
+export function generateTrace(rawInput: string | number): TraceStep[] {
+  const value =
+    typeof rawInput === "number" ? rawInput : Number(rawInput.trim());
+
+  return generatePalindromeTrace(Number.isFinite(value) ? value : 121);
+}

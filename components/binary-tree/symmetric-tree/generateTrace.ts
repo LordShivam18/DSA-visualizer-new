@@ -80,3 +80,7 @@ export function generateSymmetricTrace(): TraceStep[] {
   steps.push({ type: "done", result: final });
   return steps;
 }
+
+export function generateTrace(): TraceStep[] {
+  return generateSymmetricTrace();
+}

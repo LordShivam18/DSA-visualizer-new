@@ -166,3 +166,7 @@ export function generateSameTreeTrace(): TraceStep[] {
 
   return steps;
 }
+
+export function generateTrace(): TraceStep[] {
+  return generateSameTreeTrace();
+}

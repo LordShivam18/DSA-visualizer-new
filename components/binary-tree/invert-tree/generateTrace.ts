@@ -95,3 +95,7 @@ export function generateInvertTrace(): Trace[] {
   invert(tree);
   return steps;
 }
+
+export function generateTrace(): Trace[] {
+  return generateInvertTrace();
+}

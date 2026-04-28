@@ -221,3 +221,7 @@ export function generatePalindromeTrace(raw: string): ValidPalindromeTraceStep[]
 
   return steps;
 }
+
+export function generateTrace(raw: string): ValidPalindromeTraceStep[] {
+  return generatePalindromeTrace(raw);
+}

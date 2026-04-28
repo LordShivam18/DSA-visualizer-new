@@ -1,230 +1,74 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import TraceLessonPage from "@/components/academy/TraceLessonPage";
+import { toLessonTrace } from "@/components/academy/traceAdapters";
 
-// Correct imports
-import TreeCanvas from "@/components/binary-tree/construct-from-pre-in/TreeCanvas";
-import PreorderBar from "@/components/binary-tree/construct-from-pre-in/PreorderBar";
-import InorderBar from "@/components/binary-tree/construct-from-pre-in/InorderBar";
-import RecursionStack from "@/components/binary-tree/construct-from-pre-in/RecursionStack";
-import TimeSlider from "@/components/binary-tree/construct-from-pre-in/TimeSlider";
 import CodePanel from "@/components/binary-tree/construct-from-pre-in/CodePanelCT";
-import ExplainButton from "@/components/binary-tree/construct-from-pre-in/ExplainButton";
+import InorderBar from "@/components/binary-tree/construct-from-pre-in/InorderBar";
+import PreorderBar from "@/components/binary-tree/construct-from-pre-in/PreorderBar";
+import RecursionStack from "@/components/binary-tree/construct-from-pre-in/RecursionStack";
+import TreeCanvas from "@/components/binary-tree/construct-from-pre-in/TreeCanvas";
+import { buildNodeLayouts, computeBarsLayout } from "@/components/binary-tree/construct-from-pre-in/layoutEngine";
+import { generateTrace } from "@/components/binary-tree/construct-from-pre-in/generateTrace";
 
-import {
-  computeBarsLayout,
-  buildNodeLayouts,
-  NodeLayout,
-} from "@/components/binary-tree/construct-from-pre-in/layoutEngine";
+const defaultInputs = { preorder: "3,9,20,15,7", inorder: "9,3,15,20,7" };
+const presets = [{ name: "Default", summary: "Build sample tree", values: defaultInputs }];
 
-const PRE = [3, 9, 20, 15, 7];
-const IN = [9, 3, 15, 20, 7];
+function generateLessonTrace(values: typeof defaultInputs) {
+  return toLessonTrace(generateTrace(values.preorder, values.inorder));
+}
 
-type TraceStep = {
-  type: string;
-  preIndex?: number;
-  inRange?: [number, number];
-  rootInIndex?: number;
-  nodeId?: string;
-  snapshot?: any;
-};
-
-export default function Page() {
-  const [trace, setTrace] = useState<TraceStep[]>([]);
-  const [cursor, setCursor] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
-
-  const [nodeLayouts, setNodeLayouts] = useState<NodeLayout[]>([]);
-  const timelineRef = useRef<TraceStep[]>([]);
-
-  // ---------------- Build Trace ----------------
-  const buildTrace = useCallback(() => {
-    const steps: TraceStep[] = [];
-    const inorderIndexMap = new Map<number, number>();
-    IN.forEach((v, i) => inorderIndexMap.set(v, i));
-
-    function build(preL: number, preR: number, inL: number, inR: number, depth = 0) {
-      if (preL > preR || inL > inR) {
-        steps.push({ type: "empty-range", preIndex: preL, inRange: [inL, inR] });
-        return null;
-      }
-
-      const rootVal = PRE[preL];
-      const rootInIdx = inorderIndexMap.get(rootVal)!;
-      const nodeId = `node-${rootVal}-${preL}`;
-
-      steps.push({
-        type: "pick-root",
-        preIndex: preL,
-        rootInIndex: rootInIdx,
-        inRange: [inL, inR],
-        nodeId,
-        snapshot: { depth, rootVal },
-      });
-
-      const leftSize = rootInIdx - inL;
-
-      steps.push({ type: "recurse-left", snapshot: { root: rootVal, leftSize } });
-      build(preL + 1, preL + leftSize, inL, rootInIdx - 1, depth + 1);
-
-      steps.push({ type: "recurse-right", snapshot: { root: rootVal } });
-      build(preL + leftSize + 1, preR, rootInIdx + 1, inR, depth + 1);
-
-      steps.push({ type: "backtrack", nodeId });
-
-      return null;
-    }
-
-    build(0, PRE.length - 1, 0, IN.length - 1);
-
-    setTrace(steps);
-    timelineRef.current = steps;
-    setCursor(0);
-  }, []);
-
-  useEffect(() => {
-    buildTrace();
-  }, [buildTrace]);
-
-  // ---------------- Animation Loop ----------------
-  useEffect(() => {
-    if (!playing) return;
-
-    const id = setInterval(() => {
-      setCursor((prev) => {
-        const next = Math.min(prev + 1, trace.length - 1);
-        if (next === trace.length - 1) setPlaying(false);
-        return next;
-      });
-    }, 700);
-
-    return () => clearInterval(id);
-  }, [playing, trace.length]);
-
-  // ---------------- Node Layout Builder ----------------
-  useEffect(() => {
-    if (trace.length === 0) return;
-
-    const nodesFound: {
-      id: string;
-      value: number;
-      preorderIndex: number;
-      inorderIndex: number;
-      depth: number;
-    }[] = [];
-
-    for (const step of trace) {
-      if (!step.nodeId) continue;
-
-      const parts = step.nodeId.split("-");
-      const val = Number(parts[1]);
-      const preIndex = Number(parts[2]);
-      const depth = step.snapshot?.depth ?? 0;
-
-      const inIndex = IN.indexOf(val);
-
-      nodesFound.push({
+function buildLayouts(trace: any[]) {
+  const nodesFound = trace
+    .filter((step) => step.nodeId)
+    .map((step) => {
+      const parts = String(step.nodeId).split("-");
+      const value = Number(parts[1]);
+      const preorderIndex = Number(parts[2]);
+      return {
         id: step.nodeId,
-        value: val,
-        preorderIndex: preIndex,
-        inorderIndex: inIndex,
-        depth,
-      });
-    }
+        value,
+        preorderIndex,
+        inorderIndex: step.state.inorder.indexOf(value),
+        depth: step.snapshot?.depth ?? 0,
+      };
+    });
+  const unique = Array.from(new Map(nodesFound.map((node) => [node.id, node])).values());
+  return buildNodeLayouts(unique, computeBarsLayout(940, trace[0]?.state.preorder.length ?? 0));
+}
 
-    // Remove duplicates
-    const unique = Array.from(new Map(nodesFound.map(n => [n.id, n])).values());
-
-    const bars = computeBarsLayout(940, PRE.length);
-    const layouts = buildNodeLayouts(unique, bars);
-
-    setNodeLayouts(layouts);
-  }, [trace]);
-
-  // ---------------- Render ----------------
+export default function ConstructFromPreInPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#06060a] to-[#04040b] text-slate-50 p-6">
-      <header className="max-w-6xl mx-auto mb-6">
-        <h1 className="text-4xl font-extrabold">
-          Construct Binary Tree from Preorder & Inorder
-        </h1>
-        <p className="text-slate-300 mt-2 max-w-2xl">
-          Ultra-flagship visualizer — recursion unrolled, pointer motion,
-          animated array partitions, dynamic tree building, time-travel slider
-          and AI-powered explanations.
-        </p>
-      </header>
-
-      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
-        <section className="space-y-4">
-          <div className="bg-[#050817] border border-slate-800 rounded-2xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setPlaying((p) => !p)}
-                  className="px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500"
-                >
-                  {playing ? "Pause" : "Play"}
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCursor(0);
-                    setPlaying(false);
-                  }}
-                  className="px-3 py-2 rounded-md bg-slate-800 border border-slate-600"
-                >
-                  Reset
-                </button>
-
-                <div className="ml-4">
-                  <label className="text-sm text-slate-400 mr-2">Mode</label>
-                  <select
-                    value={mode}
-                    onChange={(e) =>
-                      setMode(e.target.value as "beginner" | "expert")
-                    }
-                    className="bg-slate-900 border border-slate-700 rounded-md px-2 py-1 text-sm"
-                  >
-                    <option value="beginner">Beginner</option>
-                    <option value="expert">Expert</option>
-                  </select>
-                </div>
-              </div>
-
-              <ExplainButton traceStep={trace[cursor]} />
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <PreorderBar pre={PRE} cursor={cursor} trace={trace} />
-              <InorderBar ino={IN} cursor={cursor} trace={trace} />
-              <TreeCanvas trace={trace} cursor={cursor} nodeLayouts={nodeLayouts} />
-            </div>
+    <TraceLessonPage
+      variant="dark"
+      categoryHref="/binary-tree"
+      categoryLabel="Binary Tree"
+      taxonomy="Binary Tree / Recursive Construction"
+      title="Construct Binary Tree from Preorder and Inorder"
+      difficulty="Medium"
+      description="Trace recursive root selection from preorder and subtree boundaries from inorder."
+      complexity="O(n) time / O(n) space"
+      defaultInputs={defaultInputs}
+      inputFields={[
+        { id: "preorder", label: "preorder", placeholder: "3,9,20,15,7" },
+        { id: "inorder", label: "inorder", placeholder: "9,3,15,20,7" },
+      ]}
+      presets={presets}
+      generateTrace={generateLessonTrace}
+      renderVisualization={({ trace, timeline }) => {
+        const cursor = timeline.activeIndex;
+        const first = trace[0];
+        return (
+          <div className="space-y-3 overflow-x-auto rounded-2xl border border-slate-800 bg-[#050817] p-4">
+            <PreorderBar pre={first.state.preorder} cursor={cursor} trace={trace} />
+            <InorderBar ino={first.state.inorder} cursor={cursor} trace={trace} />
+            <TreeCanvas trace={trace} cursor={cursor} nodeLayouts={buildLayouts(trace)} />
           </div>
-
-          <TimeSlider
-            length={trace.length}
-            value={cursor}
-            onChange={(v: number) => {
-              setCursor(v);
-              setPlaying(false);
-            }}
-          />
-        </section>
-
-        <aside className="space-y-4">
-          <div className="bg-[#051025] border border-slate-800 rounded-2xl p-4">
-            <h3 className="font-semibold mb-3">Recursion Stack</h3>
-            <RecursionStack trace={trace} cursor={cursor} />
-          </div>
-
-          <div className="bg-[#041022] border border-slate-800 rounded-2xl p-4">
-            <h3 className="font-semibold mb-3">Code</h3>
-            <CodePanel trace={trace} cursor={cursor} mode={mode} />
-          </div>
-        </aside>
-      </main>
-    </div>
+        );
+      }}
+      renderMicroscope={({ trace, timeline }) => <RecursionStack trace={trace} cursor={timeline.activeIndex} />}
+      renderTracePanel={({ step }) => <div className="glass-card p-4 text-sm text-slate-300">{step.action}</div>}
+      renderCodePanel={({ trace, timeline, teachingMode }) => <CodePanel trace={trace} cursor={timeline.activeIndex} mode={teachingMode} />}
+    />
   );
 }

@@ -1,77 +1,39 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import TraceLessonPage from "@/components/academy/TraceLessonPage";
+import { toLessonTrace } from "@/components/academy/traceAdapters";
 
-import Controls from "@/components/binary-tree/symmetric-tree/Controls";
-import TreeCanvas from "@/components/binary-tree/symmetric-tree/TreeCanvas";
-import TracePanel from "@/components/binary-tree/symmetric-tree/TracePanel";
 import CodePanel from "@/components/binary-tree/symmetric-tree/CodePanel";
-import { generateSymmetricTrace, TraceStep } from "@/components/binary-tree/symmetric-tree/generateTrace";
+import TracePanel from "@/components/binary-tree/symmetric-tree/TracePanel";
+import TreeCanvas from "@/components/binary-tree/symmetric-tree/TreeCanvas";
+import { generateTrace } from "@/components/binary-tree/symmetric-tree/generateTrace";
 
-export default function Page() {
-  const [trace, setTrace] = useState<TraceStep[]>([]);
-  const [cursor, setCursor] = useState(0);
-  const [playing, setPlaying] = useState(false);
-  const [mode, setMode] = useState<"beginner" | "expert">("beginner");
+const defaultInputs = { sample: "default" };
+const presets = [{ name: "Default", summary: "Trace baseline", values: defaultInputs }];
 
-  const timerRef = useRef<number | null>(null);
+function generateLessonTrace() {
+  return toLessonTrace(generateTrace());
+}
 
-  // Load initial trace
-  useEffect(() => {
-    const steps = generateSymmetricTrace();
-    setTrace(steps);
-    setCursor(0);
-  }, []);
-
-  // Auto-play logic
-  useEffect(() => {
-    if (!playing) return;
-
-    timerRef.current = window.setInterval(() => {
-      setCursor((c) => Math.min(c + 1, trace.length - 1));
-    }, 600);
-
-    return () => {
-      if (timerRef.current !== null) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
-    };
-  }, [playing, trace.length]);
-
-  // Stop autoplay at the end
-  useEffect(() => {
-    if (cursor >= trace.length - 1) {
-      setPlaying(false);
-    }
-  }, [cursor, trace.length]);
-
-  const reset = () => {
-    const steps = generateSymmetricTrace();
-    setTrace(steps);
-    setCursor(0);
-    setPlaying(false);
-  };
-
+export default function SymmetricTreePage() {
   return (
-    <div className="min-h-screen bg-[#06070c] p-6 text-slate-50">
-      <h1 className="text-3xl font-bold mb-4">Symmetric Tree Visualizer</h1>
-
-      <Controls
-        playing={playing}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onReset={reset}
-        onStepForward={() => setCursor((c) => Math.min(c + 1, trace.length - 1))}
-        onStepBack={() => setCursor((c) => Math.max(c - 1, 0))}
-        mode={mode}
-        setMode={setMode}
-      />
-
-      <TreeCanvas trace={trace} cursor={cursor} />
-
-      <TracePanel trace={trace} cursor={cursor} />
-      <CodePanel trace={trace} cursor={cursor} />
-    </div>
+    <TraceLessonPage
+      variant="dark"
+      categoryHref="/binary-tree"
+      categoryLabel="Binary Tree"
+      taxonomy="Binary Tree / Trace-driven lesson"
+      title="Symmetric Tree"
+      difficulty="Easy"
+      description="Trace mirror comparisons between left and right subtrees."
+      complexity="O(n) time"
+      defaultInputs={defaultInputs}
+      inputFields={[]}
+      presets={presets}
+      generateTrace={generateLessonTrace}
+      renderVisualization={({ trace, timeline }) => <TreeCanvas trace={trace} cursor={timeline.activeIndex} />}
+      renderMicroscope={() => null}
+      renderTracePanel={({ trace, timeline }) => <TracePanel trace={trace} cursor={timeline.activeIndex} />}
+      renderCodePanel={({ trace, timeline, teachingMode }) => <CodePanel trace={trace} cursor={timeline.activeIndex}  />}
+    />
   );
 }

@@ -97,7 +97,7 @@ export default function StandardTraceLessonPage<
   defaultInputs: TInputs;
   inputFields: StandardLessonInputField<TInputs>[];
   presets: StandardLessonPreset<TInputs>[];
-  buildTrace: (inputs: TInputs) => Step[];
+  buildTrace?: (inputs: TInputs) => Step[];
   generateTrace?: (inputs: TInputs) => Step[];
   inputHint?: string;
   Controls?: ComponentType<StandardControlsProps<Mode>>;

@@ -1,4 +1,4 @@
-import { LastAction } from "@/app/two-pointers/container-most-water/page";
+import type { LastAction } from "./generateTrace";
 
 interface WaterChartProps {
   heights: number[];
