@@ -5,32 +5,15 @@ import { motion } from "framer-motion";
 
 import BackButton from "@/components/ui/BackButton";
 import ParticleBackground from "@/components/ui/ParticleBackground";
+import {
+  categoryRegistry,
+  getCategoryProblemCount,
+} from "@/lib/academy/problemRegistry";
 
-const topics = [
-  { name: "Array / String", url: "/array-string", icon: "ARR", accent: "cyan", count: 16 },
-  { name: "Two Pointers", url: "/two-pointers", icon: "2P", accent: "violet", count: 5 },
-  { name: "Sliding Window", url: "/sliding-window", icon: "WIN", accent: "emerald", count: 4 },
-  { name: "Matrix", url: "/matrix", icon: "MAT", accent: "amber", count: 5 },
-  { name: "Hashmap", url: "/hashmap", icon: "MAP", accent: "blue", count: 9 },
-  { name: "Intervals", url: "/intervals", icon: "INT", accent: "rose", count: 0 },
-  { name: "Stack", url: "/stack", icon: "STK", accent: "cyan", count: 1 },
-  { name: "Linked List", url: "/linked-list", icon: "LL", accent: "violet", count: 9 },
-  { name: "Binary Tree (General)", url: "/binary-tree", icon: "TREE", accent: "emerald", count: 11 },
-  { name: "Binary Tree BFS", url: "/binary-tree-bfs", icon: "BFS", accent: "blue", count: 2 },
-  { name: "Binary Search Tree", url: "/bst", icon: "BST", accent: "amber", count: 3 },
-  { name: "Graph Traversal", url: "/graph-traversal", icon: "GRT", accent: "rose", count: 6 },
-  { name: "Graph BFS", url: "/graph-bfs", icon: "GBFS", accent: "cyan", count: 3 },
-  { name: "Trie", url: "/trie", icon: "TRIE", accent: "violet", count: 0 },
-  { name: "Backtracking", url: "/backtracking", icon: "BT", accent: "emerald", count: 7 },
-  { name: "Divide & Conquer", url: "/divide-conquer", icon: "D&C", accent: "amber", count: 4 },
-  { name: "Kadane's Algorithm", url: "/kadane", icon: "KAD", accent: "cyan", count: 1 },
-  { name: "Binary Search", url: "/binary-search", icon: "BS", accent: "rose", count: 7 },
-  { name: "Heap", url: "/heap", icon: "HEAP", accent: "blue", count: 4 },
-  { name: "Bit Manipulation", url: "/bit", icon: "BIT", accent: "violet", count: 0 },
-  { name: "Math", url: "/math", icon: "MATH", accent: "emerald", count: 2 },
-  { name: "1D DP", url: "/dp-1d", icon: "DP1", accent: "amber", count: 5 },
-  { name: "Multidimensional DP", url: "/dp-2d", icon: "DP2", accent: "rose", count: 9 },
-] as const;
+const topics = categoryRegistry.map((category) => ({
+  ...category,
+  count: getCategoryProblemCount(category.id),
+}));
 
 const accentColors: Record<string, { text: string; border: string; glow: string; bg: string }> = {
   cyan: {
@@ -100,7 +83,7 @@ export default function Topics() {
             const colors = accentColors[topic.accent] || accentColors.cyan;
 
             return (
-              <Link key={topic.url} href={topic.url}>
+              <Link key={topic.id} href={topic.path}>
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -111,19 +94,17 @@ export default function Topics() {
                   <div
                     className={`w-12 h-12 rounded-xl flex items-center justify-center text-xs font-bold tracking-[0.18em] ${colors.bg}`}
                   >
-                    {topic.icon}
+                      {topic.icon}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <h3
                       className={`font-semibold text-sm ${colors.text} group-hover:brightness-125 transition-all truncate`}
                     >
-                      {topic.name}
+                      {topic.label}
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      {topic.count > 0
-                        ? `${topic.count} problem${topic.count > 1 ? "s" : ""}`
-                        : "Coming soon"}
+                      {topic.count} problem{topic.count === 1 ? "" : "s"}
                     </p>
                   </div>
 

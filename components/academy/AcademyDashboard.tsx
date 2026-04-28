@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { academyProblemCatalog, topicCatalog } from "@/lib/academy/catalog";
+import { topicCatalog } from "@/lib/academy/catalog";
 
 import { lightPanelClassName } from "../array-string/shared/ui";
 import AdaptiveRecommendationRail from "./AdaptiveRecommendationRail";
@@ -234,29 +234,29 @@ export default function AcademyDashboard() {
                     Catalog Coverage
                   </h2>
                   <p className="text-sm text-slate-500">
-                    The academy model is reusable across all existing lessons.
+                    The academy model is derived from the global registry.
                   </p>
                 </div>
               </div>
 
               <div className="mt-5 space-y-3">
-                {academyProblemCatalog.slice(0, 6).map((problem) => (
+                {topicCatalog.map((topic) => (
                   <Link
-                    key={problem.problemId}
-                    href={problem.route}
+                    key={topic.id}
+                    href={topic.route}
                     className="block rounded-[1rem] border border-slate-200 bg-slate-50/80 px-4 py-4 transition-all hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-white"
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
                         <p className="text-sm font-semibold text-slate-900">
-                          {problem.title}
+                          {topic.label}
                         </p>
                         <p className="mt-1 text-sm text-slate-500">
-                          {problem.topicLabel} · {problem.difficulty}
+                          {topic.summary}
                         </p>
                       </div>
                       <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                        {problem.estimatedMinutes}m
+                        {topic.totalProblems} lessons
                       </span>
                     </div>
                   </Link>

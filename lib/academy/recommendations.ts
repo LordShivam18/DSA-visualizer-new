@@ -1,8 +1,13 @@
-import { academyProblemCatalog, getProblemCatalogEntry } from "./catalog";
+import {
+  academyProblemCatalog,
+  getProblemCatalogEntry,
+  topicCatalog,
+} from "./catalog";
 import type {
   AdaptiveRecommendation,
   Difficulty,
   LearningPlatformState,
+  TopicProgress,
 } from "./models";
 
 const difficultyWeight: Record<Difficulty, number> = {
@@ -25,7 +30,23 @@ function dedupeRecommendations(items: AdaptiveRecommendation[]) {
 }
 
 export function getWeakTopicBreakdown(state: LearningPlatformState) {
-  return Object.values(state.topics).sort((left, right) => {
+  const topics: TopicProgress[] = topicCatalog.map((topic) => {
+    return (
+      state.topics[topic.id] ?? {
+        topicId: topic.id,
+        topicLabel: topic.label,
+        attempts: 0,
+        completions: 0,
+        accuracy: 0,
+        averageTimeMs: 0,
+        mastery: 0,
+        weakSignals: [],
+        lastPracticedAt: null,
+      }
+    );
+  });
+
+  return topics.sort((left, right) => {
     if (left.mastery !== right.mastery) {
       return left.mastery - right.mastery;
     }
@@ -75,6 +96,7 @@ export function getAdaptiveRecommendations(
     const reinforcePick = academyProblemCatalog.find(
       (problem) =>
         problem.topicId === currentProblem.topicId &&
+        !completedProblemIds.has(problem.problemId) &&
         problem.problemId !== currentProblem.problemId &&
         difficultyWeight[problem.difficulty] <= difficultyWeight[currentProblem.difficulty]
     );
@@ -94,6 +116,7 @@ export function getAdaptiveRecommendations(
     const stretchPick = academyProblemCatalog.find(
       (problem) =>
         problem.topicId === currentProblem.topicId &&
+        !completedProblemIds.has(problem.problemId) &&
         problem.problemId !== currentProblem.problemId &&
         difficultyWeight[problem.difficulty] > difficultyWeight[currentProblem.difficulty]
     );
@@ -112,9 +135,13 @@ export function getAdaptiveRecommendations(
   }
 
   if (recommendations.length === 0) {
-    const fallbackPick = academyProblemCatalog.find(
-      (problem) => problem.problemId !== currentProblemId
-    );
+    const fallbackPick =
+      academyProblemCatalog.find(
+        (problem) =>
+          !completedProblemIds.has(problem.problemId) &&
+          problem.problemId !== currentProblemId
+      ) ??
+      academyProblemCatalog.find((problem) => problem.problemId !== currentProblemId);
 
     if (fallbackPick) {
       recommendations.push({

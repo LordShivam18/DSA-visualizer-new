@@ -270,7 +270,7 @@ function reducer(state: LearningPlatformState, action: Action): LearningPlatform
 }
 
 function seedMissingTopics(state: LearningPlatformState) {
-  if (Object.keys(state.topics).length >= topicCatalog.length) {
+  if (topicCatalog.every((topic) => state.topics[topic.id])) {
     return state;
   }
 
