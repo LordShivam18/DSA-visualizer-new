@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   TimelineEngine,
-  areTimelineSnapshotsEqual,
   type TimelineSnapshot,
   type TimelineSpeed,
   type TimelineStep,
@@ -17,7 +16,7 @@ export function useTimeline<Step extends TimelineStep>(steps: Step[]) {
   );
   const commitSnapshot = useCallback((nextSnapshot: TimelineSnapshot<Step>) => {
     setSnapshot((currentSnapshot) =>
-      areTimelineSnapshotsEqual(currentSnapshot, nextSnapshot)
+      currentSnapshot.version === nextSnapshot.version
         ? currentSnapshot
         : nextSnapshot
     );

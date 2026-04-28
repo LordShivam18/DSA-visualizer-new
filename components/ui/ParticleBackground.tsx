@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { memo, useEffect, useRef } from "react";
 
 interface Particle {
   x: number;
@@ -11,7 +11,7 @@ interface Particle {
   opacity: number;
 }
 
-export default function ParticleBackground({
+const ParticleBackground = memo(function ParticleBackground({
   density = 60,
   color = "34, 211, 238",
   speed = 0.4,
@@ -119,4 +119,6 @@ export default function ParticleBackground({
       style={{ opacity: 0.7 }}
     />
   );
-}
+});
+
+export default ParticleBackground;

@@ -22,6 +22,7 @@ export type TimelineStep<State = unknown, Highlights = unknown> = {
 };
 
 export type TimelineSnapshot<Step extends TimelineStep = TimelineStep> = {
+  version: number;
   steps: Step[];
   activeIndex: number;
   settledIndex: number;
@@ -113,29 +114,12 @@ function normalizeLockedSteps(indices: number[]) {
   return Array.from(new Set(indices)).sort((left, right) => left - right);
 }
 
-export function areTimelineSnapshotsEqual<Step extends TimelineStep>(
-  left: TimelineSnapshot<Step>,
-  right: TimelineSnapshot<Step>
-) {
-  return (
-    left.steps === right.steps &&
-    left.activeIndex === right.activeIndex &&
-    left.settledIndex === right.settledIndex &&
-    left.activeStep === right.activeStep &&
-    left.previousStep === right.previousStep &&
-    left.nextStep === right.nextStep &&
-    left.fromStep === right.fromStep &&
-    left.toStep === right.toStep &&
-    left.transitionProgress === right.transitionProgress &&
-    left.isPlaying === right.isPlaying &&
-    left.speed === right.speed &&
-    left.canPrev === right.canPrev &&
-    left.canNext === right.canNext &&
-    left.lockedTargetIndex === right.lockedTargetIndex &&
-    left.lockReason === right.lockReason &&
-    arraysEqual(left.queue, right.queue) &&
-    arraysEqual(left.lockedStepIndices, right.lockedStepIndices)
-  );
+let nextTimelineSnapshotVersion = 1;
+
+function createTimelineSnapshotVersion() {
+  const version = nextTimelineSnapshotVersion;
+  nextTimelineSnapshotVersion += 1;
+  return version;
 }
 
 export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
@@ -150,7 +134,8 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   private transition: TransitionState | null = null;
   private subscribers = new Set<Subscriber<Step>>();
   private frameId: number | null = null;
-  private lastEmittedSnapshot: TimelineSnapshot<Step> | null = null;
+  private version = createTimelineSnapshotVersion();
+  private lastEmittedVersion: number | null = null;
 
   constructor(steps: Step[]) {
     this.steps = steps;
@@ -174,7 +159,7 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     this.isPlaying = false;
     this.queue = [];
     this.subscribers.clear();
-    this.lastEmittedSnapshot = null;
+    this.lastEmittedVersion = null;
   }
 
   setSteps(steps: Step[]) {
@@ -182,15 +167,16 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
       return;
     }
 
-    this.pause();
+    this.cancelFrame();
     this.steps = steps;
     this.settledIndex = 0;
+    this.isPlaying = false;
     this.queue = [];
     this.lockedSteps.clear();
     this.lockReason = null;
     this.blockedTarget = null;
     this.transition = null;
-    this.emit();
+    this.emitChanged();
   }
 
   setLockedSteps(indices: number[], reason?: string) {
@@ -215,7 +201,7 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
       this.blockedTarget = null;
     }
 
-    this.emit();
+    this.emitChanged();
   }
 
   getSnapshot(): TimelineSnapshot<Step> {
@@ -226,6 +212,7 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     const progress = this.getTransitionProgress();
 
     return {
+      version: this.version,
       steps: this.steps,
       activeIndex: clampedActiveIndex,
       settledIndex: this.settledIndex,
@@ -258,59 +245,75 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
       return;
     }
 
+    if (this.transition === null && this.settledIndex >= this.steps.length - 1) {
+      return;
+    }
+
     if (this.isPlaying && this.frameId !== null) {
       return;
+    }
+
+    let changed = false;
+
+    if (!this.isPlaying) {
+      changed = true;
     }
 
     this.isPlaying = true;
 
     if (!this.transition && this.queue.length === 0) {
       this.queue = this.buildForwardQueue(this.settledIndex);
+      changed = this.queue.length > 0 || changed;
     }
 
     this.ensureFrame();
-    this.emit();
+
+    if (changed) {
+      this.emitChanged();
+    }
   }
 
   pause() {
-    if (!this.isPlaying && this.queue.length === 0 && this.frameId === null) {
+    const changed = this.stopPlayback();
+
+    if (!changed) {
       return;
     }
 
-    this.isPlaying = false;
-    this.queue = [];
-
-    if (this.frameId !== null) {
-      cancelAnimationFrame(this.frameId);
-      this.frameId = null;
-    }
-
-    this.emit();
+    this.emitChanged();
   }
 
   next() {
     const lastIndex = Math.max(this.steps.length - 1, 0);
     const target = Math.min((this.transition?.to ?? this.settledIndex) + 1, lastIndex);
+    const playbackChanged = this.stopPlayback();
 
-    this.isPlaying = false;
-    this.queue = [];
-    this.startTransition(target);
+    this.startTransition(target, playbackChanged);
   }
 
   prev() {
     const target = Math.max((this.transition?.to ?? this.settledIndex) - 1, 0);
+    const playbackChanged = this.stopPlayback();
 
-    this.isPlaying = false;
-    this.queue = [];
-    this.startTransition(target);
+    this.startTransition(target, playbackChanged);
   }
 
   reset() {
-    this.pause();
+    const playbackChanged = this.stopPlayback();
+    const changed =
+      playbackChanged ||
+      this.settledIndex !== 0 ||
+      this.blockedTarget !== null ||
+      this.transition !== null;
+
+    if (!changed) {
+      return;
+    }
+
     this.settledIndex = 0;
     this.blockedTarget = null;
     this.transition = null;
-    this.emit();
+    this.emitChanged();
   }
 
   setSpeed(speed: TimelineSpeed) {
@@ -319,6 +322,35 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     }
 
     this.speed = speed;
+    this.emitChanged();
+  }
+
+  private cancelFrame() {
+    if (this.frameId !== null) {
+      cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+      return true;
+    }
+
+    return false;
+  }
+
+  private stopPlayback() {
+    const hadFrame = this.cancelFrame();
+    const changed = this.isPlaying || this.queue.length > 0 || hadFrame;
+
+    this.isPlaying = false;
+    this.queue = [];
+
+    return changed;
+  }
+
+  private bumpVersion() {
+    this.version = createTimelineSnapshotVersion();
+  }
+
+  private emitChanged() {
+    this.bumpVersion();
     this.emit();
   }
 
@@ -332,24 +364,47 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     return queue;
   }
 
-  private startTransition(targetIndex: number) {
+  private startTransition(targetIndex: number, alreadyChanged = false) {
     if (this.steps.length === 0) {
+      if (alreadyChanged) {
+        this.emitChanged();
+      }
+
       return;
     }
 
     const lastIndex = Math.max(this.steps.length - 1, 0);
     const safeTarget = clampIndex(targetIndex, lastIndex);
 
-     if (
+    if (
       safeTarget !== this.settledIndex &&
       this.lockedSteps.has(safeTarget)
     ) {
+      const changed = alreadyChanged || this.blockedTarget !== safeTarget;
+
       this.blockedTarget = safeTarget;
-      this.pause();
+      this.transition = null;
+
+      if (changed) {
+        this.emitChanged();
+      }
+
       return;
     }
 
     if (safeTarget === this.settledIndex && this.transition === null) {
+      if (alreadyChanged) {
+        this.emitChanged();
+      }
+
+      return;
+    }
+
+    if (
+      !alreadyChanged &&
+      this.transition?.to === safeTarget &&
+      this.blockedTarget === null
+    ) {
       return;
     }
 
@@ -362,17 +417,29 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     };
 
     this.ensureFrame();
-    this.emit();
+    this.emitChanged();
   }
 
   private beginQueuedTransition(targetIndex: number, now: number) {
     if (this.lockedSteps.has(targetIndex)) {
+      const changed =
+        this.isPlaying ||
+        this.queue.length > 0 ||
+        this.blockedTarget !== targetIndex ||
+        this.transition !== null;
+
       this.isPlaying = false;
       this.queue = [];
       this.blockedTarget = targetIndex;
-      this.emit();
-      return;
+      this.transition = null;
+
+      return changed;
     }
+
+    const changed =
+      this.blockedTarget !== null ||
+      this.transition?.to !== targetIndex ||
+      (this.transition !== null && this.transition.from !== this.settledIndex);
 
     this.blockedTarget = null;
     this.transition = {
@@ -381,6 +448,8 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
       startedAt: now,
       duration: this.resolveDuration(targetIndex),
     };
+
+    return changed;
   }
 
   private resolveDuration(targetIndex: number) {
@@ -408,19 +477,23 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   private tick = (now: number) => {
     this.frameId = null;
 
-      if (!this.transition) {
-        if (this.isPlaying && this.queue.length > 0) {
-          const nextIndex = this.queue.shift();
+    if (!this.transition) {
+      if (this.isPlaying && this.queue.length > 0) {
+        const nextIndex = this.queue.shift();
 
-          if (typeof nextIndex === "number") {
-            this.beginQueuedTransition(nextIndex, now);
-            this.emit();
+        if (typeof nextIndex === "number") {
+          if (this.beginQueuedTransition(nextIndex, now)) {
+            this.emitChanged();
           }
-        } else if (this.isPlaying && this.settledIndex < this.steps.length - 1) {
-          this.queue = this.buildForwardQueue(this.settledIndex);
-        } else {
-        this.isPlaying = false;
-        this.emit();
+        }
+      } else if (this.isPlaying && this.settledIndex < this.steps.length - 1) {
+        this.queue = this.buildForwardQueue(this.settledIndex);
+        this.emitChanged();
+      } else {
+        if (this.isPlaying) {
+          this.isPlaying = false;
+          this.emitChanged();
+        }
       }
     }
 
@@ -438,7 +511,7 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
         }
       }
 
-      this.emit();
+      this.emitChanged();
     }
 
     if (this.transition || this.isPlaying) {
@@ -447,16 +520,12 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   };
 
   private emit() {
-    const snapshot = this.getSnapshot();
-
-    if (
-      this.lastEmittedSnapshot &&
-      areTimelineSnapshotsEqual(this.lastEmittedSnapshot, snapshot)
-    ) {
+    if (this.lastEmittedVersion === this.version) {
       return;
     }
 
-    this.lastEmittedSnapshot = snapshot;
+    const snapshot = this.getSnapshot();
+    this.lastEmittedVersion = this.version;
     this.subscribers.forEach((subscriber) => subscriber(snapshot));
   }
 }
