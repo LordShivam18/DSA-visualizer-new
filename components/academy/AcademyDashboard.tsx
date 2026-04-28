@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { topicCatalog } from "@/lib/academy/catalog";
+import { categoryRegistry } from "@/lib/academy/problemRegistry";
 
 import { lightPanelClassName } from "../array-string/shared/ui";
 import AdaptiveRecommendationRail from "./AdaptiveRecommendationRail";
@@ -13,16 +13,47 @@ function formatMinutes(milliseconds: number) {
   return Math.max(1, Math.round(milliseconds / 60000));
 }
 
+const statusTone = {
+  strong: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  weak: "border-rose-200 bg-rose-50 text-rose-700",
+  building: "border-amber-200 bg-amber-50 text-amber-700",
+  unstarted: "border-slate-200 bg-white text-slate-500",
+} as const;
+
+const profileTone = {
+  low: "border-emerald-200 bg-emerald-50 text-emerald-700",
+  medium: "border-amber-200 bg-amber-50 text-amber-700",
+  high: "border-rose-200 bg-rose-50 text-rose-700",
+  fast: "border-cyan-200 bg-cyan-50 text-cyan-700",
+  average: "border-slate-200 bg-white text-slate-600",
+  slow: "border-rose-200 bg-rose-50 text-rose-700",
+} as const;
+
+function formatInsightList(values: string[]) {
+  return values.length === 0 ? "Building signal" : values.join(", ");
+}
+
 export default function AcademyDashboard() {
   const {
     learner,
     recommendations,
     recentSessions,
-    weakTopics,
     solvedProblems,
     totalProblems,
     averageAccuracy,
+    learningInsights,
+    categoryInsights,
   } = useProgressTracker();
+  const totalAttempts = categoryInsights.reduce(
+    (total, category) => total + category.attempts,
+    0
+  );
+  const totalHints = categoryInsights.reduce(
+    (total, category) => total + category.hintsUsed,
+    0
+  );
+  const hintRate =
+    totalAttempts === 0 ? 0 : Math.round((totalHints / totalAttempts) * 100) / 100;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#fffaf0] text-slate-900">
@@ -97,6 +128,74 @@ export default function AcademyDashboard() {
           </div>
         </header>
 
+        <section className={`${lightPanelClassName} p-5`}>
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="h-4 w-1.5 rounded-full bg-rose-400" />
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    Learning Intelligence
+                  </h2>
+                  <p className="text-sm text-slate-500">
+                    Derived from persisted progress, registry categories, and scored sessions.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                {[
+                  {
+                    label: "Strengths",
+                    value: formatInsightList(learningInsights.strongCategories),
+                    tone: "border-emerald-200 bg-emerald-50 text-emerald-700",
+                  },
+                  {
+                    label: "Weaknesses",
+                    value: formatInsightList(learningInsights.weakCategories),
+                    tone: "border-rose-200 bg-rose-50 text-rose-700",
+                  },
+                  {
+                    label: "Hint Dependency",
+                    value: `${learningInsights.hintDependency} (${hintRate}/attempt)`,
+                    tone: profileTone[learningInsights.hintDependency],
+                  },
+                  {
+                    label: "Speed Profile",
+                    value: learningInsights.speedProfile,
+                    tone: profileTone[learningInsights.speedProfile],
+                  },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className={`rounded-lg border px-4 py-3 ${item.tone}`}
+                  >
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em]">
+                      {item.label}
+                    </p>
+                    <p className="mt-2 text-sm font-semibold leading-6">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="w-full max-w-xl rounded-lg border border-slate-200 bg-slate-50/80 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                Insight Feed
+              </p>
+              <div className="mt-3 space-y-2">
+                {learningInsights.recommendations.map((insight) => (
+                  <p key={insight} className="text-sm leading-6 text-slate-700">
+                    {insight}
+                  </p>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.95fr)]">
           <section className="space-y-5">
             <section className={`${lightPanelClassName} p-5`}>
@@ -113,28 +212,39 @@ export default function AcademyDashboard() {
               </div>
 
               <div className="mt-5 space-y-3">
-                {topicCatalog.map((topic) => {
-                  const topicProgress = weakTopics.find(
-                    (item) => item.topicId === topic.id
+                {categoryRegistry.map((topic) => {
+                  const categoryInsight = categoryInsights.find(
+                    (item) => item.categoryId === topic.id
                   );
-                  const mastery = topicProgress?.mastery ?? 0;
-                  const accuracy = topicProgress?.accuracy ?? 0;
+                  const mastery = categoryInsight?.masteryScore ?? 0;
+                  const accuracy = categoryInsight?.accuracy ?? 0;
+                  const attempts = categoryInsight?.attempts ?? 0;
+                  const hintsPerAttempt = categoryInsight?.hintsPerAttempt ?? 0;
+                  const status = categoryInsight?.status ?? "unstarted";
 
                   return (
                     <div
                       key={topic.id}
-                      className="rounded-[1.15rem] border border-slate-200 bg-slate-50/80 p-4"
+                      className="rounded-lg border border-slate-200 bg-slate-50/80 p-4"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-slate-900">
-                            {topic.label}
-                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-sm font-semibold text-slate-900">
+                              {topic.label}
+                            </p>
+                            <span
+                              className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] ${statusTone[status]}`}
+                            >
+                              {status}
+                            </span>
+                          </div>
                           <p className="mt-1 text-sm text-slate-500">{topic.summary}</p>
                         </div>
                         <div className="text-right text-sm text-slate-600">
                           <div>Mastery {mastery}%</div>
                           <div>Accuracy {Math.round(accuracy)}%</div>
+                          <div>{attempts} attempts</div>
                         </div>
                       </div>
                       <div className="mt-4 h-2 overflow-hidden rounded-full border border-slate-200 bg-white">
@@ -142,6 +252,9 @@ export default function AcademyDashboard() {
                           className="h-full rounded-full bg-gradient-to-r from-orange-400 via-amber-400 to-cyan-500"
                           style={{ width: `${mastery}%` }}
                         />
+                      </div>
+                      <div className="mt-3 text-xs uppercase tracking-[0.18em] text-slate-500">
+                        Hints {hintsPerAttempt}/attempt
                       </div>
                     </div>
                   );
@@ -179,7 +292,7 @@ export default function AcademyDashboard() {
                             {session.problemTitle}
                           </p>
                           <p className="mt-1 text-sm text-slate-500">
-                            {session.mode} · {new Date(session.endedAt).toLocaleString()}
+                            {session.mode} - {new Date(session.endedAt).toLocaleString()}
                           </p>
                         </div>
                         <div className="text-right text-sm text-slate-600">
@@ -240,10 +353,10 @@ export default function AcademyDashboard() {
               </div>
 
               <div className="mt-5 space-y-3">
-                {topicCatalog.map((topic) => (
+                {categoryRegistry.map((topic) => (
                   <Link
                     key={topic.id}
-                    href={topic.route}
+                    href={topic.path}
                     className="block rounded-[1rem] border border-slate-200 bg-slate-50/80 px-4 py-4 transition-all hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-white"
                   >
                     <div className="flex items-center justify-between gap-3">
@@ -256,7 +369,11 @@ export default function AcademyDashboard() {
                         </p>
                       </div>
                       <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-500">
-                        {topic.totalProblems} lessons
+                        {
+                          categoryInsights.find(
+                            (item) => item.categoryId === topic.id
+                          )?.totalProblems
+                        } lessons
                       </span>
                     </div>
                   </Link>

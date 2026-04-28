@@ -2,7 +2,12 @@
 
 import { useMemo } from "react";
 
-import { academyProblemCatalog } from "@/lib/academy/catalog";
+import {
+  buildUserMetricsFromLearningState,
+  generateLearningInsights,
+  getCategoryInsightRows,
+} from "@/lib/academy/learningInsights";
+import { problemRegistry } from "@/lib/academy/problemRegistry";
 import { getAdaptiveRecommendations, getWeakTopicBreakdown } from "@/lib/academy/recommendations";
 
 import { useLearningPlatform } from "../LearningPlatformProvider";
@@ -31,6 +36,9 @@ export function useProgressTracker(problemId?: string) {
               0
             ) / state.sessions.length
           );
+    const userMetrics = buildUserMetricsFromLearningState(state);
+    const learningInsights = generateLearningInsights(userMetrics);
+    const categoryInsights = getCategoryInsightRows(userMetrics);
 
     return {
       isHydrated,
@@ -39,8 +47,11 @@ export function useProgressTracker(problemId?: string) {
       topicProgress,
       recentSessions,
       weakTopics,
-      recommendations: getAdaptiveRecommendations(state, problemId),
-      totalProblems: academyProblemCatalog.length,
+      userMetrics,
+      learningInsights,
+      categoryInsights,
+      recommendations: getAdaptiveRecommendations(state, problemId, learningInsights),
+      totalProblems: problemRegistry.length,
       solvedProblems,
       averageAccuracy,
       modeCoverage: Object.keys(state.activeModes).length,
