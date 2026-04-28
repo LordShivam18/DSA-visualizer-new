@@ -64,8 +64,7 @@ type TraceLessonPageProps<
   defaultInputs: TInputs;
   inputFields: TraceInputField<TInputs>[];
   presets: TracePreset<TInputs>[];
-  buildTrace?: (inputs: TInputs) => Step[];
-  generateTrace?: (inputs: TInputs) => Step[];
+  generateTrace: (inputs: TInputs) => Step[];
   inputHint?: string;
   renderControls?: (
     context: LessonControllerState<TInputs, Step>
@@ -150,8 +149,7 @@ function renderDefaultControls<
 }
 
 function renderDarkLayout<
-  TInputs extends Record<string, string>,
-  Step extends LessonStepLike
+  TInputs extends Record<string, string>
 >({
   categoryHref,
   categoryLabel,
@@ -173,7 +171,17 @@ function renderDarkLayout<
   tracePanel,
   codePanel,
   output,
-}: TraceLessonPageProps<TInputs, Step> & {
+}: {
+  categoryHref: string;
+  categoryLabel: string;
+  taxonomy: string;
+  title: string;
+  difficulty: Difficulty;
+  description: string;
+  complexity?: string;
+  inputFields: TraceInputField<TInputs>[];
+  presets: TracePreset<TInputs>[];
+  inputHint?: string;
   inputs: TInputs;
   setInputs: Dispatch<SetStateAction<TInputs>>;
   run: (nextInputs?: TInputs) => void;
@@ -338,7 +346,6 @@ export default function TraceLessonPage<
   defaultInputs,
   inputFields,
   presets,
-  buildTrace,
   generateTrace,
   inputHint,
   renderControls,
@@ -351,7 +358,6 @@ export default function TraceLessonPage<
   return (
     <LessonShell
       defaultInputs={defaultInputs}
-      buildTrace={buildTrace}
       generateTrace={generateTrace}
       renderControls={(context) =>
         renderControls
@@ -460,7 +466,6 @@ export default function TraceLessonPage<
         }
 
         return renderDarkLayout({
-          variant,
           categoryHref,
           categoryLabel,
           taxonomy,
@@ -468,17 +473,9 @@ export default function TraceLessonPage<
           difficulty,
           description,
           complexity,
-          defaultInputs,
           inputFields,
           presets,
-          buildTrace,
           inputHint,
-          renderControls,
-          renderVisualization,
-          renderMicroscope,
-          renderTracePanel,
-          renderCodePanel,
-          renderOutput,
           inputs,
           setInputs,
           run,

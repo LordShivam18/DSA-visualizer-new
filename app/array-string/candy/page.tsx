@@ -59,7 +59,7 @@ export default function CandyPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="The left-to-right and right-to-left passes are rebuilt from the same trace, so prediction mode stays aligned with the greedy repair."
       Controls={Controls}
       Visualization={CandyVisualizer}

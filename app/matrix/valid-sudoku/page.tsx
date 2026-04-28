@@ -104,7 +104,7 @@ export default function ValidSudokuPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       renderVisualization={({ step }) => <SudokuVisualizer step={step} />}
       renderMicroscope={({ step, teachingMode }) => (
         <MatrixMicroscopeView step={step} mode={teachingMode} />

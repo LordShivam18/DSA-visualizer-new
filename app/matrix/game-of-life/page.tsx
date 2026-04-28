@@ -80,7 +80,7 @@ export default function GameOfLifePage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Neighbor counts and transition markers are regenerated from the same trace, so prediction mode reflects the real next cellular update."
       Controls={MatrixControls}
       Visualization={GameOfLifeVisualizer}

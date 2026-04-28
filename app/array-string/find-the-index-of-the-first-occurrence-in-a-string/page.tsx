@@ -64,7 +64,7 @@ export default function FirstOccurrencePage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={FirstOccurrenceVisualizer}
       Microscope={MicroscopeView}

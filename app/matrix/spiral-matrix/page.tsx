@@ -78,7 +78,7 @@ export default function SpiralMatrixPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Boundary contraction always regenerates from the same trace, so prediction mode can ask about the real next sweep."
       Controls={MatrixControls}
       Visualization={SpiralMatrixVisualizer}

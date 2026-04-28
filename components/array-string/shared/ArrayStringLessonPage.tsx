@@ -49,7 +49,7 @@ export default function ArrayStringLessonPage<
   defaultInputs,
   inputFields,
   presets,
-  buildTrace,
+  generateTrace,
   inputHint,
   Controls,
   Visualization,
@@ -62,7 +62,7 @@ export default function ArrayStringLessonPage<
   defaultInputs: TInputs;
   inputFields: ArrayStringInputField<TInputs>[];
   presets: StandardLessonPreset<TInputs>[];
-  buildTrace: (inputs: TInputs) => Step[];
+  generateTrace: (inputs: TInputs) => Step[];
   inputHint?: string;
   Controls: ComponentType<ControlsProps>;
   Visualization: ComponentType<{ step: Step }>;
@@ -92,7 +92,7 @@ export default function ArrayStringLessonPage<
         inputMode: field.inputMode,
       }))}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={generateTrace}
       inputHint={inputHint}
       Controls={Controls}
       Visualization={Visualization}

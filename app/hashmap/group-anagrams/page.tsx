@@ -60,7 +60,7 @@ export default function GroupAnagramsPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={GroupAnagramsWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

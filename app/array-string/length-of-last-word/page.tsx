@@ -46,7 +46,7 @@ export default function LengthOfLastWordPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={LengthOfLastWordVisualizer}
       Microscope={MicroscopeView}

@@ -76,7 +76,7 @@ export default function RandomizedSetPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={RandomizedSetVisualizer}
       Microscope={MicroscopeView}

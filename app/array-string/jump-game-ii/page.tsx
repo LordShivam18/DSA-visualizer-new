@@ -49,7 +49,7 @@ export default function JumpGameIIPage() {
         { id: "nums", label: "nums", placeholder: "[2,3,1,1,4]" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       renderVisualization={({ step }) => <JumpGameIIVisualizer step={step} />}
       renderMicroscope={({ step, teachingMode }) => (
         <MicroscopeView step={step} mode={teachingMode} />

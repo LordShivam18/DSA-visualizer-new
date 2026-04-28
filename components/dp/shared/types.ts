@@ -231,7 +231,7 @@ export type DpProblemPageProps<TInputs extends Record<string, string>> = {
   inputFields: InputFieldConfig[];
   defaultInputs: TInputs;
   presets: PresetConfig<TInputs>[];
-  buildTrace: (inputs: TInputs) => DpTraceStep[];
+  generateTrace: (inputs: TInputs) => DpTraceStep[];
   MainVisualizer: (props: {
     step: DpTraceStep;
     transitionProgress: number;

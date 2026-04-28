@@ -68,7 +68,7 @@ export default function TwoSumPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={TwoSumWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

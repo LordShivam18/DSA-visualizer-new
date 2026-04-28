@@ -60,7 +60,7 @@ export default function LongestConsecutiveSequencePage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={LongestConsecutiveSequenceWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

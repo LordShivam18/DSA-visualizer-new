@@ -76,7 +76,7 @@ export default function TextJustificationPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={TextJustificationVisualizer}
       Microscope={MicroscopeView}

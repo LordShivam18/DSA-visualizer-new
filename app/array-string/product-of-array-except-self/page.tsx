@@ -51,7 +51,7 @@ export default function ProductOfArrayExceptSelfPage() {
         { key: "nums", label: "nums", placeholder: "[1,2,3,4]" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={ProductExceptSelfVisualizer}
       Microscope={MicroscopeView}

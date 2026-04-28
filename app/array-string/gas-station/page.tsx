@@ -61,7 +61,7 @@ export default function GasStationPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="The global balance proof and local tank resets come from the same trace, so the next-step prediction always matches the real greedy transition."
       Controls={Controls}
       Visualization={GasStationVisualizer}

@@ -67,7 +67,7 @@ export default function ValidAnagramPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={ValidAnagramWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

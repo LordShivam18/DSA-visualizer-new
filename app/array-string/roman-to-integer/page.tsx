@@ -56,7 +56,7 @@ export default function RomanToIntegerPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="The signed-contribution trace is rebuilt on every run, so prediction mode always asks about the real next lookahead decision."
       Controls={Controls}
       Visualization={RomanToIntegerVisualizer}

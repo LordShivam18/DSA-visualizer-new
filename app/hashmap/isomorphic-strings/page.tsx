@@ -67,7 +67,7 @@ export default function IsomorphicStringsPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={IsomorphicStringsWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

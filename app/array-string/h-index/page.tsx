@@ -50,7 +50,7 @@ export default function HIndexPage() {
         { key: "citations", label: "citations", placeholder: "[3,0,6,1,5]" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={HIndexVisualizer}
       Microscope={MicroscopeView}

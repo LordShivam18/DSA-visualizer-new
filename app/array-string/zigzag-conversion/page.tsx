@@ -64,7 +64,7 @@ export default function ZigzagConversionPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={ZigzagConversionVisualizer}
       Microscope={MicroscopeView}

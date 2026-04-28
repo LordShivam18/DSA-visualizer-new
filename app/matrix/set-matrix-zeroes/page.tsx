@@ -74,7 +74,7 @@ export default function SetMatrixZeroesPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Marker rows and columns regenerate from the same trace, so the why panel can explain every zero-propagation decision."
       Controls={MatrixControls}
       Visualization={SetMatrixZeroesVisualizer}

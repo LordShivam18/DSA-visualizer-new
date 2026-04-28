@@ -69,7 +69,7 @@ export default function RansomNotePage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={RansomNoteWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

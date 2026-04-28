@@ -98,17 +98,17 @@ export function useLessonController<
   Step extends LessonStepLike
 >({
   defaultInputs,
-  buildTrace,
+  generateTrace,
   initialTeachingMode = "beginner",
   initialLessonMode = "learn",
 }: {
   defaultInputs: TInputs;
-  buildTrace: (inputs: TInputs) => Step[];
+  generateTrace: (inputs: TInputs) => Step[];
   initialTeachingMode?: TeachingMode;
   initialLessonMode?: LessonFeatureMode;
 }): LessonControllerState<TInputs, Step> {
   const [inputs, setInputs] = useState<TInputs>(defaultInputs);
-  const [trace, setTrace] = useState<Step[]>(() => buildTrace(defaultInputs));
+  const [trace, setTrace] = useState<Step[]>(() => generateTrace(defaultInputs));
   const [teachingMode, setTeachingMode] =
     useState<TeachingMode>(initialTeachingMode);
   const [lessonMode, setLessonModeState] =
@@ -157,7 +157,7 @@ export function useLessonController<
   function run(nextInputs = inputs) {
     pause();
     setInputs(nextInputs);
-    setTrace(buildTrace(nextInputs));
+    setTrace(generateTrace(nextInputs));
     setCycleId((current) => current + 1);
   }
 

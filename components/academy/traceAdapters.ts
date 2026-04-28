@@ -8,43 +8,44 @@ function readText(value: unknown) {
     : null;
 }
 
-export type LessonTraceStep<TStep extends TraceRecord> = TStep &
+export type LessonTraceStep<TStep extends object> = TStep &
   LessonStepLike;
 
-export function toLessonTrace<TStep extends TraceRecord>(
+export function toLessonTrace<TStep extends object>(
   steps: TStep[]
 ): LessonTraceStep<TStep>[] {
   return steps.map((item, index) => {
+    const record = item as TraceRecord;
     const existingStep =
-      typeof item.step === "number" ? item.step : index;
+      typeof record.step === "number" ? record.step : index;
     const action =
-      readText(item.action) ??
-      readText(item.text) ??
-      readText(item.explanation) ??
-      readText(item.explanationBeginner) ??
-      readText(item.type) ??
+      readText(record.action) ??
+      readText(record.text) ??
+      readText(record.explanation) ??
+      readText(record.explanationBeginner) ??
+      readText(record.type) ??
       `Step ${index + 1}`;
     const beginnerNote =
-      readText(item.beginnerNote) ??
-      readText(item.explanationBeginner) ??
-      readText(item.text) ??
-      readText(item.explanation) ??
+      readText(record.beginnerNote) ??
+      readText(record.explanationBeginner) ??
+      readText(record.text) ??
+      readText(record.explanation) ??
       action;
     const expertNote =
-      readText(item.expertNote) ??
-      readText(item.explanationExpert) ??
+      readText(record.expertNote) ??
+      readText(record.explanationExpert) ??
       beginnerNote;
 
     return {
       ...item,
       step: existingStep,
       action,
-      state: item.state ?? item,
+      state: record.state ?? item,
       beginnerNote,
       expertNote,
-      explanationBeginner: readText(item.explanationBeginner) ?? beginnerNote,
-      explanationExpert: readText(item.explanationExpert) ?? expertNote,
-      done: typeof item.done === "boolean" ? item.done : index === steps.length - 1,
+      explanationBeginner: readText(record.explanationBeginner) ?? beginnerNote,
+      explanationExpert: readText(record.explanationExpert) ?? expertNote,
+      done: typeof record.done === "boolean" ? record.done : index === steps.length - 1,
     } as LessonTraceStep<TStep>;
   });
 }

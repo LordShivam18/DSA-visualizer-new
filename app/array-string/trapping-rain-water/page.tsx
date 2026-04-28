@@ -63,7 +63,7 @@ export default function TrappingRainWaterPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Each scenario rebuilds the same two-pointer boundary trace, so why-panel reasoning and prediction checkpoints stay in sync."
       Controls={Controls}
       Visualization={TrappingRainWaterVisualizer}

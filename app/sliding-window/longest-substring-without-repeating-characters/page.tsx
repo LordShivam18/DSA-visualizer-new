@@ -59,7 +59,7 @@ export default function LongestSubstringWithoutRepeatingCharactersPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={LongestSubstringWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

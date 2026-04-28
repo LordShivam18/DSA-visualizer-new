@@ -61,7 +61,7 @@ export default function LongestCommonPrefixPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={LongestCommonPrefixVisualizer}
       Microscope={MicroscopeView}

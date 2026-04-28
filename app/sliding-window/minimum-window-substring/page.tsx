@@ -67,7 +67,7 @@ export default function MinimumWindowSubstringPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={MinimumWindowSubstringWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

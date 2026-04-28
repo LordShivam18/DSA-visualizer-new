@@ -69,7 +69,7 @@ export default function SubstringWithConcatenationOfAllWordsPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={SubstringConcatWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

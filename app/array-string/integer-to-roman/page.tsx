@@ -57,7 +57,7 @@ export default function IntegerToRomanPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Roman numerals regenerate from the same denomination trace, so prediction mode stays aligned with the greedy conversion."
       Controls={Controls}
       Visualization={IntegerToRomanVisualizer}

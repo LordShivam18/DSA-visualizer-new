@@ -38,7 +38,7 @@ type Props = {
   inputFields: ProblemInputField[];
   presets: ProblemPreset[];
   initialInputs: Record<string, string>;
-  buildTrace: (inputs: Record<string, string>) => SlidingWindowTraceStep[];
+  generateTrace: (inputs: Record<string, string>) => SlidingWindowTraceStep[];
   Visualization: ComponentType<PanelProps>;
   Controls: ComponentType<ControlsProps>;
   Microscope: ComponentType<MicroscopeProps>;
@@ -51,7 +51,7 @@ export default function SlidingWindowProblemShell({
   inputFields,
   presets,
   initialInputs,
-  buildTrace,
+  generateTrace,
   Visualization,
   Controls,
   Microscope,
@@ -80,7 +80,7 @@ export default function SlidingWindowProblemShell({
         summary: preset.output,
         values: preset.values,
       }))}
-      buildTrace={buildTrace}
+      generateTrace={generateTrace}
       inputHint="Every scenario rebuilds the full sliding-window trace from the algorithm source."
       renderControls={({ teachingMode, setTeachingMode, timeline, trace }) => (
         <Controls

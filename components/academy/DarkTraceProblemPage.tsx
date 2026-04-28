@@ -50,7 +50,6 @@ export default function DarkTraceProblemPage<
   defaultInputs,
   inputFields,
   presets,
-  buildTrace,
   generateTrace,
   inputHint,
   Controls,
@@ -64,8 +63,7 @@ export default function DarkTraceProblemPage<
   defaultInputs: TInputs;
   inputFields: DarkTraceInputField<TInputs>[];
   presets: StandardLessonPreset<TInputs>[];
-  buildTrace?: (inputs: TInputs) => Step[];
-  generateTrace?: (inputs: TInputs) => Step[];
+  generateTrace: (inputs: TInputs) => Step[];
   inputHint?: string;
   Controls: ComponentType<ControlsProps<Mode>>;
   Visualization: ComponentType<{ step: Step }>;
@@ -95,7 +93,6 @@ export default function DarkTraceProblemPage<
         inputMode: field.inputMode,
       }))}
       presets={presets}
-      buildTrace={buildTrace}
       generateTrace={generateTrace}
       inputHint={inputHint}
       Controls={Controls}

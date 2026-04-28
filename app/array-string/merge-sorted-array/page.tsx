@@ -57,7 +57,7 @@ export default function MergeSortedArrayPage() {
         { key: "n", label: "n", placeholder: "3" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={MergeSortedArrayVisualizer}
       Microscope={MicroscopeView}

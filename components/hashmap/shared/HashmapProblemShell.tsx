@@ -38,7 +38,7 @@ type Props = {
   inputFields: ProblemInputField[];
   presets: ProblemPreset[];
   initialInputs: Record<string, string>;
-  buildTrace: (inputs: Record<string, string>) => HashmapTraceStep[];
+  generateTrace: (inputs: Record<string, string>) => HashmapTraceStep[];
   Visualization: ComponentType<PanelProps>;
   Controls: ComponentType<ControlsProps>;
   Microscope: ComponentType<MicroscopeProps>;
@@ -51,7 +51,7 @@ export default function HashmapProblemShell({
   inputFields,
   presets,
   initialInputs,
-  buildTrace,
+  generateTrace,
   Visualization,
   Controls,
   Microscope,
@@ -80,7 +80,7 @@ export default function HashmapProblemShell({
         summary: preset.output,
         values: preset.values,
       }))}
-      buildTrace={buildTrace}
+      generateTrace={generateTrace}
       inputHint="Inputs are safely parsed each time the trace is regenerated."
       renderControls={({ teachingMode, setTeachingMode, timeline, trace }) => (
         <Controls

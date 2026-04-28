@@ -46,7 +46,7 @@ export default function MajorityElementPage() {
         { key: "nums", label: "nums", placeholder: "[2,2,1,1,1,2,2]" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={MajorityElementVisualizer}
       Microscope={MicroscopeView}

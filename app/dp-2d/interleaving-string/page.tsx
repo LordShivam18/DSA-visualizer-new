@@ -25,7 +25,7 @@ export default function InterleavingStringPage() {
       inputFields={inputFields}
       defaultInputs={defaultInputs}
       presets={presets}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       MainVisualizer={MainVisualizer}
       MicroscopeView={MicroscopeView}
       TracePanel={TracePanel}

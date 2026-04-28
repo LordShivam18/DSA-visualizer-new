@@ -25,7 +25,7 @@ export default function DPProblemPage<TInputs extends Record<string, string>>({
   inputFields,
   defaultInputs,
   presets,
-  buildTrace,
+  generateTrace,
   MainVisualizer: ProblemMainVisualizer = MainVisualizer,
   MicroscopeView: ProblemMicroscopeView = MicroscopeView,
   TracePanel: ProblemTracePanel = TracePanel,
@@ -57,7 +57,7 @@ export default function DPProblemPage<TInputs extends Record<string, string>>({
         summary: preset.summary,
         values: preset.values,
       }))}
-      buildTrace={buildTrace}
+      generateTrace={generateTrace}
       inputHint="DP presets rebuild the same recurrence trace, so learn and prediction modes stay aligned."
       renderControls={({ teachingMode, setTeachingMode, timeline, trace }) => (
         <Controls

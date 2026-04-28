@@ -65,7 +65,7 @@ export default function SearchRotatedSortedArrayPage() {
           target: preset.target,
         },
       }))}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Every preset rebuilds the same rotated-search trace, so prediction mode always queries the actual next binary-search transition."
       renderControls={({ teachingMode, setTeachingMode, timeline, trace }) => (
         <Controls

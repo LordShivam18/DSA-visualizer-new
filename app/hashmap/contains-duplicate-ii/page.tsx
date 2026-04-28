@@ -68,7 +68,7 @@ export default function ContainsDuplicateIIPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={ContainsDuplicateIIWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

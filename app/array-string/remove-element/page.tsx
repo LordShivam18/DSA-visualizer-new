@@ -53,7 +53,7 @@ export default function RemoveElementPage() {
         { key: "target", label: "val", placeholder: "3" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={RemoveElementVisualizer}
       Microscope={MicroscopeView}

@@ -57,7 +57,7 @@ export default function ReverseWordsPage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Token cleanup and reverse assembly both come from the same trace, so the why panel can explain each normalization step without duplicated logic."
       Controls={Controls}
       Visualization={ReverseWordsVisualizer}

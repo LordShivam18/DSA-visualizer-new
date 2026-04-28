@@ -55,7 +55,7 @@ export default function RemoveDuplicatesIIPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={RemoveDuplicatesIIVisualizer}
       Microscope={MicroscopeView}

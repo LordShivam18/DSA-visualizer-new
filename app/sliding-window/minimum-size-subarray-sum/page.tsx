@@ -68,7 +68,7 @@ export default function MinimumSizeSubarraySumPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={MinimumSizeSubarraySumWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

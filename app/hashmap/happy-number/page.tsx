@@ -58,7 +58,7 @@ export default function HappyNumberPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={HappyNumberWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

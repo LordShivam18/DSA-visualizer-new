@@ -80,7 +80,7 @@ export default function WordSearchPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={WordSearchWorkbench}
       Microscope={MicroscopeView}

@@ -49,7 +49,7 @@ export default function StockPage() {
         { id: "prices", label: "prices", placeholder: "[7,1,5,3,6,4]" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       renderVisualization={({ step }) => <StockProfitVisualizer step={step} />}
       renderMicroscope={({ step, teachingMode }) => (
         <MicroscopeView step={step} mode={teachingMode} />

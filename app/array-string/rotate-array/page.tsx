@@ -53,7 +53,7 @@ export default function RotateArrayPage() {
         { key: "k", label: "k", placeholder: "3" },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       Controls={Controls}
       Visualization={RotateArrayVisualizer}
       Microscope={MicroscopeView}

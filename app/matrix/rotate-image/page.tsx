@@ -79,7 +79,7 @@ export default function RotateImagePage() {
         summary?: string;
         values: typeof defaultInputs;
       }>}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       inputHint="Each run rebuilds the in-place matrix trace, so transpose and reverse steps stay synchronized with prediction mode."
       Controls={MatrixControls}
       Visualization={RotateImageVisualizer}

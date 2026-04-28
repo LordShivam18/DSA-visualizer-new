@@ -57,7 +57,7 @@ export default function PermutationsPage() {
         },
       ]}
       presets={presets}
-      buildTrace={buildTrace}
+      generateTrace={buildTrace}
       renderVisualization={({ step }) => <PermutationsWorkbench step={step} />}
       renderMicroscope={({ step, teachingMode }) => (
         <MicroscopeView step={step} mode={teachingMode} />

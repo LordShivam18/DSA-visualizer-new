@@ -68,7 +68,7 @@ export default function WordPatternPage() {
       ]}
       presets={[...presets]}
       initialInputs={initialInputs}
-      buildTrace={generateTrace}
+      generateTrace={generateTrace}
       Visualization={WordPatternWorkbench}
       Controls={Controls}
       Microscope={MicroscopeView}

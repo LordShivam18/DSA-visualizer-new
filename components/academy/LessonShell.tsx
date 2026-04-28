@@ -38,7 +38,6 @@ export default function LessonShell<
   Step extends LessonStepLike
 >({
   defaultInputs,
-  buildTrace,
   generateTrace,
   initialTeachingMode,
   initialLessonMode,
@@ -51,8 +50,7 @@ export default function LessonShell<
   renderContainer,
 }: {
   defaultInputs: TInputs;
-  buildTrace?: (inputs: TInputs) => Step[];
-  generateTrace?: (inputs: TInputs) => Step[];
+  generateTrace: (inputs: TInputs) => Step[];
   initialTeachingMode?: TeachingMode;
   initialLessonMode?: LessonFeatureMode;
   renderControls: (context: LessonShellViewModel<TInputs, Step>) => ReactNode;
@@ -65,17 +63,9 @@ export default function LessonShell<
     context: LessonShellContainerContext<TInputs, Step>
   ) => ReactNode;
 }) {
-  const traceBuilder = generateTrace ?? buildTrace;
-
-  if (!traceBuilder) {
-    throw new Error(
-      "LessonShell requires a generateTrace function (or legacy buildTrace alias)."
-    );
-  }
-
   const lesson = useLessonController({
     defaultInputs,
-    buildTrace: traceBuilder,
+    generateTrace,
     initialTeachingMode,
     initialLessonMode,
   });
