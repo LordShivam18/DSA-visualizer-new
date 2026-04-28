@@ -1,10 +1,12 @@
 import type { AdaptiveRecommendation, Difficulty } from "./models";
 import {
   categoryRegistryById,
+  getProblemById,
   getProblemsByCategory,
   formatRegistryDifficulty,
   type Problem,
 } from "./problemRegistry";
+import { getCuratedLearningPathForProblem } from "./entryPoints";
 
 export type GuidedPathNodeStatus =
   | "foundation"
@@ -77,6 +79,36 @@ export function buildGuidedLearningPath(
   problem: Problem,
   recommendations: AdaptiveRecommendation[]
 ): GuidedLearningPath {
+  const curatedPath = getCuratedLearningPathForProblem(problem.id);
+
+  if (curatedPath) {
+    return {
+      title: curatedPath.title,
+      summary: curatedPath.summary,
+      nodes: curatedPath.steps
+        .map((step, index) => {
+          const registryProblem = getProblemById(step.problemId);
+
+          if (!registryProblem) {
+            return null;
+          }
+
+          const offset = index - curatedPath.currentIndex;
+
+          return {
+            problemId: registryProblem.id,
+            title: registryProblem.title,
+            route: registryProblem.path,
+            difficulty: toDifficultyLabel(registryProblem),
+            status: statusForOffset(offset),
+            summary: step.pathSummary,
+          };
+        })
+        .filter((node): node is GuidedPathNode => node !== null),
+      recommendations: recommendations.slice(0, 2),
+    };
+  }
+
   const categoryProblems = getProblemsByCategory(problem.category);
   const currentIndex = categoryProblems.findIndex(
     (candidate) => candidate.id === problem.id

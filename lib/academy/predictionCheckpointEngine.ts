@@ -14,10 +14,10 @@ export function getPredictionCheckpointId<Step extends PredictableTraceStep>(
 
 function stepDetail(step: PredictableTraceStep) {
   return (
-    step.expertNote?.trim() ||
-    step.explanationExpert?.trim() ||
     step.beginnerNote?.trim() ||
     step.explanationBeginner?.trim() ||
+    step.expertNote?.trim() ||
+    step.explanationExpert?.trim() ||
     step.focus?.trim() ||
     step.action
   );
@@ -203,6 +203,20 @@ function dedupeChoices(choices: PredictionChoice[]) {
   });
 }
 
+function rotateChoices(choices: PredictionChoice[], offset: number) {
+  if (choices.length <= 1) {
+    return choices;
+  }
+
+  const safeOffset = ((offset % choices.length) + choices.length) % choices.length;
+
+  if (safeOffset === 0) {
+    return choices;
+  }
+
+  return choices.slice(safeOffset).concat(choices.slice(0, safeOffset));
+}
+
 export function resolvePredictionCheckpoint<Step extends PredictableTraceStep>(
   trace: Step[],
   activeIndex: number
@@ -224,18 +238,16 @@ export function resolvePredictionCheckpoint<Step extends PredictableTraceStep>(
     detail: stepDetail(upcomingStep),
     isCorrect: true,
   };
-  const choices = dedupeChoices([
-    correctChoice,
-    ...buildIncorrectChoices(actionKey),
-  ]).slice(0, 4);
+  const choices = rotateChoices(
+    dedupeChoices([correctChoice, ...buildIncorrectChoices(actionKey)]).slice(0, 3),
+    upcomingStep.step
+  );
 
   return {
     id: getPredictionCheckpointId(upcomingStep),
     skill: buildSkillLabel(actionKey),
     prompt: buildPrompt(actionKey, upcomingStep),
-    explanation: `Prediction mode is using the trace itself as the source of truth. ${stepDetail(
-      upcomingStep
-    )}`,
+    explanation: stepDetail(upcomingStep),
     choices,
   };
 }

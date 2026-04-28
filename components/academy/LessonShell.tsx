@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import {
+  useEffect,
+  useState,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+} from "react";
+
+import { useSearchParams } from "next/navigation";
 
 import CompletionFeedbackPanel from "./CompletionFeedbackPanel";
 import {
@@ -26,6 +34,12 @@ import {
   getProgressiveDisclosure,
   type ProgressiveLearningMode,
 } from "@/lib/academy/progressiveDisclosure";
+import {
+  resolveLessonEntryExperience,
+  type LessonEntryExperience,
+} from "@/lib/academy/entryPoints";
+
+const GUIDED_ENTRY_ONBOARDING_KEY = "guided-dsa:first-problem-overlay:v1";
 
 type LessonShellViewModel<
   TInputs extends Record<string, string>,
@@ -36,17 +50,27 @@ type LessonShellContainerContext<
   TInputs extends Record<string, string>,
   Step extends LessonStepLike
 > = LessonShellViewModel<TInputs, Step> & {
+  entryExperience: LessonEntryExperience;
+  guidedEntry: boolean;
+  showEntryOnboarding: boolean;
+  dismissEntryOnboarding: () => void;
+  markEntryInteraction: () => void;
   progressiveMode: ProgressiveLearningMode;
   setProgressiveMode: Dispatch<SetStateAction<ProgressiveLearningMode>>;
   progressiveModeToggle: ReactNode;
   lessonModeToggle: ReactNode;
+  lessonControls: ReactNode;
   predictionCard: ReactNode;
+  replayPanel: ReactNode;
+  guidedReplayPanel: ReactNode;
   whyPanel: ReactNode;
+  completionFeedback: ReactNode;
   controls: ReactNode;
   visualization: ReactNode;
   microscope: ReactNode;
   tracePanel: ReactNode;
   codePanel: ReactNode;
+  supplementalOutput: ReactNode;
   output: ReactNode;
 };
 
@@ -82,15 +106,62 @@ export default function LessonShell<
     context: LessonShellContainerContext<TInputs, Step>
   ) => ReactNode;
 }) {
+  const searchParams = useSearchParams();
+  const entryExperience = resolveLessonEntryExperience(searchParams.get("entry"));
+  const guidedEntry = entryExperience !== "default";
   const [progressiveMode, setProgressiveMode] =
-    useState<ProgressiveLearningMode>(initialProgressiveMode);
+    useState<ProgressiveLearningMode>(
+      guidedEntry ? "beginner" : initialProgressiveMode
+    );
+  const [showEntryOnboarding, setShowEntryOnboarding] = useState(
+    entryExperience === "guided"
+  );
   const progressiveDisclosure = getProgressiveDisclosure(progressiveMode);
   const lesson = useLessonController({
     defaultInputs,
     generateTrace,
-    initialTeachingMode,
-    initialLessonMode,
+    initialTeachingMode: guidedEntry ? "beginner" : initialTeachingMode,
+    initialLessonMode:
+      guidedEntry && entryExperience === "guided"
+        ? "prediction"
+        : guidedEntry && entryExperience === "demo"
+        ? "learn"
+        : initialLessonMode,
   });
+
+  useEffect(() => {
+    if (entryExperience !== "guided") {
+      return;
+    }
+
+    try {
+      if (window.localStorage.getItem(GUIDED_ENTRY_ONBOARDING_KEY) === "seen") {
+        const frame = window.requestAnimationFrame(() =>
+          setShowEntryOnboarding(false)
+        );
+
+        return () => window.cancelAnimationFrame(frame);
+      }
+    } catch {
+      return;
+    }
+  }, [entryExperience]);
+
+  function dismissEntryOnboarding() {
+    setShowEntryOnboarding(false);
+
+    try {
+      window.localStorage.setItem(GUIDED_ENTRY_ONBOARDING_KEY, "seen");
+    } catch {
+      return;
+    }
+  }
+
+  function markEntryInteraction() {
+    if (showEntryOnboarding) {
+      dismissEntryOnboarding();
+    }
+  }
 
   const lessonModeToggle = (
     <LessonModeToggle
@@ -98,6 +169,7 @@ export default function LessonShell<
       onChange={lesson.setLessonMode}
     />
   );
+  const lessonControls = renderControls(lesson);
 
   const predictionCard =
     lesson.lessonMode === "prediction" ? (
@@ -107,6 +179,7 @@ export default function LessonShell<
         askedCount={lesson.prediction.askedCount}
         correctCount={lesson.prediction.correctCount}
         onSelect={lesson.prediction.submitPrediction}
+        variant={guidedEntry ? "guided" : "default"}
       />
     ) : null;
 
@@ -139,6 +212,27 @@ export default function LessonShell<
   const replayPanel = learningExperience.problem ? (
     <ReplayVariationsPanel
       items={visibleReplayVariations}
+      onApply={(variation) =>
+        lesson.run({
+          ...lesson.inputs,
+          ...variation.values,
+        } as TInputs)
+      }
+    />
+  ) : null;
+  const guidedReplayItems = learningExperience.replayVariations
+    .filter((variation) =>
+      ["edge", "adversarial", "mutation"].includes(variation.kind)
+    )
+    .slice(0, 2);
+  const guidedReplayPanel = learningExperience.problem ? (
+    <ReplayVariationsPanel
+      variant="guided"
+      items={
+        guidedReplayItems.length > 0
+          ? guidedReplayItems
+          : learningExperience.replayVariations.slice(0, 2)
+      }
       onApply={(variation) =>
         lesson.run({
           ...lesson.inputs,
@@ -184,16 +278,25 @@ export default function LessonShell<
     <>
       {progressiveModeToggle}
       {lessonModeToggle}
-      {renderControls(lesson)}
+      {lessonControls}
       {predictionCard}
       {progressiveDisclosure.panels.replay ? replayPanel : null}
     </>
   );
 
-  const whyPanel = <WhyPanel insight={lesson.whyInsight} />;
-  const completionFeedbackPanel = (
-    <CompletionFeedbackPanel insight={learningExperience.completionFeedback} />
+  const whyPanel = (
+    <WhyPanel
+      insight={lesson.whyInsight}
+      variant={guidedEntry ? "guided" : "default"}
+    />
   );
+  const completionFeedbackPanel = learningExperience.completionFeedback ? (
+    <CompletionFeedbackPanel
+      insight={learningExperience.completionFeedback}
+      variant={guidedEntry ? "guided" : "default"}
+    />
+  ) : null;
+  const supplementalOutput = renderOutput ? renderOutput(lesson) : null;
 
   const tracePanel = (
     <>
@@ -212,16 +315,26 @@ export default function LessonShell<
     setProgressiveMode,
     progressiveModeToggle,
     lessonModeToggle,
+    lessonControls,
     predictionCard,
+    replayPanel,
+    guidedReplayPanel,
     whyPanel,
+    completionFeedback: completionFeedbackPanel,
     controls,
     visualization: renderVisualization(lesson),
     microscope: renderMicroscope(lesson),
     tracePanel,
     codePanel: progressiveDisclosure.panels.code ? renderCodePanel(lesson) : null,
+    entryExperience,
+    guidedEntry,
+    showEntryOnboarding,
+    dismissEntryOnboarding,
+    markEntryInteraction,
+    supplementalOutput,
     output: (
       <>
-        {renderOutput ? renderOutput(lesson) : null}
+        {supplementalOutput}
         {progressiveDisclosure.panels.completion ? completionFeedbackPanel : null}
         {progressiveDisclosure.panels.intelligence
           ? learningIntelligencePanel

@@ -4,12 +4,17 @@ import type { PatternRecognitionInsight } from "./patternEngine";
 import type { Problem } from "./problemRegistry";
 import type { ReplayVariation } from "./variationEngine";
 import type { WhyStepLike } from "./whyEngine";
+import { getCuratedCompletionInsight } from "./entryPoints";
 
 export type CompletionFeedbackTone = "cyan" | "emerald" | "amber" | "violet" | "rose";
 
 export type CompletionFeedbackInsight = {
   headline: string;
   summary: string;
+  beginnerInsight: string;
+  beginnerSuggestion: string;
+  continueTitle: string;
+  continueHref?: string;
   metrics: Array<{
     label: string;
     value: string;
@@ -78,12 +83,26 @@ export function buildCompletionFeedback<Step extends WhyStepLike>({
   const nextPath = resolveNextPath(guidedPath);
   const repairedPattern = feedback?.mistakePattern;
   const traceCoverage = totalSteps <= 1 ? 100 : Math.round(((stepIndex + 1) / totalSteps) * 100);
+  const beginnerInsight =
+    getCuratedCompletionInsight(problem.id) ??
+    (pattern
+      ? `You learned the core ${pattern.label.toLowerCase()} rule behind ${problem.title}.`
+      : `You finished the core trace for ${problem.title}.`);
+  const continueTitle = nextPath?.title ?? "Take the next nearby rep";
+  const continueHref = nextPath?.route;
+  const beginnerSuggestion = nextPath
+    ? `Next, try ${nextPath.title}. ${nextPath.summary}`
+    : "Next, try a nearby problem while the pattern is still fresh.";
 
   return {
     headline: `${problem.title} complete`,
     summary: repairedPattern
       ? `You finished the trace and surfaced a ${repairedPattern.label.toLowerCase()} pattern to repair before the next rep.`
       : `You finished the trace. Lock the invariant with one transfer case before leaving the problem.`,
+    beginnerInsight,
+    beginnerSuggestion,
+    continueTitle,
+    continueHref,
     metrics: [
       {
         label: "Trace coverage",
@@ -129,12 +148,12 @@ export function buildCompletionFeedback<Step extends WhyStepLike>({
       },
       {
         label: "Continue",
-        title: nextPath?.title ?? "Take the next nearby rep",
+        title: continueTitle,
         detail:
           nextPath?.summary ??
           "Stay close to the same pattern while the transition chain is still fresh.",
         tone: "violet",
-        href: nextPath?.route,
+        href: continueHref,
       },
     ],
   };

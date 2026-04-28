@@ -7,11 +7,14 @@ import type {
   SetStateAction,
 } from "react";
 
+import { useSearchParams } from "next/navigation";
+
 import type {
   LessonControllerState,
   LessonStepLike,
   TeachingMode,
 } from "./hooks/useLessonController";
+import GuidedEntryLessonLayout from "./GuidedEntryLessonLayout";
 import LessonShell from "./LessonShell";
 import ProblemShell from "../array-string/shared/ProblemShell";
 import LightControls from "../array-string/shared/LightControls";
@@ -355,8 +358,12 @@ export default function TraceLessonPage<
   renderCodePanel,
   renderOutput,
 }: TraceLessonPageProps<TInputs, Step>) {
+  const searchParams = useSearchParams();
+  const entryKey = searchParams.get("entry") ?? "default";
+
   return (
     <LessonShell
+      key={entryKey}
       defaultInputs={defaultInputs}
       generateTrace={generateTrace}
       renderControls={(context) =>
@@ -370,12 +377,22 @@ export default function TraceLessonPage<
       renderCodePanel={renderCodePanel}
       renderOutput={renderOutput}
       renderContainer={({
+        entryExperience,
+        guidedEntry,
+        showEntryOnboarding,
+        dismissEntryOnboarding,
+        markEntryInteraction,
         inputs,
         setInputs,
         run,
+        trace,
         step,
+        timeline,
         teachingMode,
-        currentNarration,
+        predictionCard,
+        whyPanel,
+        completionFeedback,
+        guidedReplayPanel,
         controls,
         visualization,
         microscope,
@@ -383,6 +400,34 @@ export default function TraceLessonPage<
         codePanel,
         output,
       }) => {
+        if (guidedEntry && entryExperience !== "default") {
+          return (
+            <GuidedEntryLessonLayout
+              entryExperience={entryExperience}
+              taxonomy={taxonomy}
+              title={title}
+              difficulty={toTitleCaseDifficulty(difficulty)}
+              description={description}
+              visualization={visualization}
+              predictionCard={predictionCard}
+              whyPanel={whyPanel}
+              completionFeedback={completionFeedback}
+              replayPanel={completionFeedback ? guidedReplayPanel : null}
+              showOnboarding={showEntryOnboarding}
+              onDismissOnboarding={dismissEntryOnboarding}
+              onInteract={markEntryInteraction}
+              stepIndex={timeline.activeIndex}
+              totalSteps={trace.length}
+              onPrev={() => timeline.prev()}
+              onNext={() => timeline.next()}
+              onReset={() => timeline.reset()}
+              canPrev={timeline.canPrev}
+              canNext={timeline.canNext}
+              lockReason={timeline.lockReason}
+            />
+          );
+        }
+
         if (variant === "light") {
           return (
             <ProblemShell

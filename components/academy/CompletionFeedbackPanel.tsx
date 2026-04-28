@@ -16,11 +16,58 @@ const toneClass = {
 
 export default function CompletionFeedbackPanel({
   insight,
+  variant = "default",
 }: {
   insight: CompletionFeedbackInsight | null;
+  variant?: "default" | "guided";
 }) {
   if (!insight) {
     return null;
+  }
+
+  if (variant === "guided") {
+    return (
+      <section className={`${lightPanelClassName} p-5`}>
+        <div className="flex items-center gap-3">
+          <span className="h-4 w-1.5 rounded-full bg-emerald-400" />
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
+              Lesson complete
+            </p>
+            <h2 className="mt-1 text-2xl font-semibold text-slate-900">
+              {insight.headline}
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-[1.2rem] border border-emerald-200 bg-emerald-50 px-4 py-4">
+          <p className="text-xs uppercase tracking-[0.18em] text-emerald-700">
+            Key insight
+          </p>
+          <p className="mt-2 text-sm leading-7 text-emerald-950">
+            {insight.beginnerInsight}
+          </p>
+        </div>
+
+        <div className="mt-4 rounded-[1.2rem] border border-violet-200 bg-violet-50 px-4 py-4">
+          <p className="text-xs uppercase tracking-[0.18em] text-violet-700">
+            Next up
+          </p>
+          <p className="mt-2 text-sm leading-7 text-violet-950">
+            {insight.beginnerSuggestion}
+          </p>
+        </div>
+
+        {insight.continueHref ? (
+          <Link
+            href={insight.continueHref}
+            className="mt-5 inline-flex rounded-xl border border-cyan-200 bg-cyan-500 px-5 py-3 text-sm font-semibold text-white shadow-[0_0_24px_rgba(34,211,238,0.22)] transition-all hover:-translate-y-0.5 hover:bg-cyan-600"
+          >
+            Continue Learning
+          </Link>
+        ) : null}
+      </section>
+    );
   }
 
   return (

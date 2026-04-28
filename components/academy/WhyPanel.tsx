@@ -6,9 +6,47 @@ import { lightPanelClassName } from "../array-string/shared/ui";
 
 export default function WhyPanel({
   insight,
+  variant = "default",
 }: {
   insight: WhyExplanation | null;
+  variant?: "default" | "guided";
 }) {
+  if (variant === "guided") {
+    return (
+      <section className={`${lightPanelClassName} p-5`}>
+        <div className="flex items-center gap-3">
+          <span className="h-4 w-1.5 rounded-full bg-blue-400" />
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
+              Why this move works
+            </p>
+            <h2 className="mt-1 text-lg font-semibold text-slate-900">
+              {insight?.title ?? "We explain each step as it appears."}
+            </h2>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-[1.2rem] border border-blue-200 bg-blue-50/75 px-4 py-4">
+          <p className="text-sm leading-7 text-slate-800">
+            {insight?.reason ??
+              "As the lesson advances, the reasoning behind the current move appears here in plain language."}
+          </p>
+        </div>
+
+        {insight?.nextFocus ? (
+          <div className="mt-4 rounded-[1.15rem] border border-slate-200 bg-slate-50/80 px-4 py-4">
+            <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+              Focus
+            </p>
+            <p className="mt-2 text-sm leading-7 text-slate-700">
+              {insight.nextFocus}
+            </p>
+          </div>
+        ) : null}
+      </section>
+    );
+  }
+
   if (!insight) {
     return (
       <section className={`${lightPanelClassName} p-5`}>
