@@ -32,6 +32,7 @@ export default function Home() {
   const starterProblem = getLandingStarterProblem();
   const guidedStartHref = getLandingStarterHref("guided");
   const interactiveDemoHref = getLandingStarterHref("demo");
+  const exploreProblemsHref = "/topics";
   const starterReason = getLandingStarterReason();
 
   return (
@@ -48,9 +49,17 @@ export default function Home() {
             >
               Guided DSA Academy
             </Link>
-            <span className="rounded-full border border-slate-200 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
-              No signup required
-            </span>
+            <div className="flex items-center gap-3">
+              <Link
+                href={exploreProblemsHref}
+                className="rounded-full border border-slate-200 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 transition-all hover:border-slate-300 hover:bg-white"
+              >
+                Topics
+              </Link>
+              <span className="rounded-full border border-slate-200 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
+                No signup required
+              </span>
+            </div>
           </div>
 
           <div className="max-w-4xl py-16 lg:py-24">
@@ -77,6 +86,12 @@ export default function Home() {
                 className="rounded-xl border border-slate-200 bg-white/88 px-6 py-3 text-sm font-semibold text-slate-800 transition-all hover:border-slate-300 hover:bg-white"
               >
                 Interactive Demo
+              </Link>
+              <Link
+                href={exploreProblemsHref}
+                className="rounded-xl border border-slate-200 bg-transparent px-6 py-3 text-sm font-semibold text-slate-800 transition-all hover:border-slate-300 hover:bg-white/88"
+              >
+                Explore Problems
               </Link>
             </div>
 

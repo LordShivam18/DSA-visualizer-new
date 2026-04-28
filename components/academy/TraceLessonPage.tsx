@@ -13,6 +13,7 @@ import type {
   LessonStepLike,
   TeachingMode,
 } from "./hooks/useLessonController";
+import DemoLessonLayout from "./DemoLessonLayout";
 import GuidedEntryLessonLayout from "./GuidedEntryLessonLayout";
 import LessonShell from "./LessonShell";
 import ProblemShell from "../array-string/shared/ProblemShell";
@@ -377,7 +378,6 @@ export default function TraceLessonPage<
         renderOutput={renderOutput}
         renderContainer={({
           entryExperience,
-          guidedEntry,
           showEntryOnboarding,
           dismissEntryOnboarding,
           markEntryInteraction,
@@ -401,10 +401,9 @@ export default function TraceLessonPage<
           output,
           experienceOverlays,
         }) => {
-          if (guidedEntry && entryExperience !== "default") {
+          if (entryExperience === "guided") {
             return (
               <GuidedEntryLessonLayout
-                entryExperience={entryExperience}
                 taxonomy={taxonomy}
                 title={title}
                 difficulty={toTitleCaseDifficulty(difficulty)}
@@ -426,6 +425,28 @@ export default function TraceLessonPage<
                 canPrev={timeline.canPrev}
                 canNext={timeline.canNext}
                 lockReason={timeline.lockReason}
+              />
+            );
+          }
+
+          if (entryExperience === "demo") {
+            return (
+              <DemoLessonLayout
+                taxonomy={taxonomy}
+                title={title}
+                difficulty={toTitleCaseDifficulty(difficulty)}
+                description={description}
+                visualization={visualization}
+                tracePanel={tracePanel}
+                completionFeedback={completionFeedback}
+                experienceOverlays={experienceOverlays}
+                stepIndex={timeline.activeIndex}
+                totalSteps={trace.length}
+                onPrev={() => timeline.prev()}
+                onNext={() => timeline.next()}
+                onReset={() => timeline.reset()}
+                canPrev={timeline.canPrev}
+                canNext={timeline.canNext}
               />
             );
           }

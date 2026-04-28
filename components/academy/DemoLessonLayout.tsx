@@ -5,23 +5,8 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 
 import LessonEntryBackLink from "./LessonEntryBackLink";
-import LessonOnboardingOverlay from "./LessonOnboardingOverlay";
 
-function difficultyTone(value: string) {
-  const normalized = value.toLowerCase();
-
-  if (normalized === "easy") {
-    return "border-emerald-200 bg-emerald-50 text-emerald-800";
-  }
-
-  if (normalized === "hard") {
-    return "border-rose-200 bg-rose-50 text-rose-800";
-  }
-
-  return "border-amber-200 bg-amber-50 text-amber-800";
-}
-
-function StarterLessonControls({
+function DemoLessonControls({
   stepIndex,
   totalSteps,
   onPrev,
@@ -29,7 +14,6 @@ function StarterLessonControls({
   onReset,
   canPrev,
   canNext,
-  lockReason,
 }: {
   stepIndex: number;
   totalSteps: number;
@@ -38,21 +22,21 @@ function StarterLessonControls({
   onReset: () => void;
   canPrev: boolean;
   canNext: boolean;
-  lockReason: string | null;
 }) {
   const progress =
     totalSteps <= 1 ? 100 : Math.round((stepIndex / (totalSteps - 1)) * 100);
-  const helperCopy =
-    "Move one step at a time. The next reveal unlocks after your prediction.";
 
   return (
     <section className="rounded-[1.5rem] border border-slate-200 bg-white/90 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-            Controls
+            Demo controls
           </p>
-          <p className="mt-2 text-sm leading-6 text-slate-700">{helperCopy}</p>
+          <p className="mt-2 text-sm leading-6 text-slate-700">
+            Step through one clean trace to see how the visualizer explains each
+            decision.
+          </p>
         </div>
 
         <div className="rounded-full border border-slate-200 bg-slate-50 px-4 py-1.5 text-xs font-medium text-slate-600">
@@ -78,7 +62,7 @@ function StarterLessonControls({
           disabled={!canNext}
           className="rounded-xl border border-cyan-200 bg-cyan-500 px-4 py-2.5 text-sm font-semibold text-white shadow-[0_0_24px_rgba(34,211,238,0.22)] transition-all hover:-translate-y-0.5 hover:bg-cyan-600 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none"
         >
-          Reveal next step
+          Next step
         </button>
         <button
           type="button"
@@ -101,30 +85,33 @@ function StarterLessonControls({
           />
         </div>
       </div>
-
-      {lockReason ? (
-        <div className="mt-4 rounded-[1rem] border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-          {lockReason}
-        </div>
-      ) : null}
     </section>
   );
 }
 
-export default function GuidedEntryLessonLayout({
+function difficultyTone(value: string) {
+  const normalized = value.toLowerCase();
+
+  if (normalized === "easy") {
+    return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  }
+
+  if (normalized === "hard") {
+    return "border-rose-200 bg-rose-50 text-rose-800";
+  }
+
+  return "border-amber-200 bg-amber-50 text-amber-800";
+}
+
+export default function DemoLessonLayout({
   taxonomy,
   title,
   difficulty,
   description,
   visualization,
-  predictionCard,
-  whyPanel,
+  tracePanel,
   completionFeedback,
-  replayPanel,
   experienceOverlays,
-  showOnboarding,
-  onDismissOnboarding,
-  onInteract,
   stepIndex,
   totalSteps,
   onPrev,
@@ -132,21 +119,15 @@ export default function GuidedEntryLessonLayout({
   onReset,
   canPrev,
   canNext,
-  lockReason,
 }: {
   taxonomy: string;
   title: string;
   difficulty: string;
   description: string;
   visualization: ReactNode;
-  predictionCard: ReactNode;
-  whyPanel: ReactNode;
+  tracePanel: ReactNode;
   completionFeedback: ReactNode;
-  replayPanel: ReactNode;
   experienceOverlays: ReactNode;
-  showOnboarding: boolean;
-  onDismissOnboarding: () => void;
-  onInteract: () => void;
   stepIndex: number;
   totalSteps: number;
   onPrev: () => void;
@@ -154,14 +135,9 @@ export default function GuidedEntryLessonLayout({
   onReset: () => void;
   canPrev: boolean;
   canNext: boolean;
-  lockReason: string | null;
 }) {
   return (
-    <div
-      className="relative min-h-screen overflow-hidden bg-[#f8f4ec] text-slate-900"
-      onPointerDownCapture={onInteract}
-      onKeyDownCapture={onInteract}
-    >
+    <div className="relative min-h-screen overflow-hidden bg-[#f8f4ec] text-slate-900">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.14),transparent_26%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_22%),linear-gradient(180deg,#fffdf8_0%,#f7f1e6_58%,#f8f4ec_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[size:56px_56px] opacity-35" />
       {experienceOverlays}
@@ -179,7 +155,7 @@ export default function GuidedEntryLessonLayout({
 
         <header className="max-w-3xl">
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-            First problem
+            Interactive demo
           </p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
             {title}
@@ -200,33 +176,10 @@ export default function GuidedEntryLessonLayout({
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.8fr)]">
-          <section className="relative">
-            <LessonOnboardingOverlay
-              open={showOnboarding}
-              onDismiss={onDismissOnboarding}
-            />
-            {visualization}
-          </section>
+          <section>{visualization}</section>
 
           <aside className="space-y-4">
-            {predictionCard ? (
-              predictionCard
-            ) : (
-              <section className="rounded-[1.5rem] border border-slate-200 bg-white/90 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-500">
-                  Demo flow
-                </p>
-                <h2 className="mt-2 text-2xl font-semibold text-slate-950">
-                  Watch how the algorithm thinks.
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-slate-700">
-                  Use the controls to follow one clean example from the first move
-                  to the final answer.
-                </p>
-              </section>
-            )}
-
-            <StarterLessonControls
+            <DemoLessonControls
               stepIndex={stepIndex}
               totalSteps={totalSteps}
               onPrev={onPrev}
@@ -234,18 +187,14 @@ export default function GuidedEntryLessonLayout({
               onReset={onReset}
               canPrev={canPrev}
               canNext={canNext}
-              lockReason={lockReason}
             />
-
-            {whyPanel}
+            {tracePanel}
           </aside>
         </div>
 
         {completionFeedback ? (
           <div className="max-w-3xl">{completionFeedback}</div>
         ) : null}
-
-        {replayPanel ? <div className="max-w-5xl">{replayPanel}</div> : null}
       </div>
     </div>
   );

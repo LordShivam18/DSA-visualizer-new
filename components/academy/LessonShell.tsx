@@ -52,7 +52,7 @@ type LessonShellContainerContext<
   Step extends LessonStepLike
 > = LessonShellViewModel<TInputs, Step> & {
   entryExperience: LessonEntryExperience;
-  guidedEntry: boolean;
+  entryLayout: boolean;
   showEntryOnboarding: boolean;
   dismissEntryOnboarding: () => void;
   markEntryInteraction: () => void;
@@ -135,10 +135,10 @@ function ResolvedLessonShell<
 }: LessonShellProps<TInputs, Step> & {
   entryExperience: LessonEntryExperience;
 }) {
-  const guidedEntry = entryExperience !== "default";
+  const entryLayout = entryExperience !== "explore";
   const [progressiveMode, setProgressiveMode] =
     useState<ProgressiveLearningMode>(
-      guidedEntry ? "beginner" : initialProgressiveMode
+      entryLayout ? "beginner" : initialProgressiveMode
     );
   const [showEntryOnboarding, setShowEntryOnboarding] = useState(
     entryExperience === "guided"
@@ -147,11 +147,11 @@ function ResolvedLessonShell<
   const lesson = useLessonController({
     defaultInputs,
     generateTrace,
-    initialTeachingMode: guidedEntry ? "beginner" : initialTeachingMode,
+    initialTeachingMode: entryLayout ? "beginner" : initialTeachingMode,
     initialLessonMode:
-      guidedEntry && entryExperience === "guided"
+      entryExperience === "guided"
         ? "prediction"
-        : guidedEntry && entryExperience === "demo"
+        : entryExperience === "demo"
         ? "learn"
         : initialLessonMode,
   });
@@ -206,7 +206,7 @@ function ResolvedLessonShell<
         askedCount={lesson.prediction.askedCount}
         correctCount={lesson.prediction.correctCount}
         onSelect={lesson.prediction.submitPrediction}
-        variant={guidedEntry ? "guided" : "default"}
+        variant={entryLayout ? "guided" : "default"}
       />
     ) : null;
 
@@ -338,13 +338,13 @@ function ResolvedLessonShell<
   const whyPanel = (
     <WhyPanel
       insight={lesson.whyInsight}
-      variant={guidedEntry ? "guided" : "default"}
+      variant={entryLayout ? "guided" : "default"}
     />
   );
   const completionFeedbackPanel = learningExperience.completionFeedback ? (
     <CompletionFeedbackPanel
       insight={learningExperience.completionFeedback}
-      variant={guidedEntry ? "guided" : "default"}
+      variant={entryLayout ? "guided" : "default"}
     />
   ) : null;
   const activeToast = showFirstSuccess
@@ -414,9 +414,12 @@ function ResolvedLessonShell<
     visualization: renderVisualization(lesson),
     microscope: renderMicroscope(lesson),
     tracePanel,
-    codePanel: progressiveDisclosure.panels.code ? renderCodePanel(lesson) : null,
+    codePanel:
+      entryExperience === "explore" || progressiveDisclosure.panels.code
+        ? renderCodePanel(lesson)
+        : null,
     entryExperience,
-    guidedEntry,
+    entryLayout,
     showEntryOnboarding,
     dismissEntryOnboarding,
     markEntryInteraction,

@@ -1,89 +1,46 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 
-import { useSearchParams } from "next/navigation";
+import {
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 import {
   resolveLessonEntryExperience,
   type LessonEntryExperience,
 } from "@/lib/academy/entryPoints";
 
-const LEARNING_MODE_STORAGE_KEY = "guided-dsa:lesson-entry-mode:v1";
-
-function readStoredLearningMode() {
-  if (typeof window === "undefined") {
-    return "default" as LessonEntryExperience;
-  }
-
-  try {
-    return resolveLessonEntryExperience(
-      window.localStorage.getItem(LEARNING_MODE_STORAGE_KEY)
-    );
-  } catch {
-    return "default";
-  }
-}
-
-function persistLearningMode(nextMode: LessonEntryExperience) {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  try {
-    if (nextMode === "default") {
-      window.localStorage.removeItem(LEARNING_MODE_STORAGE_KEY);
-      return;
-    }
-
-    window.localStorage.setItem(LEARNING_MODE_STORAGE_KEY, nextMode);
-  } catch {
-    return;
-  }
-}
-
 export function useLearningMode() {
+  const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const queryEntry = searchParams.get("entry");
-  const queryMode = useMemo(
-    () => resolveLessonEntryExperience(queryEntry),
-    [queryEntry]
+  const queryMode = searchParams.get("mode");
+  const legacyEntryMode = searchParams.get("entry");
+  const learningMode = useMemo(
+    () => resolveLessonEntryExperience(queryMode ?? legacyEntryMode),
+    [legacyEntryMode, queryMode]
   );
-  const hasExplicitQuery = queryEntry !== null;
-  const [learningMode, setLearningModeState] =
-    useState<LessonEntryExperience>("default");
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    const nextMode = hasExplicitQuery ? queryMode : readStoredLearningMode();
-
-    const frame = window.requestAnimationFrame(() => {
-      setLearningModeState(nextMode);
-      setIsReady(true);
-    });
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-    };
-  }, [hasExplicitQuery, queryMode]);
-
-  useEffect(() => {
-    if (!isReady) {
-      return;
-    }
-
-    persistLearningMode(learningMode);
-  }, [isReady, learningMode]);
 
   const setLearningMode = useCallback((nextMode: LessonEntryExperience) => {
-    setLearningModeState(nextMode);
-    setIsReady(true);
-    persistLearningMode(nextMode);
-  }, []);
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    nextSearchParams.delete("entry");
+
+    if (nextMode === "explore") {
+      nextSearchParams.delete("mode");
+    } else {
+      nextSearchParams.set("mode", nextMode);
+    }
+
+    const query = nextSearchParams.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  }, [pathname, router, searchParams]);
 
   return {
     learningMode,
-    isReady,
+    isReady: true,
     setLearningMode,
   };
 }

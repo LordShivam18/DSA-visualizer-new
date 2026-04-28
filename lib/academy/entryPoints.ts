@@ -1,6 +1,6 @@
 import { getProblemById, type Problem } from "./problemRegistry";
 
-export type LessonEntryExperience = "default" | "guided" | "demo";
+export type LessonEntryExperience = "explore" | "guided" | "demo";
 
 type CuratedLearningPathStep = {
   problemId: string;
@@ -63,21 +63,25 @@ function requireProblem(problemId: string) {
 export function resolveLessonEntryExperience(
   value: string | null | undefined
 ): LessonEntryExperience {
-  if (value === "guided" || value === "demo") {
+  if (value === "guided" || value === "demo" || value === "explore") {
     return value;
   }
 
-  return "default";
+  if (value === "default") {
+    return "explore";
+  }
+
+  return "explore";
 }
 
 export function buildLessonEntryHref(
   problem: Problem,
-  experience: LessonEntryExperience = "default"
+  experience: LessonEntryExperience = "explore"
 ) {
   const params = new URLSearchParams();
 
-  if (experience !== "default") {
-    params.set("entry", experience);
+  if (experience !== "explore") {
+    params.set("mode", experience);
   }
 
   const query = params.toString();
