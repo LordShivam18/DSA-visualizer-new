@@ -99,14 +99,16 @@ export default function ParticleBackground({
     initParticles();
     draw();
 
-    window.addEventListener("resize", () => {
+    function handleResize() {
       resize();
       initParticles();
-    });
+    }
+
+    window.addEventListener("resize", handleResize);
 
     return () => {
       cancelAnimationFrame(animId);
-      window.removeEventListener("resize", resize);
+      window.removeEventListener("resize", handleResize);
     };
   }, [density, color, speed]);
 

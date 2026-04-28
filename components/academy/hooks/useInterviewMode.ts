@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type {
   InterviewConfig,
@@ -173,13 +173,27 @@ export function useInterviewMode({
   correctStrategyId: string;
   resetKey: string;
 }) {
+  const stableConfig = useMemo<InterviewConfig>(
+    () => ({
+      benchmarkMs: config.benchmarkMs,
+      confidencePrompt: config.confidencePrompt,
+      hintBudget: config.hintBudget,
+      timeLimitSec: config.timeLimitSec,
+    }),
+    [
+      config.benchmarkMs,
+      config.confidencePrompt,
+      config.hintBudget,
+      config.timeLimitSec,
+    ]
+  );
   const [state, setState] = useState<InterviewState>(() =>
-    createInterviewState(resetKey, config.timeLimitSec)
+    createInterviewState(resetKey, stableConfig.timeLimitSec)
   );
   const currentState =
     state.resetKey === resetKey
       ? state
-      : createInterviewState(resetKey, config.timeLimitSec);
+      : createInterviewState(resetKey, stableConfig.timeLimitSec);
 
   useEffect(() => {
     if (currentState.evaluation) {
@@ -191,7 +205,7 @@ export function useInterviewMode({
         const base =
           current.resetKey === resetKey
             ? current
-            : createInterviewState(resetKey, config.timeLimitSec);
+            : createInterviewState(resetKey, stableConfig.timeLimitSec);
 
         if (base.evaluation) {
           return base;
@@ -202,7 +216,7 @@ export function useInterviewMode({
 
           return finalizeInterviewState({
             state: { ...base, timeRemainingSec: 0 },
-            config,
+            config: stableConfig,
             expectedAnswer,
             correctStrategyId,
             didTimeOut: true,
@@ -220,11 +234,11 @@ export function useInterviewMode({
       window.clearInterval(timer);
     };
   }, [
-    config,
     correctStrategyId,
     currentState.evaluation,
     expectedAnswer,
     resetKey,
+    stableConfig,
   ]);
 
   function requestHint() {
@@ -234,9 +248,9 @@ export function useInterviewMode({
       const base =
         current.resetKey === resetKey
           ? current
-          : createInterviewState(resetKey, config.timeLimitSec);
+          : createInterviewState(resetKey, stableConfig.timeLimitSec);
 
-      if (base.hintRequests >= config.hintBudget || base.evaluation) {
+      if (base.hintRequests >= stableConfig.hintBudget || base.evaluation) {
         return base;
       }
 
@@ -258,10 +272,10 @@ export function useInterviewMode({
       const base =
         current.resetKey === resetKey
           ? current
-          : createInterviewState(resetKey, config.timeLimitSec);
+          : createInterviewState(resetKey, stableConfig.timeLimitSec);
       const nextState = finalizeInterviewState({
         state: base,
-        config,
+        config: stableConfig,
         expectedAnswer,
         correctStrategyId,
         didTimeOut: false,
@@ -280,7 +294,7 @@ export function useInterviewMode({
       setState((current) => ({
         ...(current.resetKey === resetKey
           ? current
-          : createInterviewState(resetKey, config.timeLimitSec)),
+          : createInterviewState(resetKey, stableConfig.timeLimitSec)),
         selectedStrategyId: nextValue,
       })),
     answer: currentState.answer,
@@ -288,7 +302,7 @@ export function useInterviewMode({
       setState((current) => ({
         ...(current.resetKey === resetKey
           ? current
-          : createInterviewState(resetKey, config.timeLimitSec)),
+          : createInterviewState(resetKey, stableConfig.timeLimitSec)),
         answer: nextValue,
       })),
     selfConfidence: currentState.selfConfidence,
@@ -296,17 +310,18 @@ export function useInterviewMode({
       setState((current) => ({
         ...(current.resetKey === resetKey
           ? current
-          : createInterviewState(resetKey, config.timeLimitSec)),
+          : createInterviewState(resetKey, stableConfig.timeLimitSec)),
         selfConfidence: nextValue,
       })),
     hintRequests: currentState.hintRequests,
-    hintBudget: config.hintBudget,
+    hintBudget: stableConfig.hintBudget,
     visibleHints: hints.slice(0, currentState.hintRequests),
     timeRemainingSec: currentState.timeRemainingSec,
     evaluation: currentState.evaluation,
     timedOut: currentState.timedOut,
     requestHint,
     submitInterview,
-    resetInterview: () => setState(createInterviewState(resetKey, config.timeLimitSec)),
+    resetInterview: () =>
+      setState(createInterviewState(resetKey, stableConfig.timeLimitSec)),
   };
 }

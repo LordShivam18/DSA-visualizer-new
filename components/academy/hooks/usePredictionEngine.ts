@@ -41,6 +41,8 @@ type PredictionState = {
   feedback: PredictionFeedback | null;
 };
 
+const EMPTY_LOCKED_STEPS: number[] = [];
+
 function createPredictionState(resetKey: string): PredictionState {
   return {
     resetKey,
@@ -73,11 +75,15 @@ export function usePredictionEngine<Step extends PredictableStep>({
   const { answers, feedback } = currentState;
 
   const upcomingStep = enabled ? trace[activeIndex + 1] ?? null : null;
-  const checkpoint = enabled ? resolvePredictionCheckpoint(trace, activeIndex) : null;
+  const checkpoint = useMemo(
+    () => (enabled ? resolvePredictionCheckpoint(trace, activeIndex) : null),
+    [activeIndex, enabled, trace]
+  );
   const checkpointResolved = checkpoint
     ? answers[checkpoint.id]?.resolved === true
     : false;
   const activeCheckpoint = checkpoint && !checkpointResolved ? checkpoint : null;
+  const activeCheckpointId = activeCheckpoint?.id ?? null;
 
   const askedCount = Object.keys(answers).length;
   const correctCount = Object.values(answers).filter(
@@ -85,28 +91,31 @@ export function usePredictionEngine<Step extends PredictableStep>({
   ).length;
 
   const lockedStepIndices = useMemo(
-    () =>
-      enabled
-        ? trace
-            .filter(
-              (step, index) =>
-                index > activeIndex &&
-                typeof step.action === "string" &&
-                step.action.trim().length > 0 &&
-                !answers[getPredictionCheckpointId(step)]?.resolved
-            )
-            .map((step) => step.step)
-        : [],
+    () => {
+      if (!enabled) {
+        return EMPTY_LOCKED_STEPS;
+      }
+
+      return trace
+        .filter(
+          (step, index) =>
+            index > activeIndex &&
+            typeof step.action === "string" &&
+            step.action.trim().length > 0 &&
+            !answers[getPredictionCheckpointId(step)]?.resolved
+        )
+        .map((step) => step.step);
+    },
     [activeIndex, answers, enabled, trace]
   );
 
   useEffect(() => {
-    if (!enabled || !activeCheckpoint) {
+    if (!enabled || !activeCheckpointId) {
       return;
     }
 
     timeline?.pause();
-  }, [activeCheckpoint, enabled, timeline]);
+  }, [activeCheckpointId, enabled, timeline]);
 
   function submitPrediction(choiceId: string): PredictionValidation | null {
     if (!activeCheckpoint) {

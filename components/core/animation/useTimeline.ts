@@ -1,33 +1,36 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   TimelineEngine,
+  areTimelineSnapshotsEqual,
   type TimelineSnapshot,
   type TimelineSpeed,
   type TimelineStep,
 } from "./TimelineEngine";
 
 export function useTimeline<Step extends TimelineStep>(steps: Step[]) {
-  const [engine] = useState(() => new TimelineEngine(steps));
+  const engine = useMemo(() => new TimelineEngine<Step>(steps), [steps]);
   const [snapshot, setSnapshot] = useState<TimelineSnapshot<Step>>(() =>
     engine.getSnapshot()
   );
+  const commitSnapshot = useCallback((nextSnapshot: TimelineSnapshot<Step>) => {
+    setSnapshot((currentSnapshot) =>
+      areTimelineSnapshotsEqual(currentSnapshot, nextSnapshot)
+        ? currentSnapshot
+        : nextSnapshot
+    );
+  }, []);
 
   useEffect(() => {
-    return engine.subscribe(setSnapshot);
-  }, [engine]);
+    const unsubscribe = engine.subscribe(commitSnapshot);
 
-  useEffect(() => {
-    engine.setSteps(steps);
-  }, [engine, steps]);
-
-  useEffect(() => {
     return () => {
+      unsubscribe();
       engine.destroy();
     };
-  }, [engine]);
+  }, [commitSnapshot, engine]);
 
   const controls = useMemo(
     () => ({
@@ -42,9 +45,10 @@ export function useTimeline<Step extends TimelineStep>(steps: Step[]) {
     }),
     [engine]
   );
+  const renderSnapshot = snapshot.steps === steps ? snapshot : engine.getSnapshot();
 
   return {
-    ...snapshot,
+    ...renderSnapshot,
     ...controls,
   };
 }

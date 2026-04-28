@@ -56,6 +56,88 @@ function clampIndex(value: number, max: number) {
   return Math.min(Math.max(value, 0), max);
 }
 
+function arraysEqual<T>(left: T[], right: T[]) {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((item, index) => Object.is(item, right[index]));
+}
+
+function animationEqual(
+  left: TimelineAnimation | undefined,
+  right: TimelineAnimation | undefined
+) {
+  if (left === right) {
+    return true;
+  }
+
+  if (!left || !right) {
+    return false;
+  }
+
+  return (
+    left.type === right.type &&
+    left.duration === right.duration &&
+    arraysEqual(left.targets, right.targets)
+  );
+}
+
+function timelineStepsEqual<Step extends TimelineStep>(
+  left: Step[],
+  right: Step[]
+) {
+  if (left === right) {
+    return true;
+  }
+
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((leftStep, index) => {
+    const rightStep = right[index];
+
+    return (
+      leftStep === rightStep ||
+      (leftStep.step === rightStep.step &&
+        leftStep.action === rightStep.action &&
+        Object.is(leftStep.state, rightStep.state) &&
+        Object.is(leftStep.highlights, rightStep.highlights) &&
+        animationEqual(leftStep.animation, rightStep.animation))
+    );
+  });
+}
+
+function normalizeLockedSteps(indices: number[]) {
+  return Array.from(new Set(indices)).sort((left, right) => left - right);
+}
+
+export function areTimelineSnapshotsEqual<Step extends TimelineStep>(
+  left: TimelineSnapshot<Step>,
+  right: TimelineSnapshot<Step>
+) {
+  return (
+    left.steps === right.steps &&
+    left.activeIndex === right.activeIndex &&
+    left.settledIndex === right.settledIndex &&
+    left.activeStep === right.activeStep &&
+    left.previousStep === right.previousStep &&
+    left.nextStep === right.nextStep &&
+    left.fromStep === right.fromStep &&
+    left.toStep === right.toStep &&
+    left.transitionProgress === right.transitionProgress &&
+    left.isPlaying === right.isPlaying &&
+    left.speed === right.speed &&
+    left.canPrev === right.canPrev &&
+    left.canNext === right.canNext &&
+    left.lockedTargetIndex === right.lockedTargetIndex &&
+    left.lockReason === right.lockReason &&
+    arraysEqual(left.queue, right.queue) &&
+    arraysEqual(left.lockedStepIndices, right.lockedStepIndices)
+  );
+}
+
 export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   private steps: Step[];
   private settledIndex = 0;
@@ -68,6 +150,7 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   private transition: TransitionState | null = null;
   private subscribers = new Set<Subscriber<Step>>();
   private frameId: number | null = null;
+  private lastEmittedSnapshot: TimelineSnapshot<Step> | null = null;
 
   constructor(steps: Step[]) {
     this.steps = steps;
@@ -83,11 +166,22 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   }
 
   destroy() {
-    this.pause();
+    if (this.frameId !== null) {
+      cancelAnimationFrame(this.frameId);
+      this.frameId = null;
+    }
+
+    this.isPlaying = false;
+    this.queue = [];
     this.subscribers.clear();
+    this.lastEmittedSnapshot = null;
   }
 
   setSteps(steps: Step[]) {
+    if (timelineStepsEqual(this.steps, steps)) {
+      return;
+    }
+
     this.pause();
     this.steps = steps;
     this.settledIndex = 0;
@@ -100,8 +194,19 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   }
 
   setLockedSteps(indices: number[], reason?: string) {
-    this.lockedSteps = new Set(indices);
-    this.lockReason = indices.length > 0 ? reason ?? null : null;
+    const nextIndices = normalizeLockedSteps(indices);
+    const previousIndices = normalizeLockedSteps([...this.lockedSteps]);
+    const nextReason = nextIndices.length > 0 ? reason ?? null : null;
+
+    if (
+      arraysEqual(previousIndices, nextIndices) &&
+      this.lockReason === nextReason
+    ) {
+      return;
+    }
+
+    this.lockedSteps = new Set(nextIndices);
+    this.lockReason = nextReason;
 
     if (
       this.blockedTarget !== null &&
@@ -153,6 +258,10 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
       return;
     }
 
+    if (this.isPlaying && this.frameId !== null) {
+      return;
+    }
+
     this.isPlaying = true;
 
     if (!this.transition && this.queue.length === 0) {
@@ -164,6 +273,10 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   }
 
   pause() {
+    if (!this.isPlaying && this.queue.length === 0 && this.frameId === null) {
+      return;
+    }
+
     this.isPlaying = false;
     this.queue = [];
 
@@ -201,6 +314,10 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
   }
 
   setSpeed(speed: TimelineSpeed) {
+    if (this.speed === speed) {
+      return;
+    }
+
     this.speed = speed;
     this.emit();
   }
@@ -233,7 +350,6 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
     }
 
     if (safeTarget === this.settledIndex && this.transition === null) {
-      this.emit();
       return;
     }
 
@@ -332,6 +448,15 @@ export class TimelineEngine<Step extends TimelineStep = TimelineStep> {
 
   private emit() {
     const snapshot = this.getSnapshot();
+
+    if (
+      this.lastEmittedSnapshot &&
+      areTimelineSnapshotsEqual(this.lastEmittedSnapshot, snapshot)
+    ) {
+      return;
+    }
+
+    this.lastEmittedSnapshot = snapshot;
     this.subscribers.forEach((subscriber) => subscriber(snapshot));
   }
 }
