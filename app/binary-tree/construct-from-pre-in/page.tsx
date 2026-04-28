@@ -23,18 +23,21 @@ function generateLessonTrace(values: typeof defaultInputs) {
 
 function buildLayouts(trace: ConstructTraceStep[]) {
   const nodesFound = trace
-    .filter((step) => step.nodeId)
-    .map((step) => {
+    .flatMap((step) => {
+      if (!step.nodeId) {
+        return [];
+      }
+
       const parts = String(step.nodeId).split("-");
       const value = Number(parts[1]);
       const preorderIndex = Number(parts[2]);
-      return {
+      return [{
         id: step.nodeId,
         value,
         preorderIndex,
         inorderIndex: step.state.inorder.indexOf(value),
         depth: step.snapshot?.depth ?? 0,
-      };
+      }];
     });
   const unique = Array.from(new Map(nodesFound.map((node) => [node.id, node])).values());
   return buildNodeLayouts(unique, computeBarsLayout(940, trace[0]?.state.preorder.length ?? 0));

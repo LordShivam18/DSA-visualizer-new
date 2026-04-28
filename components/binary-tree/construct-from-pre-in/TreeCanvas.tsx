@@ -45,13 +45,9 @@ export default function TreeCanvas({
   const nodes = useMemo(() => {
     const initial: Record<string, NodeState> = {};
     for (const n of nodeLayouts) {
-      const parent = n.parentId
-        ? nodeLayouts.find((candidate) => candidate.id === n.parentId)
-        : null;
-
       initial[n.id] = {
-        x: (parent?.x ?? n.x) + offsetX,
-        y: parent?.y ?? n.y,
+        x: n.x + offsetX,
+        y: n.y,
         visible: visibleNodeIds.has(n.id),
         value: n.value,
         glow: visibleNodeIds.has(n.id) ? 1 : 0,

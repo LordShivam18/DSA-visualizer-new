@@ -25,7 +25,7 @@ export default function ArrayViz({
   const maxVal = Math.max(...nums.map((n) => Math.abs(n)));
 
   return (
-    <div style={{ width }} className="relative overflow-hidden">
+    <div style={{ width, minHeight: height }} className="relative overflow-hidden">
       <div className="grid grid-cols-9 gap-4 px-2 py-6">
         {nums.map((v, idx) => {
           const isActive =

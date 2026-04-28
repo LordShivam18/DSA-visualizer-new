@@ -39,7 +39,7 @@ export default function ListNodeViz({
   return (
     <div className="flex flex-col items-center gap-1">
       <div
-        className={`w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold bg-[#050816] border ${border} ${glow}`}
+        className={`w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold bg-[#050816] border ${border} ${text} ${glow}`}
       >
         {value}
       </div>

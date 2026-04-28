@@ -13,7 +13,6 @@ export default function ChartViz({
 }) {
   const step = trace[cursor];
   if (!step) return null;
-  const nums = step.nums;
 
   // Build runningSum chart data
   const data = trace.map((t) => t.currentSum);

@@ -29,7 +29,6 @@ export default function TreeCanvas({ trace, cursor, width = 940, height = 420 }:
 
   // helper to render nodes horizontally spaced
   const renderNodesRow = (nodes: number[], side: "left" | "right") => {
-    const count = Math.max(1, nodes.length);
     const leftPadding = side === "left" ? 80 : 460;
     return nodes.map((v, i) => {
       const x = leftPadding + (i * 64);
