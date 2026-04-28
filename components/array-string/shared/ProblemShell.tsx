@@ -26,11 +26,13 @@ export default function ProblemShell<Step extends TeachingTraceFrame>({
   tracePanel,
   codePanel,
   output,
+  overlay,
 }: ProblemShellProps<Step>) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f6fbff] text-slate-900">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_26%),radial-gradient(circle_at_top_right,rgba(139,92,246,0.12),transparent_24%),radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.14),transparent_24%),linear-gradient(180deg,#f8fcff_0%,#eef7ff_54%,#f6fbff_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[size:64px_64px] opacity-40" />
+      {overlay}
 
       <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6">
         <div className="w-full max-w-4xl">

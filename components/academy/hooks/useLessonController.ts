@@ -41,6 +41,7 @@ export type LessonControllerState<
   TInputs extends Record<string, string>,
   Step extends LessonStepLike
 > = {
+  sessionKey: string;
   inputs: TInputs;
   setInputs: Dispatch<SetStateAction<TInputs>>;
   trace: Step[];
@@ -179,6 +180,7 @@ export function useLessonController<
   }
 
   return {
+    sessionKey: resetKey,
     inputs,
     setInputs,
     trace,

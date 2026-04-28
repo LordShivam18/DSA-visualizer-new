@@ -30,6 +30,7 @@ export default function MatrixProblemShell<Step extends TeachingTraceFrame>({
   tracePanel,
   codePanel,
   output,
+  overlay,
 }: ProblemShellProps<Step>) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f8f1e8] text-stone-900">
@@ -37,6 +38,7 @@ export default function MatrixProblemShell<Step extends TeachingTraceFrame>({
       <div className="absolute inset-0 bg-[linear-gradient(rgba(161,138,108,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(161,138,108,0.06)_1px,transparent_1px)] bg-[size:72px_72px] opacity-35" />
       <div className="absolute left-[-8rem] top-20 h-72 w-72 rounded-full bg-white/60 blur-3xl" />
       <div className="absolute bottom-10 right-[-8rem] h-80 w-80 rounded-full bg-[#dfc49e]/25 blur-3xl" />
+      {overlay}
 
       <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6">
         <div className="w-full max-w-4xl">

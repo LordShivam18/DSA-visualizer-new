@@ -25,6 +25,7 @@ import {
   loadLearningState,
   saveLearningState,
 } from "@/lib/academy/storage";
+import { resolveStreakUpdate } from "@/lib/academy/streak";
 
 type LearningPlatformContextValue = {
   state: LearningPlatformState;
@@ -59,30 +60,6 @@ function average(currentAverage: number, currentCount: number, nextValue: number
 
 function mergeWeakSignals(previous: string[], next: string[]) {
   return Array.from(new Set([...previous, ...next])).slice(0, 8);
-}
-
-function dayKey(value: string) {
-  return value.slice(0, 10);
-}
-
-function updateStreak(lastActiveAt: string | null, nextActiveAt: string) {
-  if (!lastActiveAt) {
-    return 1;
-  }
-
-  const lastDay = Date.parse(dayKey(lastActiveAt));
-  const nextDay = Date.parse(dayKey(nextActiveAt));
-  const difference = Math.round((nextDay - lastDay) / 86400000);
-
-  if (difference <= 0) {
-    return null;
-  }
-
-  if (difference === 1) {
-    return "increment";
-  }
-
-  return "reset";
 }
 
 function computeProblemMastery(problem: ProblemProgress) {
@@ -212,7 +189,10 @@ function reduceSession(state: LearningPlatformState, session: SessionRecord) {
 
   nextTopic.mastery = computeTopicMastery(nextTopic);
 
-  const streakChange = updateStreak(state.learner.lastActiveAt, session.endedAt);
+  const streakChange = resolveStreakUpdate(
+    state.learner.lastActiveAt,
+    session.endedAt
+  );
   const solvedForFirstTime = previousProblem.completions === 0 && session.completed;
 
   return {
@@ -224,7 +204,9 @@ function reduceSession(state: LearningPlatformState, session: SessionRecord) {
       lastActiveAt: session.endedAt,
       preferredMode: session.mode,
       streakDays:
-        streakChange === "increment"
+        streakChange === "start"
+          ? 1
+          : streakChange === "increment"
           ? state.learner.streakDays + 1
           : streakChange === "reset"
           ? 1

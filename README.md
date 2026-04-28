@@ -16,6 +16,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Dev Safety
+
+If Next.js exits and leaves a stale `.next` lock behind, the dev preflight will stop `npm run dev` before Next starts and point you to the reset command.
+
+```bash
+npm run dev:doctor
+npm run dev:reset
+```
+
+`npm run dev:reset` only removes `.next` when no active Next.js process is detected, so it is safe to use as the standard recovery path for stale lock issues.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.

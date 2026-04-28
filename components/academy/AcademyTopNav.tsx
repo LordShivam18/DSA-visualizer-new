@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import StreakBadge from "./StreakBadge";
 import { useProgressTracker } from "./hooks/useProgressTracker";
 
 export default function AcademyTopNav({
@@ -37,10 +38,15 @@ export default function AcademyTopNav({
           >
             Guided Learning Flow
           </span>
+          <StreakBadge
+            days={learner.streakDays}
+            tone={inverted ? "subtle" : "default"}
+            compact
+          />
         </div>
         <p className={`mt-2 text-sm ${mutedTextClassName}`}>
-          {learner.streakDays}-day streak · {solvedProblems}/{totalProblems} lessons
-          solved · {learner.totalStudyMinutes.toFixed(0)} guided minutes logged
+          {solvedProblems}/{totalProblems} lessons solved ·{" "}
+          {learner.totalStudyMinutes.toFixed(0)} guided minutes logged
         </p>
       </div>
 

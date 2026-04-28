@@ -127,6 +127,7 @@ export default function GuidedEntryLessonLayout({
   whyPanel,
   completionFeedback,
   replayPanel,
+  experienceOverlays,
   showOnboarding,
   onDismissOnboarding,
   onInteract,
@@ -149,6 +150,7 @@ export default function GuidedEntryLessonLayout({
   whyPanel: ReactNode;
   completionFeedback: ReactNode;
   replayPanel: ReactNode;
+  experienceOverlays: ReactNode;
   showOnboarding: boolean;
   onDismissOnboarding: () => void;
   onInteract: () => void;
@@ -172,6 +174,7 @@ export default function GuidedEntryLessonLayout({
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.14),transparent_26%),radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_22%),linear-gradient(180deg,#fffdf8_0%,#f7f1e6_58%,#f8f4ec_100%)]" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(148,163,184,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.06)_1px,transparent_1px)] bg-[size:56px_56px] opacity-35" />
+      {experienceOverlays}
 
       <div className="relative mx-auto flex max-w-6xl flex-col gap-8 px-4 py-6 sm:px-6 lg:py-8">
         <div className="flex items-center justify-between gap-4">

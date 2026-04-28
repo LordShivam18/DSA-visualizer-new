@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/check-next-dev-state.mjs && next dev",
+    "dev:doctor": "node scripts/check-next-dev-state.mjs",
+    "dev:reset": "node scripts/reset-next-dev.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

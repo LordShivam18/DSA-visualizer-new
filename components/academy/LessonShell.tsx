@@ -8,9 +8,9 @@ import {
   type SetStateAction,
 } from "react";
 
-import { useSearchParams } from "next/navigation";
-
+import CompletionCelebration from "./CompletionCelebration";
 import CompletionFeedbackPanel from "./CompletionFeedbackPanel";
+import FloatingLessonToast from "./FloatingLessonToast";
 import {
   useLessonController,
   type LessonControllerState,
@@ -28,16 +28,17 @@ import PredictionCheckpointCard from "./PredictionCheckpointCard";
 import ProgressiveLearningModeToggle from "./ProgressiveLearningModeToggle";
 import ReplayVariationsPanel from "./ReplayVariationsPanel";
 import WhyPanel from "./WhyPanel";
+import { useFirstSuccess } from "./hooks/useFirstSuccess";
+import { useLearningMode } from "./hooks/useLearningMode";
+import { useLessonCompletion } from "./hooks/useLessonCompletion";
 import { useLessonLearningExperience } from "./hooks/useLessonLearningExperience";
+import { useProgressHint } from "./hooks/useProgressHint";
 import {
   filterReplayVariationsForMode,
   getProgressiveDisclosure,
   type ProgressiveLearningMode,
 } from "@/lib/academy/progressiveDisclosure";
-import {
-  resolveLessonEntryExperience,
-  type LessonEntryExperience,
-} from "@/lib/academy/entryPoints";
+import type { LessonEntryExperience } from "@/lib/academy/entryPoints";
 
 const GUIDED_ENTRY_ONBOARDING_KEY = "guided-dsa:first-problem-overlay:v1";
 
@@ -65,6 +66,7 @@ type LessonShellContainerContext<
   guidedReplayPanel: ReactNode;
   whyPanel: ReactNode;
   completionFeedback: ReactNode;
+  experienceOverlays: ReactNode;
   controls: ReactNode;
   visualization: ReactNode;
   microscope: ReactNode;
@@ -74,23 +76,10 @@ type LessonShellContainerContext<
   output: ReactNode;
 };
 
-export default function LessonShell<
+type LessonShellProps<
   TInputs extends Record<string, string>,
   Step extends LessonStepLike
->({
-  defaultInputs,
-  generateTrace,
-  initialTeachingMode,
-  initialLessonMode,
-  initialProgressiveMode = "beginner",
-  renderControls,
-  renderVisualization,
-  renderMicroscope,
-  renderTracePanel,
-  renderCodePanel,
-  renderOutput,
-  renderContainer,
-}: {
+> = {
   defaultInputs: TInputs;
   generateTrace: (inputs: TInputs) => Step[];
   initialTeachingMode?: TeachingMode;
@@ -105,9 +94,47 @@ export default function LessonShell<
   renderContainer: (
     context: LessonShellContainerContext<TInputs, Step>
   ) => ReactNode;
+};
+
+export default function LessonShell<
+  TInputs extends Record<string, string>,
+  Step extends LessonStepLike
+>(props: LessonShellProps<TInputs, Step>) {
+  const { learningMode: entryExperience, isReady } = useLearningMode();
+
+  if (!isReady) {
+    return null;
+  }
+
+  return (
+    <ResolvedLessonShell
+      key={entryExperience}
+      entryExperience={entryExperience}
+      {...props}
+    />
+  );
+}
+
+function ResolvedLessonShell<
+  TInputs extends Record<string, string>,
+  Step extends LessonStepLike
+>({
+  entryExperience,
+  defaultInputs,
+  generateTrace,
+  initialTeachingMode,
+  initialLessonMode,
+  initialProgressiveMode = "beginner",
+  renderControls,
+  renderVisualization,
+  renderMicroscope,
+  renderTracePanel,
+  renderCodePanel,
+  renderOutput,
+  renderContainer,
+}: LessonShellProps<TInputs, Step> & {
+  entryExperience: LessonEntryExperience;
 }) {
-  const searchParams = useSearchParams();
-  const entryExperience = resolveLessonEntryExperience(searchParams.get("entry"));
   const guidedEntry = entryExperience !== "default";
   const [progressiveMode, setProgressiveMode] =
     useState<ProgressiveLearningMode>(
@@ -192,6 +219,29 @@ export default function LessonShell<
     predictionAccuracy: lesson.prediction.accuracy,
     stepIndex: lesson.timeline.activeIndex,
     totalSteps: lesson.trace.length,
+  });
+  const showFirstSuccess = useFirstSuccess({
+    enabled: lesson.lessonMode === "prediction",
+    feedback: lesson.prediction.feedback,
+    correctCount: lesson.prediction.correctCount,
+    resetKey: lesson.sessionKey,
+  });
+  const showProgressHint = useProgressHint({
+    enabled:
+      lesson.lessonMode === "prediction" && lesson.prediction.askedCount > 0,
+    stepIndex: lesson.timeline.activeIndex,
+    resetKey: lesson.sessionKey,
+  });
+  const completionExperience = useLessonCompletion({
+    problem: learningExperience.problem,
+    inputs: lesson.inputs,
+    step: lesson.step,
+    stepIndex: lesson.timeline.activeIndex,
+    totalSteps: lesson.trace.length,
+    mode: lesson.lessonMode,
+    sessionKey: lesson.sessionKey,
+    askedCount: lesson.prediction.askedCount,
+    correctCount: lesson.prediction.correctCount,
   });
   const visibleReplayVariations = filterReplayVariationsForMode(
     learningExperience.replayVariations,
@@ -296,6 +346,39 @@ export default function LessonShell<
       variant={guidedEntry ? "guided" : "default"}
     />
   ) : null;
+  const experienceOverlays = (
+    <>
+      {showFirstSuccess || showProgressHint ? (
+        <div className="pointer-events-none fixed inset-x-4 top-4 z-50 flex justify-center md:justify-end">
+          <div className="flex w-full max-w-sm flex-col gap-3">
+            {showFirstSuccess ? (
+              <FloatingLessonToast
+                tone="success"
+                message="Nice! You predicted correctly."
+                durationMs={2000}
+              />
+            ) : null}
+            {showProgressHint ? (
+              <FloatingLessonToast
+                tone="progress"
+                message="You're getting the idea. Keep going →"
+                durationMs={2200}
+              />
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {completionExperience.showCelebration ? (
+        <div className="pointer-events-none fixed inset-x-4 bottom-4 z-40 flex justify-center md:justify-end">
+          <CompletionCelebration
+            open={completionExperience.showCelebration}
+            streakDays={completionExperience.streakDays}
+          />
+        </div>
+      ) : null}
+    </>
+  );
   const supplementalOutput = renderOutput ? renderOutput(lesson) : null;
 
   const tracePanel = (
@@ -321,6 +404,7 @@ export default function LessonShell<
     guidedReplayPanel,
     whyPanel,
     completionFeedback: completionFeedbackPanel,
+    experienceOverlays,
     controls,
     visualization: renderVisualization(lesson),
     microscope: renderMicroscope(lesson),

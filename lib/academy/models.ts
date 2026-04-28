@@ -153,6 +153,13 @@ export type LearnerProfile = {
   preferredMode: AcademyMode;
 };
 
+export type UserProgress = {
+  userId: string;
+  lastActiveDate: string | null;
+  streak: number;
+  totalSolved: number;
+};
+
 export type ProblemProgress = {
   problemId: string;
   slug: string;

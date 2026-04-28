@@ -83,4 +83,5 @@ export type ProblemShellProps<Step extends TeachingTraceFrame> = {
   tracePanel: ReactNode;
   codePanel: ReactNode;
   output: ReactNode;
+  overlay?: ReactNode;
 };

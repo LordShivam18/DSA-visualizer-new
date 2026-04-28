@@ -7,6 +7,7 @@ import { categoryRegistry } from "@/lib/academy/problemRegistry";
 import { lightPanelClassName } from "../array-string/shared/ui";
 import AdaptiveRecommendationRail from "./AdaptiveRecommendationRail";
 import AcademyTopNav from "./AcademyTopNav";
+import StreakBadge from "./StreakBadge";
 import { useProgressTracker } from "./hooks/useProgressTracker";
 
 function formatMinutes(milliseconds: number) {
@@ -100,11 +101,6 @@ export default function AcademyDashboard() {
                 detail: "Blended across prediction, practice, and interview sessions",
               },
               {
-                label: "Study Streak",
-                value: `${learner.streakDays} days`,
-                detail: "Daily engagement is persisted in learner state",
-              },
-              {
                 label: "Guided Minutes",
                 value: `${learner.totalStudyMinutes.toFixed(0)}`,
                 detail: "Time spent inside guided lessons and replay loops",
@@ -125,6 +121,18 @@ export default function AcademyDashboard() {
                 </p>
               </div>
             ))}
+
+            <div className="rounded-[1.2rem] border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-orange-50 px-5 py-4">
+              <p className="text-xs uppercase tracking-[0.18em] text-amber-700">
+                Study Streak
+              </p>
+              <div className="mt-3">
+                <StreakBadge days={learner.streakDays} tone="celebration" />
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                Daily engagement is persisted in learner state and reinforced after each completed lesson.
+              </p>
+            </div>
           </div>
         </header>
 

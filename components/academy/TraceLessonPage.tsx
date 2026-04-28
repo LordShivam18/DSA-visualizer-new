@@ -1,13 +1,12 @@
 "use client";
 
-import type {
-  Dispatch,
-  HTMLAttributes,
-  ReactNode,
-  SetStateAction,
+import {
+  Suspense,
+  type Dispatch,
+  type HTMLAttributes,
+  type ReactNode,
+  type SetStateAction,
 } from "react";
-
-import { useSearchParams } from "next/navigation";
 
 import type {
   LessonControllerState,
@@ -174,6 +173,7 @@ function renderDarkLayout<
   tracePanel,
   codePanel,
   output,
+  experienceOverlays,
 }: {
   categoryHref: string;
   categoryLabel: string;
@@ -195,10 +195,12 @@ function renderDarkLayout<
   tracePanel: ReactNode;
   codePanel: ReactNode;
   output: ReactNode;
+  experienceOverlays: ReactNode;
 }) {
   return (
     <div className="relative min-h-screen overflow-hidden grid-pattern bg-[#030611] text-slate-50">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.12),transparent_28%),radial-gradient(circle_at_top_right,rgba(244,63,94,0.08),transparent_24%),linear-gradient(180deg,rgba(3,6,17,0.94),rgba(3,6,17,1))]" />
+      {experienceOverlays}
 
       <div className="relative mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6">
         <div className="w-full max-w-4xl">
@@ -358,181 +360,185 @@ export default function TraceLessonPage<
   renderCodePanel,
   renderOutput,
 }: TraceLessonPageProps<TInputs, Step>) {
-  const searchParams = useSearchParams();
-  const entryKey = searchParams.get("entry") ?? "default";
-
   return (
-    <LessonShell
-      key={entryKey}
-      defaultInputs={defaultInputs}
-      generateTrace={generateTrace}
-      renderControls={(context) =>
-        renderControls
-          ? renderControls(context)
-          : renderDefaultControls(variant, context)
-      }
-      renderVisualization={renderVisualization}
-      renderMicroscope={renderMicroscope}
-      renderTracePanel={renderTracePanel}
-      renderCodePanel={renderCodePanel}
-      renderOutput={renderOutput}
-      renderContainer={({
-        entryExperience,
-        guidedEntry,
-        showEntryOnboarding,
-        dismissEntryOnboarding,
-        markEntryInteraction,
-        inputs,
-        setInputs,
-        run,
-        trace,
-        step,
-        timeline,
-        teachingMode,
-        predictionCard,
-        whyPanel,
-        completionFeedback,
-        guidedReplayPanel,
-        controls,
-        visualization,
-        microscope,
-        tracePanel,
-        codePanel,
-        output,
-      }) => {
-        if (guidedEntry && entryExperience !== "default") {
-          return (
-            <GuidedEntryLessonLayout
-              entryExperience={entryExperience}
-              taxonomy={taxonomy}
-              title={title}
-              difficulty={toTitleCaseDifficulty(difficulty)}
-              description={description}
-              visualization={visualization}
-              predictionCard={predictionCard}
-              whyPanel={whyPanel}
-              completionFeedback={completionFeedback}
-              replayPanel={completionFeedback ? guidedReplayPanel : null}
-              showOnboarding={showEntryOnboarding}
-              onDismissOnboarding={dismissEntryOnboarding}
-              onInteract={markEntryInteraction}
-              stepIndex={timeline.activeIndex}
-              totalSteps={trace.length}
-              onPrev={() => timeline.prev()}
-              onNext={() => timeline.next()}
-              onReset={() => timeline.reset()}
-              canPrev={timeline.canPrev}
-              canNext={timeline.canNext}
-              lockReason={timeline.lockReason}
-            />
-          );
+    <Suspense fallback={null}>
+      <LessonShell
+        defaultInputs={defaultInputs}
+        generateTrace={generateTrace}
+        renderControls={(context) =>
+          renderControls
+            ? renderControls(context)
+            : renderDefaultControls(variant, context)
         }
-
-        if (variant === "light") {
-          return (
-            <ProblemShell
-              categoryHref={categoryHref}
-              categoryLabel={categoryLabel}
-              taxonomy={taxonomy}
-              title={title}
-              difficulty={toTitleCaseDifficulty(difficulty)}
-              description={description}
-              complexity={complexity ?? ""}
-              inputFields={inputFields.map<ArrayStringInputFieldConfig>((field) => ({
-                key: field.id,
-                label: field.label,
-                placeholder: field.placeholder,
-                help: field.helper,
-                multiline: field.multiline,
-                rows: field.rows,
-              }))}
-              inputValues={inputs}
-              onInputChange={(key, value) =>
-                setInputs((current) => ({ ...current, [key]: value }))
-              }
-              onRun={() => run({ ...inputs })}
-              presets={presets.map<ArrayStringPresetConfig>((preset) => ({
-                name: preset.name,
-                summary: preset.summary,
-                values: preset.values,
-              }))}
-              onPreset={(preset) => run(preset.values as TInputs)}
-              step={step as unknown as ArrayStringTeachingTraceFrame}
-              mode={teachingMode}
-              controls={controls}
-              visualization={visualization}
-              microscope={microscope}
-              tracePanel={tracePanel}
-              codePanel={codePanel}
-              output={output}
-            />
-          );
-        }
-
-        if (variant === "matrix") {
-          return (
-            <MatrixProblemShell
-              categoryHref={categoryHref}
-              categoryLabel={categoryLabel}
-              taxonomy={taxonomy}
-              title={title}
-              difficulty={toTitleCaseDifficulty(difficulty)}
-              description={description}
-              complexity={complexity ?? ""}
-              inputFields={inputFields.map<MatrixInputFieldConfig>((field) => ({
-                key: field.id,
-                label: field.label,
-                placeholder: field.placeholder,
-                help: field.helper,
-                multiline: field.multiline,
-                rows: field.rows,
-              }))}
-              inputValues={inputs}
-              onInputChange={(key, value) =>
-                setInputs((current) => ({ ...current, [key]: value }))
-              }
-              onRun={() => run({ ...inputs })}
-              presets={presets.map<MatrixPresetConfig>((preset) => ({
-                name: preset.name,
-                summary: preset.summary,
-                values: preset.values,
-              }))}
-              onPreset={(preset) => run(preset.values as TInputs)}
-              step={step as unknown as MatrixTeachingTraceFrame}
-              mode={teachingMode}
-              controls={controls}
-              visualization={visualization}
-              microscope={microscope}
-              tracePanel={tracePanel}
-              codePanel={codePanel}
-              output={output}
-            />
-          );
-        }
-
-        return renderDarkLayout({
-          categoryHref,
-          categoryLabel,
-          taxonomy,
-          title,
-          difficulty,
-          description,
-          complexity,
-          inputFields,
-          presets,
-          inputHint,
+        renderVisualization={renderVisualization}
+        renderMicroscope={renderMicroscope}
+        renderTracePanel={renderTracePanel}
+        renderCodePanel={renderCodePanel}
+        renderOutput={renderOutput}
+        renderContainer={({
+          entryExperience,
+          guidedEntry,
+          showEntryOnboarding,
+          dismissEntryOnboarding,
+          markEntryInteraction,
           inputs,
           setInputs,
           run,
           currentNarration,
+          trace,
+          step,
+          timeline,
+          teachingMode,
+          predictionCard,
+          whyPanel,
+          completionFeedback,
+          guidedReplayPanel,
           controls,
           visualization,
           microscope,
           tracePanel,
           codePanel,
           output,
-        });
-      }}
-    />
+          experienceOverlays,
+        }) => {
+          if (guidedEntry && entryExperience !== "default") {
+            return (
+              <GuidedEntryLessonLayout
+                entryExperience={entryExperience}
+                taxonomy={taxonomy}
+                title={title}
+                difficulty={toTitleCaseDifficulty(difficulty)}
+                description={description}
+                visualization={visualization}
+                predictionCard={predictionCard}
+                whyPanel={whyPanel}
+                completionFeedback={completionFeedback}
+                replayPanel={completionFeedback ? guidedReplayPanel : null}
+                experienceOverlays={experienceOverlays}
+                showOnboarding={showEntryOnboarding}
+                onDismissOnboarding={dismissEntryOnboarding}
+                onInteract={markEntryInteraction}
+                stepIndex={timeline.activeIndex}
+                totalSteps={trace.length}
+                onPrev={() => timeline.prev()}
+                onNext={() => timeline.next()}
+                onReset={() => timeline.reset()}
+                canPrev={timeline.canPrev}
+                canNext={timeline.canNext}
+                lockReason={timeline.lockReason}
+              />
+            );
+          }
+
+          if (variant === "light") {
+            return (
+              <ProblemShell
+                categoryHref={categoryHref}
+                categoryLabel={categoryLabel}
+                taxonomy={taxonomy}
+                title={title}
+                difficulty={toTitleCaseDifficulty(difficulty)}
+                description={description}
+                complexity={complexity ?? ""}
+                inputFields={inputFields.map<ArrayStringInputFieldConfig>((field) => ({
+                  key: field.id,
+                  label: field.label,
+                  placeholder: field.placeholder,
+                  help: field.helper,
+                  multiline: field.multiline,
+                  rows: field.rows,
+                }))}
+                inputValues={inputs}
+                onInputChange={(key, value) =>
+                  setInputs((current) => ({ ...current, [key]: value }))
+                }
+                onRun={() => run({ ...inputs })}
+                presets={presets.map<ArrayStringPresetConfig>((preset) => ({
+                  name: preset.name,
+                  summary: preset.summary,
+                  values: preset.values,
+                }))}
+                onPreset={(preset) => run(preset.values as TInputs)}
+                step={step as unknown as ArrayStringTeachingTraceFrame}
+                mode={teachingMode}
+                controls={controls}
+                visualization={visualization}
+                microscope={microscope}
+                tracePanel={tracePanel}
+                codePanel={codePanel}
+                output={output}
+                overlay={experienceOverlays}
+              />
+            );
+          }
+
+          if (variant === "matrix") {
+            return (
+              <MatrixProblemShell
+                categoryHref={categoryHref}
+                categoryLabel={categoryLabel}
+                taxonomy={taxonomy}
+                title={title}
+                difficulty={toTitleCaseDifficulty(difficulty)}
+                description={description}
+                complexity={complexity ?? ""}
+                inputFields={inputFields.map<MatrixInputFieldConfig>((field) => ({
+                  key: field.id,
+                  label: field.label,
+                  placeholder: field.placeholder,
+                  help: field.helper,
+                  multiline: field.multiline,
+                  rows: field.rows,
+                }))}
+                inputValues={inputs}
+                onInputChange={(key, value) =>
+                  setInputs((current) => ({ ...current, [key]: value }))
+                }
+                onRun={() => run({ ...inputs })}
+                presets={presets.map<MatrixPresetConfig>((preset) => ({
+                  name: preset.name,
+                  summary: preset.summary,
+                  values: preset.values,
+                }))}
+                onPreset={(preset) => run(preset.values as TInputs)}
+                step={step as unknown as MatrixTeachingTraceFrame}
+                mode={teachingMode}
+                controls={controls}
+                visualization={visualization}
+                microscope={microscope}
+                tracePanel={tracePanel}
+                codePanel={codePanel}
+                output={output}
+                overlay={experienceOverlays}
+              />
+            );
+          }
+
+          return renderDarkLayout({
+            categoryHref,
+            categoryLabel,
+            taxonomy,
+            title,
+            difficulty,
+            description,
+            complexity,
+            inputFields,
+            presets,
+            inputHint,
+            inputs,
+            setInputs,
+            run,
+            currentNarration,
+            controls,
+            visualization,
+            microscope,
+            tracePanel,
+            codePanel,
+            output,
+            experienceOverlays,
+          });
+        }}
+      />
+    </Suspense>
   );
 }

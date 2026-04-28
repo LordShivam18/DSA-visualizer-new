@@ -28,7 +28,7 @@ export function createDefaultLearningState(): LearningPlatformState {
     schemaVersion: ACADEMY_SCHEMA_VERSION,
     learner: {
       plan: "premium",
-      streakDays: 1,
+      streakDays: 0,
       totalStudyMinutes: 0,
       problemsCompleted: 0,
       lastActiveAt: null,
@@ -59,6 +59,10 @@ export function loadLearningState() {
       return null;
     }
 
+    if (parsed.learner.lastActiveAt === null && parsed.learner.streakDays > 0) {
+      parsed.learner.streakDays = 0;
+    }
+
     return parsed;
   } catch {
     return null;
@@ -70,7 +74,11 @@ export function saveLearningState(state: LearningPlatformState) {
     return;
   }
 
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    return;
+  }
 }
 
 export function createSessionId(problemId: string, mode: AcademyMode) {
