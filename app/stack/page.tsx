@@ -3,15 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import BackButton from "@/components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Valid Parentheses",
-    url: "/stack/valid-parentheses",
-    difficulty: "easy" as const,
-    description: "Check if brackets are balanced using a stack",
-  },
-];
+
+const problems = getProblemCardsByCategory("stack");
 
 const diffColors = {
   easy: { badge: "badge-easy", glow: "hover:shadow-[0_0_25px_rgba(52,211,153,0.15)]", border: "border-emerald-500/20 hover:border-emerald-500/40" },

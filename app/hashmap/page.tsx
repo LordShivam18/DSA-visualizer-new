@@ -1,72 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Ransom Note",
-    url: "/hashmap/ransom-note",
-    difficulty: "easy",
-    description:
-      "Build a character frequency bank from the magazine and spend those counts while the ransom note asks for letters.",
-  },
-  {
-    name: "Isomorphic Strings",
-    url: "/hashmap/isomorphic-strings",
-    difficulty: "easy",
-    description:
-      "Maintain two maps so every source character points to exactly one target character and vice versa.",
-  },
-  {
-    name: "Word Pattern",
-    url: "/hashmap/word-pattern",
-    difficulty: "easy",
-    description:
-      "Lift the same bijection idea from characters to whole words and validate the sentence pattern step by step.",
-  },
-  {
-    name: "Valid Anagram",
-    url: "/hashmap/valid-anagram",
-    difficulty: "easy",
-    description:
-      "Track the frequency difference between two strings and watch every bucket cancel back toward zero.",
-  },
-  {
-    name: "Group Anagrams",
-    url: "/hashmap/group-anagrams",
-    difficulty: "medium",
-    description:
-      "Normalize each word into a sorted signature and use that signature as the hash-map key for its bucket.",
-  },
-  {
-    name: "Two Sum",
-    url: "/hashmap/two-sum",
-    difficulty: "easy",
-    description:
-      "Compute the missing complement for the current value and ask the hash map whether it was seen earlier.",
-  },
-  {
-    name: "Happy Number",
-    url: "/hashmap/happy-number",
-    difficulty: "easy",
-    description:
-      "Use a hash set to detect whether the digit-square process reaches 1 or falls into a cycle.",
-  },
-  {
-    name: "Contains Duplicate II",
-    url: "/hashmap/contains-duplicate-ii",
-    difficulty: "easy",
-    description:
-      "Store the latest index for each value, then compare duplicate gaps against k in constant time.",
-  },
-  {
-    name: "Longest Consecutive Sequence",
-    url: "/hashmap/longest-consecutive-sequence",
-    difficulty: "medium",
-    description:
-      "Deduplicate into a set, skip non-starts, and expand only predecessor-free runs for linear performance.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("hashmap");
 
 export default function HashmapTopicsPage() {
   return (

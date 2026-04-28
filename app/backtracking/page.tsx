@@ -1,58 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Letter Combinations of a Phone Number",
-    url: "/backtracking/letter-combinations-of-a-phone-number",
-    difficulty: "medium",
-    description:
-      "Expand each digit into its mapped letters and watch DFS stitch one letter per position into complete phone words.",
-  },
-  {
-    name: "Combinations",
-    url: "/backtracking/combinations",
-    difficulty: "medium",
-    description:
-      "Grow a size-k subset in increasing order so backtracking never produces duplicates or out-of-order picks.",
-  },
-  {
-    name: "Permutations",
-    url: "/backtracking/permutations",
-    difficulty: "medium",
-    description:
-      "Place unused numbers into the next slot until every position is filled and one full arrangement is complete.",
-  },
-  {
-    name: "Combination Sum",
-    url: "/backtracking/combination-sum",
-    difficulty: "medium",
-    description:
-      "Reuse the current candidate as long as the remaining target stays non-negative, then backtrack when a branch overshoots.",
-  },
-  {
-    name: "N-Queens II",
-    url: "/backtracking/n-queens-ii",
-    difficulty: "hard",
-    description:
-      "Place one queen per row while columns and diagonals act like live constraints that prune unsafe branches instantly.",
-  },
-  {
-    name: "Generate Parentheses",
-    url: "/backtracking/generate-parentheses",
-    difficulty: "medium",
-    description:
-      "Build valid strings one bracket at a time while the open-close balance prevents broken prefixes from surviving.",
-  },
-  {
-    name: "Word Search",
-    url: "/backtracking/word-search",
-    difficulty: "medium",
-    description:
-      "Try every matching start cell, walk four directions, and backtrack the path whenever the next character cannot be extended.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("backtracking");
 
 const difficultyStyles = {
   medium: "border-amber-400/30 bg-amber-500/10 text-amber-200",

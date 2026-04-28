@@ -4,30 +4,10 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Minimum Absolute Difference in BST",
-    url: "/bst/minimum-absolute-difference-in-bst",
-    difficulty: "easy" as const,
-    description:
-      "Use inorder traversal to compare adjacent sorted BST values and keep the smallest gap.",
-  },
-  {
-    name: "Kth Smallest Element in a BST",
-    url: "/bst/kth-smallest-element-in-a-bst",
-    difficulty: "medium" as const,
-    description:
-      "Walk the BST in sorted inorder order and stop when the rank counter reaches k.",
-  },
-  {
-    name: "Validate Binary Search Tree",
-    url: "/bst/validate-binary-search-tree",
-    difficulty: "medium" as const,
-    description:
-      "Propagate strict lower and upper bounds so every node obeys all ancestor constraints.",
-  },
-];
+
+const problems = getProblemCardsByCategory("bst");
 
 const diffColors = {
   easy: {

@@ -3,22 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import BackButton from "@/components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  { name: "Maximum Depth", url: "/binary-tree/max-depth", difficulty: "easy" as const, description: "Find the maximum depth of a binary tree" },
-  { name: "Same Tree", url: "/binary-tree/same-tree", difficulty: "easy" as const, description: "Check if two binary trees are identical" },
-  { name: "Invert Binary Tree", url: "/binary-tree/invert-tree", difficulty: "easy" as const, description: "Mirror a binary tree" },
-  { name: "Symmetric Tree", url: "/binary-tree/symmetric-tree", difficulty: "easy" as const, description: "Check if tree is a mirror of itself" },
-  { name: "Count Complete Tree Nodes", url: "/binary-tree/count-complete-tree-nodes", difficulty: "easy" as const, description: "Count nodes faster than O(n) by detecting perfect subtrees from their boundary heights" },
-  { name: "Path Sum", url: "/binary-tree/path-sum", difficulty: "easy" as const, description: "Check whether any root-to-leaf path matches a target sum" },
-  { name: "Sum Root to Leaf Numbers", url: "/binary-tree/sum-root-to-leaf-numbers", difficulty: "medium" as const, description: "Build decimal numbers from root-to-leaf paths and add them all" },
-  { name: "Lowest Common Ancestor", url: "/binary-tree/lowest-common-ancestor-binary-tree", difficulty: "medium" as const, description: "Use recursive return values to find the first node where the two target searches merge" },
-  { name: "Binary Search Tree Iterator", url: "/binary-tree/binary-search-tree-iterator", difficulty: "medium" as const, description: "Iterate through BST values lazily with a stack-backed inorder traversal" },
-  { name: "Binary Tree Maximum Path Sum", url: "/binary-tree/maximum-path-sum", difficulty: "hard" as const, description: "Find the strongest path anywhere in the tree using recursive gains" },
-  { name: "Populate Next Right Pointers II", url: "/binary-tree/populating-next-right-pointers-ii", difficulty: "medium" as const, description: "Connect each level with in-place next pointers" },
-  { name: "Flatten Binary Tree to Linked List", url: "/binary-tree/flatten-binary-tree-to-linked-list", difficulty: "medium" as const, description: "Rewire the tree into a preorder right-only chain" },
-  { name: "Construct from Preorder + Inorder", url: "/binary-tree/construct-from-pre-in", difficulty: "medium" as const, description: "Build tree from traversal arrays" },
-];
+
+const problems = getProblemCardsByCategory("binary-tree");
 
 const diffColors = {
   easy: { badge: "badge-easy", glow: "hover:shadow-[0_0_25px_rgba(52,211,153,0.15)]", border: "border-emerald-500/20 hover:border-emerald-500/40" },

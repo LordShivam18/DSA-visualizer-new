@@ -1,37 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Minimum Size Subarray Sum",
-    url: "/sliding-window/minimum-size-subarray-sum",
-    difficulty: "medium",
-    description:
-      "Grow the live sum until it reaches the target, then tighten the left edge to squeeze out the shortest valid subarray.",
-  },
-  {
-    name: "Longest Substring Without Repeating Characters",
-    url: "/sliding-window/longest-substring-without-repeating-characters",
-    difficulty: "medium",
-    description:
-      "Inject characters from the right and purge duplicates from the left until the window is unique again.",
-  },
-  {
-    name: "Substring with Concatenation of All Words",
-    url: "/sliding-window/substring-with-concatenation-of-all-words",
-    difficulty: "hard",
-    description:
-      "Run offset-aligned word windows, match chunk frequencies, and collect every start index whose word multiset matches exactly.",
-  },
-  {
-    name: "Minimum Window Substring",
-    url: "/sliding-window/minimum-window-substring",
-    difficulty: "hard",
-    description:
-      "Track formed vs required counts while the window expands to cover every needed character and shrinks to become as short as possible.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("sliding-window");
 
 export default function SlidingWindowTopicsPage() {
   return (

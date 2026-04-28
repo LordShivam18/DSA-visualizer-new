@@ -1,37 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Convert Sorted Array to Binary Search Tree",
-    url: "/divide-conquer/convert-sorted-array-to-binary-search-tree",
-    difficulty: "easy",
-    description:
-      "Pick the middle value as the root, then recursively turn the left and right halves into balanced subtrees.",
-  },
-  {
-    name: "Sort List",
-    url: "/divide-conquer/sort-list",
-    difficulty: "medium",
-    description:
-      "Use linked-list merge sort: split the list into halves, sort each half, then weave the two sorted runs back together.",
-  },
-  {
-    name: "Construct Quad Tree",
-    url: "/divide-conquer/construct-quad-tree",
-    difficulty: "medium",
-    description:
-      "Keep cutting the grid into four quadrants until each region becomes uniform enough to collapse into a leaf node.",
-  },
-  {
-    name: "Merge k Sorted Lists",
-    url: "/divide-conquer/merge-k-sorted-lists",
-    difficulty: "hard",
-    description:
-      "Merge the lists in tournament rounds so the number of active lists shrinks by roughly half each pass.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("divide-conquer");
 
 const difficultyStyles = {
   easy: "border-emerald-400/30 bg-emerald-500/10 text-emerald-200",

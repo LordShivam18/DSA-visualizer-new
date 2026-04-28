@@ -23,6 +23,13 @@ export type Category = {
   summary: string;
 };
 
+export type ProblemCard = {
+  name: string;
+  url: string;
+  difficulty: RegistryDifficulty;
+  description: string;
+};
+
 type ProblemSeed = Omit<Problem, "id" | "path" | "tags"> & {
   tags?: string[];
 };
@@ -346,6 +353,15 @@ export const problemRegistryByPath = Object.fromEntries(
 
 export function getProblemsByCategory(categoryId: string) {
   return problemRegistry.filter((problem) => problem.category === categoryId);
+}
+
+export function getProblemCardsByCategory(categoryId: string): ProblemCard[] {
+  return getProblemsByCategory(categoryId).map((problem) => ({
+    name: problem.title,
+    url: problem.path,
+    difficulty: problem.difficulty,
+    description: problem.description,
+  }));
 }
 
 export function getCategoryProblemCount(categoryId: string) {

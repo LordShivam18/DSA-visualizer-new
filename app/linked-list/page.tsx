@@ -3,18 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import BackButton from "@/components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  { name: "Cycle Detection (Floyd's)", url: "/linked-list/cycle", difficulty: "easy" as const, description: "Detect a cycle using slow and fast pointers" },
-  { name: "Add Two Numbers", url: "/linked-list/add-two-numbers", difficulty: "medium" as const, description: "Add numbers represented as linked lists" },
-  { name: "Merge Two Sorted Lists", url: "/linked-list/merge-two-sorted-lists", difficulty: "easy" as const, description: "Merge two sorted linked lists into one" },
-  { name: "Reverse Nodes in k-Group", url: "/linked-list/reverse-k-group", difficulty: "hard" as const, description: "Reverse nodes in groups of k" },
-  { name: "Remove Nth from End", url: "/linked-list/remove-nth", difficulty: "medium" as const, description: "Remove the nth node from end of list" },
-  { name: "Remove Duplicates II", url: "/linked-list/remove-duplicates-ii", difficulty: "medium" as const, description: "Remove all nodes with duplicate values" },
-  { name: "Reverse Linked List II", url: "/linked-list/reverse-linked-list-ii", difficulty: "medium" as const, description: "Reverse a portion of the linked list" },
-  { name: "Rotate List", url: "/linked-list/rotate-list", difficulty: "medium" as const, description: "Rotate the list to the right by k" },
-  { name: "LRU Cache", url: "/linked-list/lru-cache", difficulty: "medium" as const, description: "Design a Least Recently Used cache" },
-];
+
+const problems = getProblemCardsByCategory("linked-list");
 
 const diffColors = {
   easy: { badge: "badge-easy", glow: "hover:shadow-[0_0_25px_rgba(52,211,153,0.15)]", border: "border-emerald-500/20 hover:border-emerald-500/40" },

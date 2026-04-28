@@ -1,37 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Kth Largest Element in an Array",
-    url: "/heap/kth-largest-element-in-an-array",
-    difficulty: "medium",
-    description:
-      "Keep a size-k min-heap so only the k largest values survive while smaller extras get pushed back out.",
-  },
-  {
-    name: "IPO",
-    url: "/heap/ipo",
-    difficulty: "hard",
-    description:
-      "Sweep projects by capital requirement, load affordable options into a max-heap, and always fund the richest next move.",
-  },
-  {
-    name: "Find K Pairs with Smallest Sums",
-    url: "/heap/find-k-pairs-with-smallest-sums",
-    difficulty: "medium",
-    description:
-      "Seed the first column of pair candidates, then keep expanding the cheapest frontier from a min-heap.",
-  },
-  {
-    name: "Find Median from Data Stream",
-    url: "/heap/find-median-from-data-stream",
-    difficulty: "hard",
-    description:
-      "Balance a max-heap and a min-heap so the middle of the stream is always available in constant time.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("heap");
 
 const difficultyStyles = {
   medium: "border-amber-400/30 bg-amber-500/10 text-amber-200",

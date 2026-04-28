@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import BackButton from "@/components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  { name: "Valid Palindrome", url: "/two-pointers/valid-palindrome", difficulty: "easy" as const, description: "Check if string is a valid palindrome" },
-  { name: "Two Sum II (Sorted Array)", url: "/two-pointers/two-sum-sorted", difficulty: "medium" as const, description: "Find two numbers that add to target in sorted array" },
-  { name: "3Sum", url: "/two-pointers/three-sum", difficulty: "medium" as const, description: "Find all unique triplets summing to zero" },
-  { name: "Container With Most Water", url: "/two-pointers/container-most-water", difficulty: "medium" as const, description: "Maximize water area between vertical lines" },
-  { name: "Is Subsequence", url: "/two-pointers/is-subsequence", difficulty: "easy" as const, description: "Check if s is a subsequence of t" },
-];
+
+const problems = getProblemCardsByCategory("two-pointers");
 
 const diffColors = {
   easy: { badge: "badge-easy", glow: "hover:shadow-[0_0_25px_rgba(52,211,153,0.15)]", border: "border-emerald-500/20 hover:border-emerald-500/40" },

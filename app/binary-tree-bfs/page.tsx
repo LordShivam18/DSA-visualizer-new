@@ -4,33 +4,10 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Binary Tree Right Side View",
-    url: "/binary-tree-bfs/binary-tree-right-side-view",
-    difficulty: "medium" as const,
-    description: "Scan each tree level with a queue and keep the last node you pop.",
-  },
-  {
-    name: "Average of Levels in Binary Tree",
-    url: "/binary-tree-bfs/average-of-levels-in-binary-tree",
-    difficulty: "easy" as const,
-    description: "Accumulate the sum of each BFS level, then divide by that level's node count.",
-  },
-  {
-    name: "Binary Tree Level Order Traversal",
-    url: "/binary-tree-bfs/binary-tree-level-order-traversal",
-    difficulty: "medium" as const,
-    description: "Freeze the queue width for each row and append that row to the nested output.",
-  },
-  {
-    name: "Binary Tree Zigzag Level Order Traversal",
-    url: "/binary-tree-bfs/binary-tree-zigzag-level-order-traversal",
-    difficulty: "medium" as const,
-    description: "Keep BFS queue order stable while alternating each level's write direction.",
-  },
-];
+
+const problems = getProblemCardsByCategory("binary-tree-bfs");
 
 const diffColors = {
   easy: {

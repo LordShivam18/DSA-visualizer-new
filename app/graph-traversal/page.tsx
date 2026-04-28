@@ -1,51 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Number of Islands",
-    url: "/graph-traversal/number-of-islands",
-    difficulty: "medium",
-    description:
-      "Traverse a binary grid, flood-fill each unseen land cell, and count how many connected components appear.",
-  },
-  {
-    name: "Surrounded Regions",
-    url: "/graph-traversal/surrounded-regions",
-    difficulty: "medium",
-    description:
-      "Start from the border, protect every reachable O, then capture the remaining enclosed region cells.",
-  },
-  {
-    name: "Clone Graph",
-    url: "/graph-traversal/clone-graph",
-    difficulty: "medium",
-    description:
-      "Use graph traversal plus a hash map to create brand-new nodes while preserving every edge in the original graph.",
-  },
-  {
-    name: "Evaluate Division",
-    url: "/graph-traversal/evaluate-division",
-    difficulty: "medium",
-    description:
-      "Build a weighted variable graph, then traverse multiplicative paths to answer division queries.",
-  },
-  {
-    name: "Course Schedule",
-    url: "/graph-traversal/course-schedule",
-    difficulty: "medium",
-    description:
-      "Use topological BFS on the prerequisite graph to detect whether a cycle blocks completion.",
-  },
-  {
-    name: "Course Schedule II",
-    url: "/graph-traversal/course-schedule-ii",
-    difficulty: "medium",
-    description:
-      "Construct one valid topological order while indegrees shrink and the ready queue evolves.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("graph-traversal");
 
 export default function GraphTraversalTopicsPage() {
   return (

@@ -1,58 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Search Insert Position",
-    url: "/binary-search/search-insert-position",
-    difficulty: "easy",
-    description:
-      "Shrink a sorted window until the target is found or its insertion slot is proven.",
-  },
-  {
-    name: "Search a 2D Matrix",
-    url: "/binary-search/search-2d-matrix",
-    difficulty: "medium",
-    description:
-      "Treat the matrix like one long sorted array and map each midpoint back to row and column coordinates.",
-  },
-  {
-    name: "Find Peak Element",
-    url: "/binary-search/find-peak-element",
-    difficulty: "medium",
-    description:
-      "Compare the midpoint against its right neighbor to move toward a guaranteed peak.",
-  },
-  {
-    name: "Search in Rotated Sorted Array",
-    url: "/binary-search/search-rotated-sorted-array",
-    difficulty: "medium",
-    description:
-      "Use the sorted half inside each rotated window to discard half of the search space safely.",
-  },
-  {
-    name: "Find First and Last Position of Element in Sorted Array",
-    url: "/binary-search/find-first-last-position",
-    difficulty: "medium",
-    description:
-      "Run binary search twice to lock the left boundary and right boundary of the target.",
-  },
-  {
-    name: "Find Minimum in Rotated Sorted Array",
-    url: "/binary-search/find-minimum-rotated-sorted-array",
-    difficulty: "medium",
-    description:
-      "Compare the midpoint with the right edge to keep the half that must still contain the minimum.",
-  },
-  {
-    name: "Median of Two Sorted Arrays",
-    url: "/binary-search/median-two-sorted",
-    difficulty: "hard",
-    description:
-      "Binary-search the partition in the shorter array until both sides of the split are perfectly ordered.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("binary-search");
 
 const difficultyStyles = {
   easy: "border-emerald-400/30 bg-emerald-500/10 text-emerald-200",

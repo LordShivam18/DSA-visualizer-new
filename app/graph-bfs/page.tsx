@@ -1,30 +1,10 @@
 import Link from "next/link";
 
 import BackButton from "../../components/ui/BackButton";
+import { getProblemCardsByCategory } from "@/lib/academy/problemRegistry";
 
-const problems = [
-  {
-    name: "Snakes and Ladders",
-    url: "/graph-bfs/snakes-and-ladders",
-    difficulty: "medium" as const,
-    description:
-      "Treat each square as a graph node, use dice rolls as BFS edges, and follow one snake or ladder jump per move.",
-  },
-  {
-    name: "Minimum Genetic Mutation",
-    url: "/graph-bfs/minimum-genetic-mutation",
-    difficulty: "medium" as const,
-    description:
-      "Traverse the valid gene bank one mutation at a time until the target gene is reached with the fewest edits.",
-  },
-  {
-    name: "Word Ladder",
-    url: "/graph-bfs/word-ladder",
-    difficulty: "hard" as const,
-    description:
-      "Expand one-letter word transformations in BFS layers to guarantee the shortest valid transformation chain.",
-  },
-] as const;
+
+const problems = getProblemCardsByCategory("graph-bfs");
 
 const diffColors = {
   easy: {
