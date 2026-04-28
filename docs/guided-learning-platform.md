@@ -1,87 +1,114 @@
 # Guided DSA Learning Platform
 
-## System Architecture
+## 1. Feature Design
 
-The platform is built as an academy layer on top of the existing trace-driven visualizer system.
+### Why panel
 
-- Trace engine: problem traces remain the source of truth for algorithm state, explanation, code-line highlights, and animation.
-- Timeline control layer: the shared timeline engine now supports locked steps so premium modes can pause progression until a learner action unlocks the next reveal.
-- Academy domain model: reusable catalog, learner state, session records, problem progress, topic progress, and adaptive recommendation logic live in `lib/academy`.
-- Global platform state: `LearningPlatformProvider` persists learner analytics in `localStorage` using a backend-ready schema.
-- Mode hooks: prediction, practice, interview, and progress hooks each manage one learning behavior without coupling it to a specific page.
-- Lesson orchestration: a flagship lesson page composes shared academy hooks and shared visualizer components into one paid learning experience.
+- The why panel remains step-driven, but now contrasts the current move with the most tempting wrong alternative.
+- Explanations are derived from the active trace step, so the panel stays dynamic as the timeline advances.
+- The panel now answers three questions at once: what happened, why now, and what alternative would only be correct under different evidence.
 
-## Feature Breakdown
+### Mistake detection
 
-### Prediction Mode
+- Wrong prediction answers are diagnosed against reusable reasoning-pattern rules in `lib/academy/mistakeEngine.ts`.
+- When the learner has not answered yet, the lesson still shows a "most likely trap" preview for the current step.
+- Feedback is step-local, not generic: inspection mistakes differ from commit mistakes and from finish-line mistakes.
 
-- Every next trace step can expose a checkpoint question.
-- The timeline locks until the learner submits an answer.
-- Feedback explains why the correct step is correct before the learner advances.
+### Guided learning path
 
-### Practice Mode
+- Every lesson resolves its registry entry from `problemRegistry`, then builds a local progression track from neighboring problems in the same category.
+- The path panel shows the current lesson, the immediate next rep, and the stretch rep without inventing a second catalog.
+- Adaptive recommendations remain the personal layer on top of the registry-ordered track.
 
-- The solution stays hidden until the learner submits an attempt or burns hint budget.
-- Hints are leveled: direction, logic, reveal.
-- Attempts capture strategy choice, final answer, move plan, and confidence.
+### Replay with variations
 
-### Interview Mode
+- Lessons now offer replay buttons for edge cases, random cases, and mutated current cases.
+- Variation generation is centralized in `lib/academy/variationEngine.ts` so replay logic is not duplicated inside pages.
+- Current implementations are tailored for `Best Time to Buy and Sell Stock II`, `Zigzag Conversion`, and `Word Search`, with generic array fallbacks for other lessons.
 
-- Timer runs continuously.
-- Hint budget is capped.
-- Correctness feedback is delayed until submission or timeout.
-- Final evaluation scores correctness, efficiency, and confidence separately.
+### Pattern recognition panel
 
-### Progress Tracking
+- Pattern guidance is derived from `problemRegistry.taxonomy` and `problemRegistry.tags`.
+- Each lesson now explains the primary pattern, when to use it, what to watch for, and which similar problems reinforce the same pattern.
+- Similar-problem suggestions are ranked from registry overlap instead of hand-maintained duplicates.
 
-- Every graded session is persisted.
-- Problem progress stores mastery, best accuracy, fastest time, mode breakdown, and weak signals.
-- Topic progress aggregates attempts, completions, accuracy, and mastery across lessons.
+### Learning intelligence UI
 
-### Adaptive Learning
+- The lesson-level intelligence panel converts progress, prediction accuracy, why-state, and recommendations into three concrete actions: what to do now, what variation to run next, and what problem to open afterward.
+- The dashboard copy has been reframed around free guided learning rather than monetization.
 
-- Recommendations are derived from weak-topic mastery, current problem context, and catalog difficulty progression.
-- The same recommendation rail can be reused on dashboards and lesson pages.
+### Narrative animation layer
 
-## Folder Structure
+- Each step now gets a lightweight teaching rhythm: focus, explain, animate.
+- This lives above the trace explanation and is driven by step changes, not by a second timeline engine.
+- The existing timeline system remains the source of truth for step order and visual state.
 
-```text
-app/
-  dashboard/page.tsx
-  array-string/best-time-to-buy-and-sell-stock-ii/page.tsx
-  page.tsx
+## 2. Integration Plan
 
-components/
-  academy/
-    AcademyDashboard.tsx
-    AcademyLessonShell.tsx
-    AcademyTopNav.tsx
-    AdaptiveRecommendationRail.tsx
-    InterviewWorkbench.tsx
-    LearningPlatformProvider.tsx
-    PracticeWorkbench.tsx
-    PredictionCheckpointCard.tsx
-    hooks/
-      useInterviewMode.ts
-      usePracticeMode.ts
-      usePredictionEngine.ts
-      useProgressTracker.ts
-  core/animation/
-    TimelineEngine.ts
-    useTimeline.ts
+### LessonShell integration
 
-lib/
-  academy/
-    catalog.ts
-    models.ts
-    recommendations.ts
-    storage.ts
-```
+- `components/academy/LessonShell.tsx` is the single integration point.
+- It now composes:
+  - `NarrativeAnimationLayer`
+  - `WhyPanel`
+  - `MistakeDetectionPanel`
+  - `PatternRecognitionPanel`
+  - `GuidedLearningPathPanel`
+  - `ReplayVariationsPanel`
+  - `LearningIntelligencePanel`
+- Existing lesson pages keep their visualizer, microscope, trace panel, and code panel contracts intact.
 
-## Rollout Pattern For More Lessons
+### Data flow
 
-1. Add a `ProblemCatalogEntry` in `lib/academy/catalog.ts`.
-2. Extend the problem trace with `checkpoint` metadata for prediction mode.
-3. Reuse `AcademyLessonShell` and the academy hooks inside the lesson page.
-4. Map lesson-specific practice and interview configs.
-5. Let `LearningPlatformProvider` persist the resulting sessions automatically.
+- `problemRegistry` stays the canonical lesson source.
+- `useLessonLearningExperience` resolves the current route back to the registry and builds:
+  - pattern insight
+  - guided path
+  - replay variations
+  - lesson intelligence
+  - mistake insight
+- `whyEngine` and `mistakeEngine` were extended rather than replaced, so prior logic still works.
+
+### Timeline safety
+
+- No changes were made to the ordering or mutation behavior of the shared timeline engine.
+- The narrative layer is observational.
+- Prediction locks still come from the existing `usePredictionEngine` plus `TimelineEngine.setLockedSteps`.
+
+## 3. Code Modules
+
+### Core engines
+
+1. `lib/academy/patternEngine.ts`
+   Builds pattern recognition from `problemRegistry`.
+2. `lib/academy/learningPathEngine.ts`
+   Builds structured lesson progression and next-step slots.
+3. `lib/academy/variationEngine.ts`
+   Generates edge, random, and mutation replay inputs.
+4. `lib/academy/lessonCoachEngine.ts`
+   Turns progress and current-step state into actionable study advice.
+
+### Hook
+
+5. `components/academy/hooks/useLessonLearningExperience.ts`
+   Central hook that resolves the active problem and assembles all lesson intelligence data.
+
+### UI panels
+
+6. `components/academy/NarrativeAnimationLayer.tsx`
+7. `components/academy/MistakeDetectionPanel.tsx`
+8. `components/academy/PatternRecognitionPanel.tsx`
+9. `components/academy/GuidedLearningPathPanel.tsx`
+10. `components/academy/ReplayVariationsPanel.tsx`
+11. `components/academy/LearningIntelligencePanel.tsx`
+
+### Extended existing modules
+
+12. `lib/academy/whyEngine.ts`
+    Adds per-step alternatives.
+13. `lib/academy/mistakeEngine.ts`
+    Adds pre-answer trap previews.
+14. `components/academy/WhyPanel.tsx`
+    Renders the new alternatives block.
+15. `components/academy/LessonShell.tsx`
+    Composes the full guided learning stack without changing page-level lesson code.

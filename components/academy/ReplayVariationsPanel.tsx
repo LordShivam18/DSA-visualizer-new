@@ -1,0 +1,73 @@
+"use client";
+
+import type { ReplayVariation } from "@/lib/academy/variationEngine";
+
+import { lightPanelClassName } from "../array-string/shared/ui";
+
+const kindTone = {
+  edge: "border-amber-200 bg-amber-50 text-amber-700",
+  random: "border-violet-200 bg-violet-50 text-violet-700",
+  mutation: "border-cyan-200 bg-cyan-50 text-cyan-700",
+} as const;
+
+export default function ReplayVariationsPanel({
+  items,
+  onApply,
+}: {
+  items: ReplayVariation[];
+  onApply: (variation: ReplayVariation) => void;
+}) {
+  return (
+    <section className={`${lightPanelClassName} p-5`}>
+      <div className="flex items-center gap-3">
+        <span className="h-4 w-1.5 rounded-full bg-amber-400" />
+        <div>
+          <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
+            Replay With Variations
+          </p>
+          <h2 className="mt-1 text-lg font-semibold text-slate-900">
+            Change the case, keep the pattern
+          </h2>
+        </div>
+      </div>
+
+      <p className="mt-4 text-sm leading-7 text-slate-700">
+        Custom inputs still work. These quick replays push the same algorithm through
+        random, mutated, and boundary-heavy cases so the reasoning stops depending on
+        one example.
+      </p>
+
+      {items.length === 0 ? (
+        <div className="mt-4 rounded-[1.15rem] border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+          This lesson does not ship with auto-generated variations yet, so the
+          fastest transfer rep is to edit one input above and rerun the trace.
+        </div>
+      ) : (
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {items.map((item) => (
+            <div
+              key={item.id}
+              className="rounded-[1.1rem] border border-slate-200 bg-slate-50/80 px-4 py-4"
+            >
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-slate-900">{item.label}</p>
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.16em] ${kindTone[item.kind]}`}
+                >
+                  {item.kind}
+                </span>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-slate-600">{item.summary}</p>
+              <button
+                onClick={() => onApply(item)}
+                className="mt-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-800 transition-all hover:-translate-y-0.5 hover:border-cyan-200 hover:text-cyan-700"
+              >
+                Apply variation
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}

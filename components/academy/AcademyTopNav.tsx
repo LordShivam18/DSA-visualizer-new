@@ -35,7 +35,7 @@ export default function AcademyTopNav({
           <span
             className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] md:text-[10px] ${badgeClassName}`}
           >
-            Premium Learning Flow
+            Guided Learning Flow
           </span>
         </div>
         <p className={`mt-2 text-sm ${mutedTextClassName}`}>

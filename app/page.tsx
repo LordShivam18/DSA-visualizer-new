@@ -8,16 +8,16 @@ import ParticleBackground from "@/components/ui/ParticleBackground";
 
 const valuePillars = [
   {
-    title: "Prediction Mode",
-    body: "Pause before every reveal and force next-step reasoning, not passive watching.",
+    title: "Why + Narrative",
+    body: "Each step now teaches the invariant, contrasts the tempting alternative, and stages focus, explanation, and animation in sequence.",
   },
   {
-    title: "Practice Lab",
-    body: "Hide the answer, meter hints in tiers, and unlock the trace only after effort.",
+    title: "Mistake Detection",
+    body: "Incorrect next-step reasoning is diagnosed in context so learners repair the exact mental move that failed.",
   },
   {
-    title: "Interview Simulator",
-    body: "Run timed rounds with limited hints and a final score for correctness, efficiency, and confidence.",
+    title: "Replay + Path",
+    body: "Random cases, edge cases, and guided next problems keep one lesson turning into a daily learning loop.",
   },
 ];
 
@@ -40,13 +40,13 @@ export default function Home() {
               Guided DSA Learning Platform
             </p>
             <h1 className="mt-4 text-5xl font-semibold tracking-tight text-white md:text-7xl">
-              Turn every trace into a paid learning experience
+              Turn every trace into a daily guided DSA habit
             </h1>
             <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
-              The visualizer foundation is still here, but the product layer is now
-              built for retention and monetization: prediction checkpoints,
-              practice gating, interview pressure, persistent progress, and adaptive
-              recommendations on top of the same algorithm trace engine.
+              The visualizer foundation is still here, but the learning layer now
+              pushes for depth and retention: dynamic why panels, mistake-aware
+              prediction checkpoints, pattern recognition, replay variations, and
+              next-step guidance on top of the same trace engine.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -54,7 +54,7 @@ export default function Home() {
                 href="/array-string/best-time-to-buy-and-sell-stock-ii"
                 className="rounded-[1rem] bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500 px-6 py-3 text-sm font-semibold text-white shadow-[0_0_36px_rgba(59,130,246,0.35)] transition-all hover:-translate-y-0.5"
               >
-                Open flagship lesson
+                Launch flagship lesson
               </Link>
               <Link
                 href="/dashboard"
@@ -99,7 +99,7 @@ export default function Home() {
           <div className="space-y-5">
             <section className="rounded-[2rem] border border-orange-300/20 bg-orange-400/10 p-6 shadow-[0_24px_80px_rgba(2,8,23,0.35)] backdrop-blur-xl">
               <p className="text-xs uppercase tracking-[0.24em] text-orange-200/80">
-                Why users pay
+                What keeps learners coming back
               </p>
               <div className="mt-5 space-y-3">
                 {valuePillars.map((pillar) => (
@@ -147,14 +147,14 @@ export default function Home() {
         <section className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <div className="rounded-[2rem] border border-white/10 bg-white/6 p-7 shadow-[0_24px_80px_rgba(2,8,23,0.35)] backdrop-blur-xl">
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-300/80">
-              Product Transformation
+              Learning System
             </p>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               {[
-                "Global persisted learner state with backend-ready session records",
-                "Reusable hooks for prediction, practice, interview, and progress",
-                "Timeline locking so the trace can enforce active engagement",
-                "Dashboard analytics with mastery, weak topics, and recommendations",
+                "Reusable lesson intelligence panels wired into the shared LessonShell",
+                "Pattern coaching, mistake feedback, and guided next-step recommendations from the registry",
+                "Replay variations that turn one trace into edge-case and random-case transfer reps",
+                "Narrative step flow that stages focus, explanation, and animation instead of passive playback",
               ].map((item) => (
                 <div
                   key={item}
@@ -174,15 +174,16 @@ export default function Home() {
               Best Time to Buy and Sell Stock II
             </h2>
             <p className="mt-4 text-sm leading-7 text-slate-300">
-              The stock-II lesson is fully upgraded end-to-end and acts as the
-              pattern for rolling the academy layer across the rest of the catalog.
+              The stock-II lesson now demonstrates the full guided loop: why
+              coaching, mistake-aware prediction, replay variations, pattern cues,
+              and adaptive next-step guidance.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/array-string/best-time-to-buy-and-sell-stock-ii"
                 className="rounded-full border border-white/12 bg-white/8 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/12"
               >
-                Launch premium lesson
+                Launch flagship lesson
               </Link>
               <Link
                 href="/topics"

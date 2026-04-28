@@ -21,6 +21,11 @@ export type MistakeRule<Step extends WhyStepLike = WhyStepLike> = {
     | ((context: MistakeContext<Step>, actionKey: string) => string);
 };
 
+export type MistakePreview = {
+  title: string;
+  detail: string;
+};
+
 function normalizeText(value: string | undefined) {
   return value?.trim().toLowerCase() ?? "";
 }
@@ -186,4 +191,41 @@ export function diagnoseMistake<Step extends WhyStepLike>(
   return typeof matchingRule.message === "function"
     ? matchingRule.message(context, actionKey)
     : matchingRule.message;
+}
+
+export function getMistakePreview(step: WhyStepLike): MistakePreview {
+  const actionKey = resolveWhyActionKey(step);
+
+  switch (actionKey) {
+    case "inspect":
+      return {
+        title: "Most likely trap: update before you measure",
+        detail:
+          "Inspection steps are where learners often skip the local comparison and jump to a state change too early.",
+      };
+    case "collect":
+      return {
+        title: "Most likely trap: defer a safe gain",
+        detail:
+          "Commit steps are where learners often wait for a prettier future case even though the invariant already justifies the update now.",
+      };
+    case "skip":
+      return {
+        title: "Most likely trap: force progress out of noise",
+        detail:
+          "Skip steps tempt learners into changing state just to stay busy, even when the signal should leave the answer unchanged.",
+      };
+    case "done":
+      return {
+        title: "Most likely trap: recompute at the finish line",
+        detail:
+          "Final steps often go wrong when the learner stops reading the built state and starts inventing one more adjustment.",
+      };
+    default:
+      return {
+        title: "Most likely trap: lose the invariant",
+        detail:
+          "If the next move feels fuzzy, the safest repair is to restate the local rule the algorithm is preserving right now.",
+      };
+  }
 }

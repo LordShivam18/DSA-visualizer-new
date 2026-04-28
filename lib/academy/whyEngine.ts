@@ -27,6 +27,12 @@ export type WhyEvidence = {
   value: string;
 };
 
+export type WhyAlternative = {
+  label: string;
+  reason: string;
+  whenToUse: string;
+};
+
 export type WhyExplanation = {
   actionKey: string;
   title: string;
@@ -36,6 +42,7 @@ export type WhyExplanation = {
   evidence: WhyEvidence[];
   nextFocus: string;
   hints: string[];
+  alternatives: WhyAlternative[];
 };
 
 export type WhyRule<Step extends WhyStepLike = WhyStepLike> = {
@@ -133,7 +140,76 @@ function buildWhyExplanation(
     evidence: buildEvidence(step),
     nextFocus: step.focus?.trim() || step.action,
     hints: (step.hints ?? []).slice(0, 3),
+    alternatives: buildAlternatives(actionKey, step),
   };
+}
+
+function buildAlternatives(
+  actionKey: string,
+  step: WhyStepLike
+): WhyAlternative[] {
+  switch (actionKey) {
+    case "initialize":
+      return [
+        {
+          label: "Mutate immediately",
+          reason:
+            "Jumping straight into updates hides the invariant that explains later choices.",
+          whenToUse:
+            "Only switch to mutation after the setup state exists and the first signal has been read.",
+        },
+      ];
+    case "inspect":
+      return [
+        {
+          label: "Commit an update now",
+          reason:
+            "That would be premature if the local comparison has not proved the update is safe yet.",
+          whenToUse:
+            "Use the update path only after this exact measurement improves the running invariant.",
+        },
+      ];
+    case "collect":
+      return [
+        {
+          label: "Skip the signal",
+          reason:
+            "Skipping here would throw away evidence the invariant already says is profitable.",
+          whenToUse:
+            "A skip becomes correct only when the current signal fails to improve the tracked state.",
+        },
+      ];
+    case "skip":
+      return [
+        {
+          label: "Force an update",
+          reason:
+            "That would treat noise like progress and blur the rule the algorithm is preserving.",
+          whenToUse:
+            "Switch to an update only when the next comparison genuinely improves the answer.",
+        },
+      ];
+    case "done":
+      return [
+        {
+          label: "Keep scanning",
+          reason:
+            "More work would only repeat state the algorithm has already settled.",
+          whenToUse:
+            "Continue scanning only if unread input still exists or the final state has not been surfaced.",
+        },
+      ];
+    default:
+      return [
+        {
+          label: "Rephrase the step",
+          reason:
+            "If this transition feels opaque, the missing piece is usually the invariant the step preserves.",
+          whenToUse:
+            `Use "${step.action}" as the anchor and restate what would make the opposite move correct.`,
+        },
+      ];
+  }
 }
 
 function matchesRule<Step extends WhyStepLike>(

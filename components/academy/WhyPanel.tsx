@@ -104,6 +104,32 @@ export default function WhyPanel({
           </div>
         </div>
       ) : null}
+
+      {insight.alternatives.length > 0 ? (
+        <div className="mt-4 rounded-[1.15rem] border border-slate-200 bg-slate-50/80 px-4 py-4">
+          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">
+            Alternatives
+          </p>
+          <div className="mt-3 space-y-3">
+            {insight.alternatives.map((alternative) => (
+              <div
+                key={alternative.label}
+                className="rounded-[1rem] border border-white bg-white px-4 py-3"
+              >
+                <p className="text-sm font-semibold text-slate-900">
+                  {alternative.label}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-700">
+                  {alternative.reason}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  {alternative.whenToUse}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

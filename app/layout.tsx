@@ -3,9 +3,9 @@ import "./globals.css";
 import { LearningPlatformProvider } from "@/components/academy/LearningPlatformProvider";
 
 export const metadata: Metadata = {
-  title: "Guided DSA Academy - Prediction, Practice, and Interview Modes",
+  title: "Guided DSA Academy - Deep Lessons, Replay Variations, and Daily Practice",
   description:
-    "A production-ready DSA learning platform built on trace-driven visualizers, with prediction checkpoints, practice labs, interview simulations, adaptive recommendations, and persistent progress tracking.",
+    "A free guided DSA learning platform built on trace-driven visualizers, with why panels, mistake detection, guided paths, replay variations, pattern coaching, and adaptive progress tracking.",
   keywords: [
     "DSA",
     "data structures",
@@ -14,7 +14,8 @@ export const metadata: Metadata = {
     "interview prep",
     "algorithm practice",
     "prediction mode",
-    "coding interview simulator",
+    "guided learning",
+    "algorithm visualizer",
   ],
 };
 

@@ -70,12 +70,12 @@ export default function AcademyDashboard() {
                 Learner Dashboard
               </p>
               <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
-                Production-ready study analytics for a paid DSA platform
+                Study analytics for a daily guided DSA platform
               </h1>
               <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
-                This dashboard turns isolated visualizer sessions into a trackable
-                learning product: completion rates, weak-topic detection, recent
-                interview rounds, and adaptive next-step recommendations.
+                This dashboard turns isolated trace sessions into a learning loop:
+                weak-topic detection, pattern-sensitive next steps, streak support,
+                and actionable study advice.
               </p>
             </div>
 
@@ -107,7 +107,7 @@ export default function AcademyDashboard() {
               {
                 label: "Guided Minutes",
                 value: `${learner.totalStudyMinutes.toFixed(0)}`,
-                detail: "Backend-ready time tracking for retention and billing logic",
+                detail: "Time spent inside guided lessons and replay loops",
               },
             ].map((item) => (
               <div

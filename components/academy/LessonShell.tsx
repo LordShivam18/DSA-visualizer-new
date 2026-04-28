@@ -8,10 +8,17 @@ import {
   type LessonStepLike,
   type TeachingMode,
 } from "./hooks/useLessonController";
+import GuidedLearningPathPanel from "./GuidedLearningPathPanel";
+import LearningIntelligencePanel from "./LearningIntelligencePanel";
 import type { LessonFeatureMode } from "./LessonModeToggle";
 import LessonModeToggle from "./LessonModeToggle";
+import MistakeDetectionPanel from "./MistakeDetectionPanel";
+import NarrativeAnimationLayer from "./NarrativeAnimationLayer";
+import PatternRecognitionPanel from "./PatternRecognitionPanel";
 import PredictionCheckpointCard from "./PredictionCheckpointCard";
+import ReplayVariationsPanel from "./ReplayVariationsPanel";
 import WhyPanel from "./WhyPanel";
+import { useLessonLearningExperience } from "./hooks/useLessonLearningExperience";
 
 type LessonShellViewModel<
   TInputs extends Record<string, string>,
@@ -88,11 +95,59 @@ export default function LessonShell<
       />
     ) : null;
 
+  const learningExperience = useLessonLearningExperience({
+    defaultInputs,
+    inputs: lesson.inputs,
+    step: lesson.step,
+    whyInsight: lesson.whyInsight,
+    feedback: lesson.prediction.feedback,
+    predictionAccuracy: lesson.prediction.accuracy,
+  });
+
+  const replayPanel = learningExperience.problem ? (
+    <ReplayVariationsPanel
+      items={learningExperience.replayVariations}
+      onApply={(variation) =>
+        lesson.run({
+          ...lesson.inputs,
+          ...variation.values,
+        } as TInputs)
+      }
+    />
+  ) : null;
+
+  const narrativeLayer = (
+    <NarrativeAnimationLayer
+      key={`${lesson.step.step}:${lesson.step.action}`}
+      stepKey={`${lesson.step.step}:${lesson.step.action}`}
+      focus={lesson.whyInsight?.nextFocus ?? lesson.step.action}
+      explanation={lesson.whyInsight?.reason ?? lesson.currentNarration}
+      animation={lesson.step.animation}
+    />
+  );
+
+  const mistakePanel = (
+    <MistakeDetectionPanel insight={learningExperience.mistakeInsight} />
+  );
+
+  const patternPanel = (
+    <PatternRecognitionPanel insight={learningExperience.pattern} />
+  );
+
+  const guidedPathPanel = (
+    <GuidedLearningPathPanel path={learningExperience.guidedPath} />
+  );
+
+  const learningIntelligencePanel = (
+    <LearningIntelligencePanel insight={learningExperience.learningIntelligence} />
+  );
+
   const controls = (
     <>
       {lessonModeToggle}
       {renderControls(lesson)}
       {predictionCard}
+      {replayPanel}
     </>
   );
 
@@ -100,8 +155,12 @@ export default function LessonShell<
 
   const tracePanel = (
     <>
+      {narrativeLayer}
       {whyPanel}
       {renderTracePanel(lesson)}
+      {mistakePanel}
+      {patternPanel}
+      {guidedPathPanel}
     </>
   );
 
@@ -115,6 +174,11 @@ export default function LessonShell<
     microscope: renderMicroscope(lesson),
     tracePanel,
     codePanel: renderCodePanel(lesson),
-    output: renderOutput ? renderOutput(lesson) : null,
+    output: (
+      <>
+        {renderOutput ? renderOutput(lesson) : null}
+        {learningIntelligencePanel}
+      </>
+    ),
   });
 }

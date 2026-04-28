@@ -23,7 +23,7 @@ export default function ArrayStringTopicsPage() {
           <p className="mx-auto max-w-3xl text-sm leading-7 text-slate-400 md:text-base">
             Explore greedy scans, Roman numeral transforms, string packing,
             substring search, whitespace normalization, and other array/string
-            patterns through premium lesson flows built on top of the original
+            patterns through guided lesson flows built on top of the original
             visualizer engine.
           </p>
         </header>
@@ -32,14 +32,15 @@ export default function ArrayStringTopicsPage() {
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-slate-500">
-                Flagship Premium Lesson
+                Flagship Guided Lesson
               </p>
               <h2 className="mt-2 text-3xl font-semibold text-slate-50">
                 Best Time to Buy and Sell Stock II
               </h2>
               <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-400">
-                This lesson now includes prediction mode, practice mode, interview
-                mode, adaptive recommendations, and persistent progress tracking.
+                This lesson now includes dynamic why coaching, mistake detection,
+                replay variations, pattern guidance, and adaptive next-step
+                recommendations.
               </p>
             </div>
 
@@ -48,7 +49,7 @@ export default function ArrayStringTopicsPage() {
                 href="/array-string/best-time-to-buy-and-sell-stock-ii"
                 className="rounded-[1rem] border border-cyan-400/30 bg-cyan-400/10 px-5 py-3 text-sm font-semibold text-cyan-200 transition-all hover:-translate-y-0.5 hover:bg-cyan-400/16"
               >
-                Open premium lesson
+                Open guided lesson
               </Link>
               <Link
                 href="/dashboard"
@@ -97,7 +98,7 @@ export default function ArrayStringTopicsPage() {
                   <div className="flex items-center gap-3 text-sm text-slate-400 transition-colors group-hover:text-cyan-300">
                     <span>
                       {problem.slug === "best-time-to-buy-and-sell-stock-ii"
-                        ? "Open premium lesson"
+                        ? "Open guided lesson"
                         : "Open lesson"}
                     </span>
                     <svg
