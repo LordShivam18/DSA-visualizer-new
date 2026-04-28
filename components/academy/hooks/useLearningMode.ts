@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useSearchParams } from "next/navigation";
 
@@ -50,9 +50,22 @@ export function useLearningMode() {
     [queryEntry]
   );
   const hasExplicitQuery = queryEntry !== null;
-  const isReady = hasExplicitQuery || typeof window !== "undefined";
-  const learningMode =
-    hasExplicitQuery || !isReady ? queryMode : readStoredLearningMode();
+  const [learningMode, setLearningModeState] =
+    useState<LessonEntryExperience>("default");
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const nextMode = hasExplicitQuery ? queryMode : readStoredLearningMode();
+
+    const frame = window.requestAnimationFrame(() => {
+      setLearningModeState(nextMode);
+      setIsReady(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, [hasExplicitQuery, queryMode]);
 
   useEffect(() => {
     if (!isReady) {
@@ -63,6 +76,8 @@ export function useLearningMode() {
   }, [isReady, learningMode]);
 
   const setLearningMode = useCallback((nextMode: LessonEntryExperience) => {
+    setLearningModeState(nextMode);
+    setIsReady(true);
     persistLearningMode(nextMode);
   }, []);
 

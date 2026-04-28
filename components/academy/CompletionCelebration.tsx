@@ -17,7 +17,7 @@ export default function CompletionCelebration({
     <section className="lesson-celebration-shell w-full max-w-sm rounded-[1.5rem] border border-emerald-200 bg-white/96 p-4 text-slate-900 shadow-[0_30px_80px_rgba(16,185,129,0.16)] backdrop-blur-xl">
       <div className="flex items-start gap-4">
         <div className="lesson-celebration-orb flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-cyan-300 to-emerald-500 text-2xl font-semibold text-white shadow-[0_0_0_10px_rgba(16,185,129,0.08)]">
-          <span className="lesson-celebration-check">✓</span>
+          <span className="lesson-celebration-check">&#10003;</span>
         </div>
 
         <div className="min-w-0">
@@ -41,7 +41,7 @@ export default function CompletionCelebration({
           compact
         />
         <p className="text-sm leading-6 text-slate-600">
-          Come back tomorrow to keep your streak alive 🔥
+          {"\uD83D\uDD25 Keep your streak alive \u2014 come back tomorrow"}
         </p>
       </div>
     </section>

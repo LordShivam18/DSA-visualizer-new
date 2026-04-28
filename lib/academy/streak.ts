@@ -4,16 +4,28 @@ export type StreakUpdateStatus =
   | "increment"
   | "reset";
 
-function normalizeDate(value: string | Date) {
-  if (value instanceof Date) {
-    return value.toISOString().slice(0, 10);
-  }
+const DATE_KEY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-  return value.slice(0, 10);
+function padDateSegment(value: number) {
+  return value.toString().padStart(2, "0");
 }
 
-export function toUtcDateKey(value: string | Date) {
-  return normalizeDate(value);
+export function getLocalDate(value: string | Date = new Date()) {
+  if (typeof value === "string" && DATE_KEY_PATTERN.test(value)) {
+    return value;
+  }
+
+  const source = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(source.getTime())) {
+    return typeof value === "string" ? value.slice(0, 10) : "";
+  }
+
+  return [
+    source.getFullYear(),
+    padDateSegment(source.getMonth() + 1),
+    padDateSegment(source.getDate()),
+  ].join("-");
 }
 
 export function resolveStreakUpdate(
@@ -24,8 +36,8 @@ export function resolveStreakUpdate(
     return "start";
   }
 
-  const lastDay = Date.parse(normalizeDate(lastActiveDate));
-  const nextDay = Date.parse(normalizeDate(nextActiveDate));
+  const lastDay = Date.parse(getLocalDate(lastActiveDate));
+  const nextDay = Date.parse(getLocalDate(nextActiveDate));
   const difference = Math.round((nextDay - lastDay) / 86400000);
 
   if (difference <= 0) {

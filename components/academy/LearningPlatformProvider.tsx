@@ -25,7 +25,7 @@ import {
   loadLearningState,
   saveLearningState,
 } from "@/lib/academy/storage";
-import { resolveStreakUpdate } from "@/lib/academy/streak";
+import { getLocalDate, resolveStreakUpdate } from "@/lib/academy/streak";
 
 type LearningPlatformContextValue = {
   state: LearningPlatformState;
@@ -189,9 +189,10 @@ function reduceSession(state: LearningPlatformState, session: SessionRecord) {
 
   nextTopic.mastery = computeTopicMastery(nextTopic);
 
+  const activeDate = getLocalDate(session.endedAt);
   const streakChange = resolveStreakUpdate(
     state.learner.lastActiveAt,
-    session.endedAt
+    activeDate
   );
   const solvedForFirstTime = previousProblem.completions === 0 && session.completed;
 

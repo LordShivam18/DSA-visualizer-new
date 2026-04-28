@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { updateStreak } from "@/lib/academy/actions/updateStreak";
 import { buildTraceLessonSession } from "@/lib/academy/sessionBuilders";
+import { getLocalDate } from "@/lib/academy/streak";
 import type { UserProgress } from "@/lib/academy/models";
 import type { Problem } from "@/lib/academy/problemRegistry";
 
@@ -15,6 +16,8 @@ type CompletionStep = {
   done?: boolean;
   action: string;
 };
+
+const COMPLETION_CELEBRATION_DELAY_MS = 300;
 
 export function useLessonCompletion({
   problem,
@@ -40,8 +43,9 @@ export function useLessonCompletion({
   const userId = useAnonymousUserId();
   const { state, recordSession } = useLearningPlatform();
   const sessionStartedAtRef = useRef(new Date().toISOString());
-  const recordedSessionKeyRef = useRef<string | null>(null);
-  const syncedSessionKeyRef = useRef<string | null>(null);
+  const recordedSessionKeysRef = useRef<Set<string>>(new Set());
+  const syncedSessionKeysRef = useRef<Set<string>>(new Set());
+  const completionDatesRef = useRef<Map<string, string>>(new Map());
   const [serverProgress, setServerProgress] = useState<UserProgress | null>(null);
   const [celebrationSessionKey, setCelebrationSessionKey] = useState<string | null>(
     null
@@ -50,21 +54,24 @@ export function useLessonCompletion({
 
   useEffect(() => {
     sessionStartedAtRef.current = new Date().toISOString();
-    recordedSessionKeyRef.current = null;
-    syncedSessionKeyRef.current = null;
   }, [sessionKey]);
 
   useEffect(() => {
-    if (!isComplete || !problem || recordedSessionKeyRef.current === sessionKey) {
+    if (
+      !isComplete ||
+      !problem ||
+      recordedSessionKeysRef.current.has(sessionKey)
+    ) {
       return;
     }
 
-    recordedSessionKeyRef.current = sessionKey;
-    const frame = window.requestAnimationFrame(() => {
-      setCelebrationSessionKey(sessionKey);
-    });
-
+    recordedSessionKeysRef.current.add(sessionKey);
     const endedAt = new Date().toISOString();
+    completionDatesRef.current.set(sessionKey, getLocalDate(endedAt));
+
+    const celebrationTimeout = window.setTimeout(() => {
+      setCelebrationSessionKey(sessionKey);
+    }, COMPLETION_CELEBRATION_DELAY_MS);
     const session = buildTraceLessonSession({
       problem,
       mode,
@@ -82,7 +89,7 @@ export function useLessonCompletion({
     recordSession(session);
 
     return () => {
-      window.cancelAnimationFrame(frame);
+      window.clearTimeout(celebrationTimeout);
     };
   }, [
     askedCount,
@@ -99,16 +106,19 @@ export function useLessonCompletion({
     if (
       !isComplete ||
       !userId ||
-      syncedSessionKeyRef.current === sessionKey
+      syncedSessionKeysRef.current.has(sessionKey)
     ) {
       return;
     }
 
-    syncedSessionKeyRef.current = sessionKey;
+    syncedSessionKeysRef.current.add(sessionKey);
 
     let cancelled = false;
 
-    void updateStreak(userId)
+    void updateStreak(
+      userId,
+      completionDatesRef.current.get(sessionKey) ?? getLocalDate()
+    )
       .then((nextProgress) => {
         if (!cancelled) {
           setServerProgress(nextProgress);

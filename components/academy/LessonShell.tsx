@@ -230,6 +230,7 @@ function ResolvedLessonShell<
     enabled:
       lesson.lessonMode === "prediction" && lesson.prediction.askedCount > 0,
     stepIndex: lesson.timeline.activeIndex,
+    blocked: showFirstSuccess,
     resetKey: lesson.sessionKey,
   });
   const completionExperience = useLessonCompletion({
@@ -346,25 +347,29 @@ function ResolvedLessonShell<
       variant={guidedEntry ? "guided" : "default"}
     />
   ) : null;
+  const activeToast = showFirstSuccess
+    ? {
+        tone: "success" as const,
+        message: "Nice! You predicted correctly.",
+        durationMs: 2000,
+      }
+    : showProgressHint
+    ? {
+        tone: "progress" as const,
+        message: "You're getting the idea. Keep going.",
+        durationMs: 2200,
+      }
+    : null;
   const experienceOverlays = (
     <>
-      {showFirstSuccess || showProgressHint ? (
+      {activeToast ? (
         <div className="pointer-events-none fixed inset-x-4 top-4 z-50 flex justify-center md:justify-end">
-          <div className="flex w-full max-w-sm flex-col gap-3">
-            {showFirstSuccess ? (
-              <FloatingLessonToast
-                tone="success"
-                message="Nice! You predicted correctly."
-                durationMs={2000}
-              />
-            ) : null}
-            {showProgressHint ? (
-              <FloatingLessonToast
-                tone="progress"
-                message="You're getting the idea. Keep going →"
-                durationMs={2200}
-              />
-            ) : null}
+          <div className="w-full max-w-sm">
+            <FloatingLessonToast
+              tone={activeToast.tone}
+              message={activeToast.message}
+              durationMs={activeToast.durationMs}
+            />
           </div>
         </div>
       ) : null}
