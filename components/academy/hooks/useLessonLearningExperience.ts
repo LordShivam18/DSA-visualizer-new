@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { usePathname } from "next/navigation";
 
+import { buildCompletionFeedback } from "@/lib/academy/completionFeedbackEngine";
 import { buildGuidedLearningPath } from "@/lib/academy/learningPathEngine";
 import { buildLessonIntelligence } from "@/lib/academy/lessonCoachEngine";
 import { buildPatternRecognition } from "@/lib/academy/patternEngine";
@@ -20,12 +21,18 @@ export type LessonMistakeInsight = {
   title: string;
   detail: string;
   support: string;
+  patternLabel?: string;
+  severity?: "low" | "medium" | "high";
+  confidence?: number;
+  evidence?: string[];
 };
 
 export function useLessonLearningExperience<Step extends WhyStepLike>({
   defaultInputs,
   inputs,
   step,
+  stepIndex,
+  totalSteps,
   whyInsight,
   feedback,
   predictionAccuracy,
@@ -33,6 +40,8 @@ export function useLessonLearningExperience<Step extends WhyStepLike>({
   defaultInputs: Record<string, string>;
   inputs: Record<string, string>;
   step: Step;
+  stepIndex: number;
+  totalSteps: number;
   whyInsight: WhyExplanation | null;
   feedback: PredictionFeedback | null;
   predictionAccuracy: number;
@@ -94,12 +103,19 @@ export function useLessonLearningExperience<Step extends WhyStepLike>({
     const preview = getMistakePreview(step);
 
     if (feedback && !feedback.correct) {
+      const mistakePattern = feedback.mistakePattern;
+
       return {
         state: "repair",
-        title: "Reasoning pattern detected",
-        detail: feedback.diagnosis ?? feedback.explanation,
+        title: mistakePattern?.label ?? "Reasoning pattern detected",
+        detail: mistakePattern?.message ?? feedback.diagnosis ?? feedback.explanation,
         support:
+          mistakePattern?.repairAction ??
           "Use the why panel and replay controls to correct the same step on a new case before the pattern hardens.",
+        patternLabel: mistakePattern?.family,
+        severity: mistakePattern?.severity,
+        confidence: mistakePattern?.confidence,
+        evidence: mistakePattern?.evidence,
       };
     }
 
@@ -117,10 +133,38 @@ export function useLessonLearningExperience<Step extends WhyStepLike>({
       state: "watch",
       title: preview.title,
       detail: preview.detail,
-      support:
-        "Prediction mode will surface targeted feedback if this exact trap appears in your next answer.",
+      support: preview.repairAction,
+      patternLabel: preview.patternLabel,
     };
   }, [feedback, problem, step]);
+
+  const completionFeedback = useMemo(() => {
+    if (!problem) {
+      return null;
+    }
+
+    return buildCompletionFeedback({
+      problem,
+      step,
+      stepIndex,
+      totalSteps,
+      predictionAccuracy,
+      feedback,
+      pattern,
+      variations: replayVariations,
+      guidedPath,
+    });
+  }, [
+    feedback,
+    guidedPath,
+    pattern,
+    predictionAccuracy,
+    problem,
+    replayVariations,
+    step,
+    stepIndex,
+    totalSteps,
+  ]);
 
   return {
     problem,
@@ -129,5 +173,6 @@ export function useLessonLearningExperience<Step extends WhyStepLike>({
     replayVariations,
     learningIntelligence,
     mistakeInsight,
+    completionFeedback,
   };
 }

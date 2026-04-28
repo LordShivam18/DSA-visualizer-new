@@ -40,6 +40,12 @@ export default function MistakeDetectionPanel({
       </div>
 
       <div className={`mt-4 rounded-[1.15rem] border px-4 py-4 ${toneClassName}`}>
+        {insight.patternLabel ? (
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+            {insight.patternLabel}
+            {insight.confidence ? ` - ${Math.round(insight.confidence * 100)}%` : ""}
+          </p>
+        ) : null}
         <p className="text-sm leading-7 text-slate-800">{insight.detail}</p>
       </div>
 
@@ -48,6 +54,18 @@ export default function MistakeDetectionPanel({
           Coaching move
         </p>
         <p className="mt-3 text-sm leading-7 text-slate-700">{insight.support}</p>
+        {insight.evidence && insight.evidence.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {insight.evidence.map((item) => (
+              <span
+                key={item}
+                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );

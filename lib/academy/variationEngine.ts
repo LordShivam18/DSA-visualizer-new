@@ -1,6 +1,6 @@
 import type { Problem } from "./problemRegistry";
 
-export type ReplayVariationKind = "edge" | "random" | "mutation";
+export type ReplayVariationKind = "minimal" | "edge" | "adversarial" | "mutation";
 
 export type ReplayVariation = {
   id: string;
@@ -10,14 +10,6 @@ export type ReplayVariation = {
   values: Record<string, string>;
 };
 
-function randomInt(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
-function pick<T>(items: T[]) {
-  return items[randomInt(0, items.length - 1)];
-}
-
 function parseNumberList(raw: string) {
   return raw.match(/-?\d+/g)?.map(Number) ?? [];
 }
@@ -26,54 +18,62 @@ function stringifyNumberList(values: number[]) {
   return `[${values.join(",")}]`;
 }
 
-function randomUppercaseString(length: number) {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-  return Array.from({ length }, () => alphabet[randomInt(0, alphabet.length - 1)]).join(
-    ""
-  );
-}
-
 function sanitizeLetters(raw: string) {
   return raw.replace(/[^A-Za-z]/g, "").toUpperCase();
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function insertPlateau(values: number[], fallback: number[]) {
+  const seed = values.length > 0 ? [...values] : [...fallback];
+  const index = clamp(seed.length - 1, 1, 4);
+
+  seed.splice(index, 0, seed[index - 1]);
+  return seed;
 }
 
 function buildStockIIReplayVariations(
   inputs: Record<string, string>
 ): ReplayVariation[] {
   const base = parseNumberList(inputs.prices ?? "");
-  const mutationSeed = base.length > 0 ? [...base] : [7, 1, 5, 3, 6, 4];
-  const mutationIndex = Math.min(Math.max(1, mutationSeed.length - 1), 4);
-  mutationSeed.splice(mutationIndex, 0, mutationSeed[mutationIndex - 1]);
 
   return [
+    {
+      id: "stock-minimal",
+      label: "Minimal case",
+      kind: "minimal",
+      summary: "Use one price so the no-transaction base case is impossible to miss.",
+      values: {
+        prices: "[5]",
+      },
+    },
     {
       id: "stock-edge",
       label: "Edge case",
       kind: "edge",
-      summary: "Use a descending market to prove that the accumulator should stay at zero.",
+      summary: "Use a descending market to prove that profit stays at zero.",
       values: {
         prices: "[9,7,4,3,1]",
       },
     },
     {
-      id: "stock-random",
-      label: "Random case",
-      kind: "random",
-      summary: "Generate a fresh price walk and replay the same greedy invariant.",
+      id: "stock-adversarial",
+      label: "Adversarial case",
+      kind: "adversarial",
+      summary: "Mix plateaus, dips, and gains so only positive adjacent deltas count.",
       values: {
-        prices: stringifyNumberList(
-          Array.from({ length: randomInt(5, 8) }, () => randomInt(1, 9))
-        ),
+        prices: "[1,3,3,2,5,5,4,8]",
       },
     },
     {
       id: "stock-mutation",
       label: "Mutate current",
       kind: "mutation",
-      summary: "Insert a flat plateau into the current series and verify that non-positive deltas are ignored.",
+      summary: "Insert a flat plateau into the current series and ignore the zero delta.",
       values: {
-        prices: stringifyNumberList(mutationSeed),
+        prices: stringifyNumberList(insertPlateau(base, [7, 1, 5, 3, 6, 4])),
       },
     },
   ];
@@ -83,27 +83,38 @@ function buildZigzagReplayVariations(
   inputs: Record<string, string>
 ): ReplayVariation[] {
   const source = sanitizeLetters(inputs.s ?? "") || "PAYPALISHIRING";
-  const rows = Math.max(1, Number.parseInt(inputs.numRows ?? "3", 10) || 3);
+  const rows = clamp(Number.parseInt(inputs.numRows ?? "3", 10) || 3, 1, 8);
+  const shortSource = source.slice(0, Math.max(1, Math.min(source.length, 3)));
 
   return [
     {
-      id: "zigzag-edge",
-      label: "Edge case",
-      kind: "edge",
-      summary: "Force the one-row identity case so the routing loop short-circuits.",
+      id: "zigzag-minimal",
+      label: "Minimal case",
+      kind: "minimal",
+      summary: "Use one character and one row so the identity path is explicit.",
       values: {
-        s: source.slice(0, Math.max(1, Math.min(source.length, 4))),
+        s: source.slice(0, 1),
         numRows: "1",
       },
     },
     {
-      id: "zigzag-random",
-      label: "Random case",
-      kind: "random",
-      summary: "Create a new string and row count to test the bounce pattern from scratch.",
+      id: "zigzag-edge",
+      label: "Edge case",
+      kind: "edge",
+      summary: "Use more rows than characters so every character stays in place.",
       values: {
-        s: randomUppercaseString(randomInt(6, 10)),
-        numRows: String(randomInt(2, 5)),
+        s: shortSource,
+        numRows: String(shortSource.length + 1),
+      },
+    },
+    {
+      id: "zigzag-adversarial",
+      label: "Adversarial case",
+      kind: "adversarial",
+      summary: "Use a two-row bounce where direction flips almost every step.",
+      values: {
+        s: "ABCDEABCDE",
+        numRows: "2",
       },
     },
     {
@@ -113,7 +124,7 @@ function buildZigzagReplayVariations(
       summary: "Keep the same characters but change the bounce depth by one row.",
       values: {
         s: source,
-        numRows: String(Math.max(1, Math.min(source.length, rows + (rows > 2 ? -1 : 1)))),
+        numRows: String(clamp(rows + (rows > 2 ? -1 : 1), 1, source.length)),
       },
     },
   ];
@@ -123,98 +134,62 @@ function boardToInput(board: string[][]) {
   return board.map((row) => row.join(" ")).join("\n");
 }
 
-function emptyLetterBoard(rows: number, cols: number) {
-  return Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () =>
-      String.fromCharCode(65 + randomInt(0, 25))
-    )
-  );
-}
+function chooseMissingLetter(boardRaw: string) {
+  const seen = new Set(sanitizeLetters(boardRaw).split(""));
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-function randomWalkWordBoard(rows: number, cols: number, wordLength: number) {
-  const board = emptyLetterBoard(rows, cols);
-  const visited = new Set<string>();
-  const path: Array<{ row: number; col: number }> = [];
-  let row = randomInt(0, rows - 1);
-  let col = randomInt(0, cols - 1);
-
-  for (let index = 0; index < wordLength; index += 1) {
-    path.push({ row, col });
-    visited.add(`${row}:${col}`);
-
-    if (index === wordLength - 1) {
-      break;
-    }
-
-    const neighbors = [
-      { row: row - 1, col },
-      { row: row + 1, col },
-      { row, col: col - 1 },
-      { row, col: col + 1 },
-    ].filter(
-      (candidate) =>
-        candidate.row >= 0 &&
-        candidate.col >= 0 &&
-        candidate.row < rows &&
-        candidate.col < cols &&
-        !visited.has(`${candidate.row}:${candidate.col}`)
-    );
-
-    if (neighbors.length === 0) {
-      return randomWalkWordBoard(rows, cols, wordLength);
-    }
-
-    const next = pick(neighbors);
-    row = next.row;
-    col = next.col;
-  }
-
-  const word = randomUppercaseString(wordLength);
-  path.forEach((cell, index) => {
-    board[cell.row][cell.col] = word[index];
-  });
-
-  return {
-    board,
-    word,
-  };
+  return alphabet.split("").find((letter) => !seen.has(letter)) ?? "Z";
 }
 
 function buildWordSearchReplayVariations(
   inputs: Record<string, string>
 ): ReplayVariation[] {
+  const currentBoard = inputs.board ?? "A B C E\nS F C S\nA D E E";
   const currentWord = sanitizeLetters(inputs.word ?? "") || "ABCCED";
-  const randomCase = randomWalkWordBoard(4, 4, randomInt(4, 6));
-  const impossibleWord = `${currentWord.slice(0, Math.max(1, currentWord.length - 1))}Z`;
+  const missingLetter = chooseMissingLetter(currentBoard);
+  const impossibleWord = `${currentWord.slice(
+    0,
+    Math.max(1, currentWord.length - 1)
+  )}${missingLetter}`;
 
   return [
     {
-      id: "word-search-edge",
-      label: "Edge case",
-      kind: "edge",
-      summary: "Reduce the board to a single cell so the DFS base case becomes obvious.",
+      id: "word-search-minimal",
+      label: "Minimal case",
+      kind: "minimal",
+      summary: "Reduce the board to one matching cell so the base case is obvious.",
       values: {
         board: "A",
         word: "A",
       },
     },
     {
-      id: "word-search-random",
-      label: "Random case",
-      kind: "random",
-      summary: "Generate a fresh board with one hidden witness path and search for it.",
+      id: "word-search-edge",
+      label: "Edge case",
+      kind: "edge",
+      summary: "Use a single row so adjacency is legal in only one direction.",
       values: {
-        board: boardToInput(randomCase.board),
-        word: randomCase.word,
+        board: boardToInput([["A", "B", "C", "D"]]),
+        word: "ABCD",
+      },
+    },
+    {
+      id: "word-search-adversarial",
+      label: "Adversarial case",
+      kind: "adversarial",
+      summary: "Overload the board with repeated letters so visited-cell discipline matters.",
+      values: {
+        board: "A A A\nA A A\nA A A",
+        word: "AAAAAAAAAA",
       },
     },
     {
       id: "word-search-mutation",
       label: "Mutate current",
       kind: "mutation",
-      summary: "Change only the last character so the search explores the same prefix but fails at the boundary.",
+      summary: "Keep the same prefix but swap in a missing final letter.",
       values: {
-        board: inputs.board ?? "A B C E\nS F C S\nA D E E",
+        board: currentBoard,
         word: impossibleWord,
       },
     },
@@ -231,40 +206,45 @@ function buildGenericArrayVariations(
     return [];
   }
 
-  const ascending = [...base].sort((left, right) => left - right);
-  const mutated = [...base];
-  mutated.splice(Math.min(mutated.length, 2), 0, randomInt(0, 9));
+  const sortedDescending = [...base].sort((left, right) => right - left);
+  const largest = Math.max(...base.map((value) => Math.abs(value)), 1);
+  const mutated = insertPlateau(base, [1, 2, 2, 3]);
 
   return [
+    {
+      id: `${inputKey}-minimal`,
+      label: "Minimal case",
+      kind: "minimal",
+      summary: "Strip the input to one value before replaying the boundary logic.",
+      values: {
+        [inputKey]: stringifyNumberList([base[0]]),
+      },
+    },
     {
       id: `${inputKey}-edge`,
       label: "Edge case",
       kind: "edge",
-      summary: "Strip the input down to a tiny boundary case before replaying the invariant.",
+      summary: "Sort the current values into a monotone boundary case.",
       values: {
-        [inputKey]: stringifyNumberList(base.slice(0, Math.max(1, Math.min(base.length, 2)))),
+        [inputKey]: stringifyNumberList(sortedDescending),
       },
     },
     {
-      id: `${inputKey}-random`,
-      label: "Random case",
-      kind: "random",
-      summary: "Swap in a fresh random array and pressure-test the same reasoning pattern.",
+      id: `${inputKey}-adversarial`,
+      label: "Adversarial case",
+      kind: "adversarial",
+      summary: "Use repeated extremes and zeros to expose assumptions about duplicates.",
       values: {
-        [inputKey]: stringifyNumberList(
-          Array.from({ length: randomInt(4, 7) }, () => randomInt(0, 9))
-        ),
+        [inputKey]: stringifyNumberList([0, largest, 0, largest, 0]),
       },
     },
     {
       id: `${inputKey}-mutation`,
       label: "Mutate current",
       kind: "mutation",
-      summary: "Reorder or extend the current input just enough to see whether the same invariant still holds.",
+      summary: "Insert a duplicate near the front and check whether the invariant survives.",
       values: {
-        [inputKey]: stringifyNumberList(
-          Math.random() > 0.5 ? ascending : mutated
-        ),
+        [inputKey]: stringifyNumberList(mutated),
       },
     },
   ];

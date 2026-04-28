@@ -22,8 +22,9 @@
 
 ### Replay with variations
 
-- Lessons now offer replay buttons for edge cases, random cases, and mutated current cases.
+- Lessons now offer replay buttons for minimal cases, edge cases, adversarial cases, and mutated current cases.
 - Variation generation is centralized in `lib/academy/variationEngine.ts` so replay logic is not duplicated inside pages.
+- Variation generation is deterministic and pure: the same problem plus inputs produce the same replay set without hidden randomness or side effects.
 - Current implementations are tailored for `Best Time to Buy and Sell Stock II`, `Zigzag Conversion`, and `Word Search`, with generic array fallbacks for other lessons.
 
 ### Pattern recognition panel
@@ -39,9 +40,22 @@
 
 ### Narrative animation layer
 
-- Each step now gets a lightweight teaching rhythm: focus, explain, animate.
+- Each step now gets a lightweight teaching rhythm: step, focus, explanation, animation, confirmation.
 - This lives above the trace explanation and is driven by step changes, not by a second timeline engine.
 - The existing timeline system remains the source of truth for step order and visual state.
+
+### Progressive UI modes
+
+- LessonShell now owns a progressive UI depth selector with beginner, intermediate, and expert modes.
+- Beginner mode keeps the essential teaching stack visible: narrative, why, trace, mistake preview, and completion feedback.
+- Intermediate mode adds pattern recognition, replay variations, code context, and lesson intelligence.
+- Expert mode adds the guided path and the full diagnostic stack for transfer planning.
+
+### Completion feedback
+
+- Lessons now surface completion feedback when the final trace step is reached.
+- Completion feedback confirms trace coverage, prediction accuracy, pattern focus, transfer replay, and the next nearby problem.
+- This feedback is derived from existing lesson state and does not mutate progress or timeline state.
 
 ## 2. Integration Plan
 
@@ -49,6 +63,7 @@
 
 - `components/academy/LessonShell.tsx` is the single integration point.
 - It now composes:
+  - `ProgressiveLearningModeToggle`
   - `NarrativeAnimationLayer`
   - `WhyPanel`
   - `MistakeDetectionPanel`
@@ -56,6 +71,7 @@
   - `GuidedLearningPathPanel`
   - `ReplayVariationsPanel`
   - `LearningIntelligencePanel`
+  - `CompletionFeedbackPanel`
 - Existing lesson pages keep their visualizer, microscope, trace panel, and code panel contracts intact.
 
 ### Data flow
@@ -67,6 +83,7 @@
   - replay variations
   - lesson intelligence
   - mistake insight
+  - completion feedback
 - `whyEngine` and `mistakeEngine` were extended rather than replaced, so prior logic still works.
 
 ### Timeline safety
@@ -84,31 +101,37 @@
 2. `lib/academy/learningPathEngine.ts`
    Builds structured lesson progression and next-step slots.
 3. `lib/academy/variationEngine.ts`
-   Generates edge, random, and mutation replay inputs.
+   Generates minimal, edge, adversarial, and mutation replay inputs.
 4. `lib/academy/lessonCoachEngine.ts`
    Turns progress and current-step state into actionable study advice.
+5. `lib/academy/progressiveDisclosure.ts`
+   Defines beginner/intermediate/expert panel disclosure rules.
+6. `lib/academy/completionFeedbackEngine.ts`
+   Builds final-step completion feedback without mutating lesson state.
 
 ### Hook
 
-5. `components/academy/hooks/useLessonLearningExperience.ts`
+7. `components/academy/hooks/useLessonLearningExperience.ts`
    Central hook that resolves the active problem and assembles all lesson intelligence data.
 
 ### UI panels
 
-6. `components/academy/NarrativeAnimationLayer.tsx`
-7. `components/academy/MistakeDetectionPanel.tsx`
-8. `components/academy/PatternRecognitionPanel.tsx`
-9. `components/academy/GuidedLearningPathPanel.tsx`
-10. `components/academy/ReplayVariationsPanel.tsx`
-11. `components/academy/LearningIntelligencePanel.tsx`
+8. `components/academy/ProgressiveLearningModeToggle.tsx`
+9. `components/academy/NarrativeAnimationLayer.tsx`
+10. `components/academy/MistakeDetectionPanel.tsx`
+11. `components/academy/PatternRecognitionPanel.tsx`
+12. `components/academy/GuidedLearningPathPanel.tsx`
+13. `components/academy/ReplayVariationsPanel.tsx`
+14. `components/academy/LearningIntelligencePanel.tsx`
+15. `components/academy/CompletionFeedbackPanel.tsx`
 
 ### Extended existing modules
 
-12. `lib/academy/whyEngine.ts`
+16. `lib/academy/whyEngine.ts`
     Adds per-step alternatives.
-13. `lib/academy/mistakeEngine.ts`
-    Adds pre-answer trap previews.
-14. `components/academy/WhyPanel.tsx`
+17. `lib/academy/mistakeEngine.ts`
+    Adds pre-answer trap previews and structured mistake pattern classifications.
+18. `components/academy/WhyPanel.tsx`
     Renders the new alternatives block.
-15. `components/academy/LessonShell.tsx`
+19. `components/academy/LessonShell.tsx`
     Composes the full guided learning stack without changing page-level lesson code.

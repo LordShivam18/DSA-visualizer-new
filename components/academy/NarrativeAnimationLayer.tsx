@@ -29,41 +29,59 @@ function describeAnimation(animation: {
 
 export default function NarrativeAnimationLayer({
   stepKey,
+  stepLabel,
   focus,
   explanation,
   animation,
+  confirmation,
 }: {
   stepKey: string;
+  stepLabel: string;
   focus: string;
   explanation: string;
   animation: {
     type?: string;
     targets?: string[];
   } | null;
+  confirmation?: string;
 }) {
   const [phase, setPhase] = useState(0);
   const beats: NarrativeBeat[] = [
+    {
+      id: "step",
+      label: "Step",
+      detail: stepLabel,
+    },
     {
       id: "focus",
       label: "Focus",
       detail: focus,
     },
     {
-      id: "explain",
-      label: "Explain",
+      id: "explanation",
+      label: "Explanation",
       detail: explanation,
     },
     {
-      id: "animate",
-      label: "Animate",
+      id: "animation",
+      label: "Animation",
       detail: describeAnimation(animation),
+    },
+    {
+      id: "confirmation",
+      label: "Confirmation",
+      detail:
+        confirmation ??
+        `Confirm the visible state still supports "${focus}" before advancing.`,
     },
   ];
 
   useEffect(() => {
     const timers = [
-      window.setTimeout(() => setPhase(1), 420),
-      window.setTimeout(() => setPhase(2), 1120),
+      window.setTimeout(() => setPhase(1), 360),
+      window.setTimeout(() => setPhase(2), 900),
+      window.setTimeout(() => setPhase(3), 1450),
+      window.setTimeout(() => setPhase(4), 2050),
     ];
 
     return () => {
@@ -80,12 +98,12 @@ export default function NarrativeAnimationLayer({
             Narrative Flow
           </p>
           <h2 className="mt-1 text-lg font-semibold text-slate-900">
-            Focus, explain, then animate
+            Step -&gt; focus -&gt; explanation -&gt; animation -&gt; confirmation
           </h2>
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 md:grid-cols-3">
+      <div className="mt-4 space-y-2">
         {beats.map((beat, index) => {
           const state =
             index < phase ? "complete" : index === phase ? "active" : "upcoming";
@@ -99,12 +117,17 @@ export default function NarrativeAnimationLayer({
           return (
             <div
               key={beat.id}
-              className={`rounded-[1.1rem] border px-4 py-4 transition-all duration-500 ${toneClassName}`}
+              className={`rounded-[1rem] border px-4 py-3 transition-all duration-500 ${toneClassName}`}
             >
               <div className="flex items-center justify-between gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  {beat.label}
-                </p>
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/70 bg-white/80 text-xs font-semibold text-slate-500">
+                    {index + 1}
+                  </span>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                    {beat.label}
+                  </p>
+                </div>
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] ${
                     state === "active"
@@ -117,7 +140,7 @@ export default function NarrativeAnimationLayer({
                   {state}
                 </span>
               </div>
-              <p className="mt-3 text-sm leading-6 text-slate-700">{beat.detail}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-700">{beat.detail}</p>
             </div>
           );
         })}

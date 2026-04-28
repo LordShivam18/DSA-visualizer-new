@@ -5,8 +5,9 @@ import type { ReplayVariation } from "@/lib/academy/variationEngine";
 import { lightPanelClassName } from "../array-string/shared/ui";
 
 const kindTone = {
+  minimal: "border-emerald-200 bg-emerald-50 text-emerald-700",
   edge: "border-amber-200 bg-amber-50 text-amber-700",
-  random: "border-violet-200 bg-violet-50 text-violet-700",
+  adversarial: "border-rose-200 bg-rose-50 text-rose-700",
   mutation: "border-cyan-200 bg-cyan-50 text-cyan-700",
 } as const;
 
@@ -32,9 +33,8 @@ export default function ReplayVariationsPanel({
       </div>
 
       <p className="mt-4 text-sm leading-7 text-slate-700">
-        Custom inputs still work. These quick replays push the same algorithm through
-        random, mutated, and boundary-heavy cases so the reasoning stops depending on
-        one example.
+        Custom inputs still work. These quick replays target minimal, edge, and
+        adversarial cases so the reasoning stops depending on one example.
       </p>
 
       {items.length === 0 ? (

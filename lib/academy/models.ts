@@ -97,11 +97,33 @@ export type PredictionFeedback = {
   correct: boolean;
   explanation: string;
   diagnosis?: string;
+  mistakePattern?: MistakePatternClassification;
 };
 
 export type PredictionValidation = {
   correct: boolean;
   diagnosis?: string;
+};
+
+export type MistakePatternFamily =
+  | "control-flow"
+  | "state-management"
+  | "invariant"
+  | "calculation"
+  | "termination"
+  | "pattern-transfer";
+
+export type MistakeSeverity = "low" | "medium" | "high";
+
+export type MistakePatternClassification = {
+  id: string;
+  label: string;
+  family: MistakePatternFamily;
+  severity: MistakeSeverity;
+  confidence: number;
+  evidence: string[];
+  repairAction: string;
+  message: string;
 };
 
 export type AdaptiveRecommendation = {

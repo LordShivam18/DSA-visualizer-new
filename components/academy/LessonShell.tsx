@@ -1,7 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
+import CompletionFeedbackPanel from "./CompletionFeedbackPanel";
 import {
   useLessonController,
   type LessonControllerState,
@@ -16,9 +17,15 @@ import MistakeDetectionPanel from "./MistakeDetectionPanel";
 import NarrativeAnimationLayer from "./NarrativeAnimationLayer";
 import PatternRecognitionPanel from "./PatternRecognitionPanel";
 import PredictionCheckpointCard from "./PredictionCheckpointCard";
+import ProgressiveLearningModeToggle from "./ProgressiveLearningModeToggle";
 import ReplayVariationsPanel from "./ReplayVariationsPanel";
 import WhyPanel from "./WhyPanel";
 import { useLessonLearningExperience } from "./hooks/useLessonLearningExperience";
+import {
+  filterReplayVariationsForMode,
+  getProgressiveDisclosure,
+  type ProgressiveLearningMode,
+} from "@/lib/academy/progressiveDisclosure";
 
 type LessonShellViewModel<
   TInputs extends Record<string, string>,
@@ -29,6 +36,9 @@ type LessonShellContainerContext<
   TInputs extends Record<string, string>,
   Step extends LessonStepLike
 > = LessonShellViewModel<TInputs, Step> & {
+  progressiveMode: ProgressiveLearningMode;
+  setProgressiveMode: Dispatch<SetStateAction<ProgressiveLearningMode>>;
+  progressiveModeToggle: ReactNode;
   lessonModeToggle: ReactNode;
   predictionCard: ReactNode;
   whyPanel: ReactNode;
@@ -48,6 +58,7 @@ export default function LessonShell<
   generateTrace,
   initialTeachingMode,
   initialLessonMode,
+  initialProgressiveMode = "beginner",
   renderControls,
   renderVisualization,
   renderMicroscope,
@@ -60,6 +71,7 @@ export default function LessonShell<
   generateTrace: (inputs: TInputs) => Step[];
   initialTeachingMode?: TeachingMode;
   initialLessonMode?: LessonFeatureMode;
+  initialProgressiveMode?: ProgressiveLearningMode;
   renderControls: (context: LessonShellViewModel<TInputs, Step>) => ReactNode;
   renderVisualization: (context: LessonShellViewModel<TInputs, Step>) => ReactNode;
   renderMicroscope: (context: LessonShellViewModel<TInputs, Step>) => ReactNode;
@@ -70,6 +82,9 @@ export default function LessonShell<
     context: LessonShellContainerContext<TInputs, Step>
   ) => ReactNode;
 }) {
+  const [progressiveMode, setProgressiveMode] =
+    useState<ProgressiveLearningMode>(initialProgressiveMode);
+  const progressiveDisclosure = getProgressiveDisclosure(progressiveMode);
   const lesson = useLessonController({
     defaultInputs,
     generateTrace,
@@ -102,11 +117,28 @@ export default function LessonShell<
     whyInsight: lesson.whyInsight,
     feedback: lesson.prediction.feedback,
     predictionAccuracy: lesson.prediction.accuracy,
+    stepIndex: lesson.timeline.activeIndex,
+    totalSteps: lesson.trace.length,
   });
+  const visibleReplayVariations = filterReplayVariationsForMode(
+    learningExperience.replayVariations,
+    progressiveMode
+  );
+  const setProgressiveModeWithLens = (nextMode: ProgressiveLearningMode) => {
+    setProgressiveMode(nextMode);
+    lesson.setTeachingMode(nextMode === "expert" ? "expert" : "beginner");
+  };
+
+  const progressiveModeToggle = (
+    <ProgressiveLearningModeToggle
+      value={progressiveMode}
+      onChange={setProgressiveModeWithLens}
+    />
+  );
 
   const replayPanel = learningExperience.problem ? (
     <ReplayVariationsPanel
-      items={learningExperience.replayVariations}
+      items={visibleReplayVariations}
       onApply={(variation) =>
         lesson.run({
           ...lesson.inputs,
@@ -120,9 +152,15 @@ export default function LessonShell<
     <NarrativeAnimationLayer
       key={`${lesson.step.step}:${lesson.step.action}`}
       stepKey={`${lesson.step.step}:${lesson.step.action}`}
+      stepLabel={lesson.step.action}
       focus={lesson.whyInsight?.nextFocus ?? lesson.step.action}
       explanation={lesson.whyInsight?.reason ?? lesson.currentNarration}
       animation={lesson.step.animation}
+      confirmation={
+        lesson.whyInsight
+          ? `Confirm that "${lesson.whyInsight.nextFocus}" still supports ${lesson.whyInsight.title.toLowerCase()}.`
+          : undefined
+      }
     />
   );
 
@@ -144,28 +182,35 @@ export default function LessonShell<
 
   const controls = (
     <>
+      {progressiveModeToggle}
       {lessonModeToggle}
       {renderControls(lesson)}
       {predictionCard}
-      {replayPanel}
+      {progressiveDisclosure.panels.replay ? replayPanel : null}
     </>
   );
 
   const whyPanel = <WhyPanel insight={lesson.whyInsight} />;
+  const completionFeedbackPanel = (
+    <CompletionFeedbackPanel insight={learningExperience.completionFeedback} />
+  );
 
   const tracePanel = (
     <>
-      {narrativeLayer}
-      {whyPanel}
+      {progressiveDisclosure.panels.narrative ? narrativeLayer : null}
+      {progressiveDisclosure.panels.why ? whyPanel : null}
       {renderTracePanel(lesson)}
-      {mistakePanel}
-      {patternPanel}
-      {guidedPathPanel}
+      {progressiveDisclosure.panels.mistake ? mistakePanel : null}
+      {progressiveDisclosure.panels.pattern ? patternPanel : null}
+      {progressiveDisclosure.panels.path ? guidedPathPanel : null}
     </>
   );
 
   return renderContainer({
     ...lesson,
+    progressiveMode,
+    setProgressiveMode,
+    progressiveModeToggle,
     lessonModeToggle,
     predictionCard,
     whyPanel,
@@ -173,11 +218,14 @@ export default function LessonShell<
     visualization: renderVisualization(lesson),
     microscope: renderMicroscope(lesson),
     tracePanel,
-    codePanel: renderCodePanel(lesson),
+    codePanel: progressiveDisclosure.panels.code ? renderCodePanel(lesson) : null,
     output: (
       <>
         {renderOutput ? renderOutput(lesson) : null}
-        {learningIntelligencePanel}
+        {progressiveDisclosure.panels.completion ? completionFeedbackPanel : null}
+        {progressiveDisclosure.panels.intelligence
+          ? learningIntelligencePanel
+          : null}
       </>
     ),
   });

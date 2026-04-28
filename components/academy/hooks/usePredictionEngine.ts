@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { diagnoseMistake } from "@/lib/academy/mistakeEngine";
+import { classifyMistake } from "@/lib/academy/mistakeEngine";
 import {
   getPredictionCheckpointId,
   resolvePredictionCheckpoint,
@@ -134,9 +134,9 @@ export function usePredictionEngine<Step extends PredictableStep>({
     }
 
     const currentStep = trace[activeIndex];
-    const diagnosis = selectedChoice.isCorrect
+    const mistakePattern = selectedChoice.isCorrect
       ? undefined
-      : diagnoseMistake({
+      : classifyMistake({
           userAnswer: selectedChoice.label,
           correctAnswer: correctChoice.label,
           step: upcomingStep ?? currentStep,
@@ -148,6 +148,7 @@ export function usePredictionEngine<Step extends PredictableStep>({
           correctChoiceDetail: correctChoice.detail,
           checkpointSkill: activeCheckpoint.skill,
         });
+    const diagnosis = mistakePattern?.message;
     const nextFeedback: PredictionFeedback = {
       checkpointId: activeCheckpoint.id,
       selectedChoiceId: selectedChoice.id,
@@ -155,6 +156,7 @@ export function usePredictionEngine<Step extends PredictableStep>({
       correct: selectedChoice.isCorrect,
       explanation: activeCheckpoint.explanation,
       diagnosis,
+      mistakePattern,
     };
 
     setState((current) => {

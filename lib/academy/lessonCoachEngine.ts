@@ -64,7 +64,10 @@ export function buildLessonIntelligence({
   predictionAccuracy: number;
 }): LessonIntelligenceInsight {
   const topRecommendation = recommendations[0];
-  const replayPick = variations[0];
+  const replayPick =
+    variations.find((variation) => variation.kind === "adversarial") ??
+    variations.find((variation) => variation.kind === "edge") ??
+    variations[0];
   const weakInCurrentTrack = learningInsights.weakCategories.includes(
     topicProgress?.topicLabel ?? problem.category
   );

@@ -1,3 +1,8 @@
+import type {
+  MistakePatternClassification,
+  MistakePatternFamily,
+  MistakeSeverity,
+} from "./models";
 import { resolveWhyActionKey, type WhyStepLike } from "./whyEngine";
 
 export type MistakeContext<Step extends WhyStepLike = WhyStepLike> = {
@@ -15,6 +20,16 @@ export type MistakeContext<Step extends WhyStepLike = WhyStepLike> = {
 
 export type MistakeRule<Step extends WhyStepLike = WhyStepLike> = {
   id: string;
+  pattern: {
+    label: string;
+    family: MistakePatternFamily;
+    severity: MistakeSeverity;
+    confidence: number;
+    repairAction:
+      | string
+      | ((context: MistakeContext<Step>, actionKey: string) => string);
+    evidence?: (context: MistakeContext<Step>) => string[];
+  };
   match: (context: MistakeContext<Step>) => boolean;
   message:
     | string
@@ -24,6 +39,8 @@ export type MistakeRule<Step extends WhyStepLike = WhyStepLike> = {
 export type MistakePreview = {
   title: string;
   detail: string;
+  patternLabel: string;
+  repairAction: string;
 };
 
 function normalizeText(value: string | undefined) {
@@ -90,9 +107,62 @@ function buildActionFallback(actionKey: string, context: MistakeContext) {
   }
 }
 
+function defaultEvidence(context: MistakeContext) {
+  return [
+    `Selected: ${context.selectedChoiceLabel ?? context.userAnswer}`,
+    `Expected: ${context.correctChoiceLabel ?? context.correctAnswer}`,
+    `Step: ${context.step.action}`,
+  ].filter((item) => !item.endsWith(": "));
+}
+
+function buildFallbackPattern(
+  actionKey: string,
+  context: MistakeContext
+): MistakePatternClassification {
+  return {
+    id: `fallback-${actionKey}`,
+    label: "Invariant drift",
+    family: "invariant",
+    severity: "medium",
+    confidence: 0.48,
+    evidence: defaultEvidence(context),
+    repairAction:
+      "Restate the invariant for this exact step, then choose the answer that preserves it.",
+    message: buildActionFallback(actionKey, context),
+  };
+}
+
+function resolveRuleMessage<Step extends WhyStepLike>(
+  rule: MistakeRule<Step>,
+  context: MistakeContext<Step>,
+  actionKey: string
+) {
+  return typeof rule.message === "function"
+    ? rule.message(context, actionKey)
+    : rule.message;
+}
+
+function resolveRepairAction<Step extends WhyStepLike>(
+  rule: MistakeRule<Step>,
+  context: MistakeContext<Step>,
+  actionKey: string
+) {
+  return typeof rule.pattern.repairAction === "function"
+    ? rule.pattern.repairAction(context, actionKey)
+    : rule.pattern.repairAction;
+}
+
 export const defaultMistakeRules: MistakeRule[] = [
   {
     id: "premature-stop",
+    pattern: {
+      label: "Premature termination",
+      family: "control-flow",
+      severity: "high",
+      confidence: 0.86,
+      repairAction:
+        "Check whether unread trace state still exists before choosing any return or finish move.",
+    },
     match: (context) => {
       const userText = normalizeChoiceText(context);
       const correctText = normalizeCorrectChoiceText(context);
@@ -107,6 +177,14 @@ export const defaultMistakeRules: MistakeRule[] = [
   },
   {
     id: "reset-state",
+    pattern: {
+      label: "State reset bias",
+      family: "state-management",
+      severity: "medium",
+      confidence: 0.82,
+      repairAction:
+        "Name which invariant actually broke; if none broke, preserve the running state.",
+    },
     match: (context) => {
       const userText = normalizeChoiceText(context);
       const correctText = normalizeCorrectChoiceText(context);
@@ -121,6 +199,14 @@ export const defaultMistakeRules: MistakeRule[] = [
   },
   {
     id: "defer-profitable-update",
+    pattern: {
+      label: "Deferred safe update",
+      family: "invariant",
+      severity: "medium",
+      confidence: 0.84,
+      repairAction:
+        "Ask whether the current evidence is already sufficient. If it is, commit now instead of waiting.",
+    },
     match: (context) => {
       const userText = normalizeChoiceText(context);
       const correctText = normalizeCorrectChoiceText(context);
@@ -135,6 +221,14 @@ export const defaultMistakeRules: MistakeRule[] = [
   },
   {
     id: "penalize-non-positive-signal",
+    pattern: {
+      label: "Forced penalty",
+      family: "state-management",
+      severity: "medium",
+      confidence: 0.8,
+      repairAction:
+        "Separate a bad signal from a required state change; many traces simply ignore non-improving evidence.",
+    },
     match: (context) => {
       const userText = normalizeChoiceText(context);
       const correctText = normalizeCorrectChoiceText(context);
@@ -149,6 +243,19 @@ export const defaultMistakeRules: MistakeRule[] = [
   },
   {
     id: "local-signal-computation",
+    pattern: {
+      label: "Local signal misread",
+      family: "calculation",
+      severity: "medium",
+      confidence: 0.78,
+      repairAction:
+        "Recompute the immediate comparison before deciding whether the state should move.",
+      evidence: (context) => [
+        `Selected value: ${context.userAnswer}`,
+        `Expected value: ${context.correctAnswer}`,
+        `Signal step: ${context.step.action}`,
+      ],
+    },
     match: (context) =>
       isNumericMismatch(context) &&
       /\b(compare|delta|difference|signal|gap)\b/.test(
@@ -159,6 +266,14 @@ export const defaultMistakeRules: MistakeRule[] = [
   },
   {
     id: "final-invariant",
+    pattern: {
+      label: "Finish-line recomputation",
+      family: "termination",
+      severity: "high",
+      confidence: 0.88,
+      repairAction:
+        "Read the final accumulated state directly instead of making one more adjustment.",
+    },
     match: (context) =>
       (context.step.done === true ||
         /\b(done|final|return|answer|complete)\b/.test(
@@ -170,7 +285,7 @@ export const defaultMistakeRules: MistakeRule[] = [
   },
 ];
 
-export function diagnoseMistake<Step extends WhyStepLike>(
+export function classifyMistake<Step extends WhyStepLike>(
   context: MistakeContext<Step>,
   rules: MistakeRule<Step>[] = defaultMistakeRules as MistakeRule<Step>[]
 ) {
@@ -185,12 +300,26 @@ export function diagnoseMistake<Step extends WhyStepLike>(
   const matchingRule = rules.find((rule) => rule.match(context));
 
   if (!matchingRule) {
-    return buildActionFallback(actionKey, context);
+    return buildFallbackPattern(actionKey, context);
   }
 
-  return typeof matchingRule.message === "function"
-    ? matchingRule.message(context, actionKey)
-    : matchingRule.message;
+  return {
+    id: matchingRule.id,
+    label: matchingRule.pattern.label,
+    family: matchingRule.pattern.family,
+    severity: matchingRule.pattern.severity,
+    confidence: matchingRule.pattern.confidence,
+    evidence: matchingRule.pattern.evidence?.(context) ?? defaultEvidence(context),
+    repairAction: resolveRepairAction(matchingRule, context, actionKey),
+    message: resolveRuleMessage(matchingRule, context, actionKey),
+  };
+}
+
+export function diagnoseMistake<Step extends WhyStepLike>(
+  context: MistakeContext<Step>,
+  rules: MistakeRule<Step>[] = defaultMistakeRules as MistakeRule<Step>[]
+) {
+  return classifyMistake(context, rules)?.message;
 }
 
 export function getMistakePreview(step: WhyStepLike): MistakePreview {
@@ -202,30 +331,40 @@ export function getMistakePreview(step: WhyStepLike): MistakePreview {
         title: "Most likely trap: update before you measure",
         detail:
           "Inspection steps are where learners often skip the local comparison and jump to a state change too early.",
+        patternLabel: "Premature mutation",
+        repairAction: "Measure the local signal first, then decide whether state can move.",
       };
     case "collect":
       return {
         title: "Most likely trap: defer a safe gain",
         detail:
           "Commit steps are where learners often wait for a prettier future case even though the invariant already justifies the update now.",
+        patternLabel: "Deferred safe update",
+        repairAction: "Commit the update as soon as the invariant proves it is safe.",
       };
     case "skip":
       return {
         title: "Most likely trap: force progress out of noise",
         detail:
           "Skip steps tempt learners into changing state just to stay busy, even when the signal should leave the answer unchanged.",
+        patternLabel: "Forced penalty",
+        repairAction: "Leave the state alone when the current signal does not improve it.",
       };
     case "done":
       return {
         title: "Most likely trap: recompute at the finish line",
         detail:
           "Final steps often go wrong when the learner stops reading the built state and starts inventing one more adjustment.",
+        patternLabel: "Finish-line recomputation",
+        repairAction: "Return the accumulated state without adding a new transition.",
       };
     default:
       return {
         title: "Most likely trap: lose the invariant",
         detail:
           "If the next move feels fuzzy, the safest repair is to restate the local rule the algorithm is preserving right now.",
+        patternLabel: "Invariant drift",
+        repairAction: "Restate the invariant before choosing the next transition.",
       };
   }
 }
