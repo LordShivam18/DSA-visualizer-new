@@ -1,47 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Guided DSA Academy
 
-## Getting Started
+> Learn Data Structures & Algorithms by **thinking through every step**, not memorizing solutions.
 
-First, run the development server:
+🔗 **Live App:** https://dsa-visualizer-new-phi.vercel.app/
+📩 **Contact:** [chourasiashivam24@gmail.com](mailto:chourasiashivam24@gmail.com)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🧠 The Idea
+
+Most platforms train **recall after the solution is shown**.
+
+This platform trains **reasoning while the algorithm is still executing**.
+
+You don’t watch solutions.
+You **predict them.**
+
+---
+
+## ⚡ Core Experience
+
+* See the current algorithm state
+* Predict the next step
+* Get instant feedback
+* Build real intuition
+
+---
+
+## ✨ Features
+
+* 🎯 **Prediction-based learning**
+* 🔍 **Step-by-step algorithm execution**
+* ❌ **Guided feedback on mistakes**
+* 📊 **Learning analytics dashboard**
+* 🔥 **Daily streak tracking**
+* 🔐 **No signup required**
+* 💾 **All progress stored locally (privacy-first)**
+
+---
+
+## 🧪 Example Learning Flow
+
+**Problem: Remove Element**
+
+Instead of jumping straight to code:
+
+* Observe the array state
+* Predict pointer movement
+* Understand why elements shift
+* Learn the invariant behind the algorithm
+
+---
+
+## 🔐 Privacy & Design Decisions
+
+* No authentication required
+* No external database
+* No tracking
+
+👉 All progress is stored in **browser localStorage**
+
+Each user:
+
+* Has independent progress
+* Owns their data
+* Can start instantly
+
+---
+
+## 🏗️ Architecture Highlights
+
+* Interactive **trace-driven learning engine**
+* Centralized **client-side state system**
+* SSR-safe browser storage abstraction
+* Modular problem + session system
+
+---
+
+## 📁 Project Structure
+
+```
+app/                → Routes & pages  
+components/         → UI + learning components  
+lib/academy/        → Core learning logic  
+hooks/              → Custom hooks  
+public/             → Static assets  
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-## Dev Safety
+## 🚀 Status
 
-If Next.js exits and leaves a stale `.next` lock behind, the dev preflight will stop `npm run dev` before Next starts and point you to the reset command.
+✅ Production deployed
+✅ Core system stable
+🚧 Expanding problem coverage
+🚧 Future: optional account sync
 
-```bash
-npm run dev:doctor
-npm run dev:reset
-```
+---
 
-`npm run dev:reset` only removes `.next` when no active Next.js process is detected, so it is safe to use as the standard recovery path for stale lock issues.
+## 🔮 Roadmap
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* Cross-device progress sync
+* More advanced problem sets (Graphs, DP)
+* Interview simulation mode
+* Deeper analytics
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🧠 Why This Matters
 
-To learn more about Next.js, take a look at the following resources:
+This is not a content platform.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+It is a **thinking training system**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🤝 Feedback
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Try it → Break it → Tell me what confused you
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📩 [chourasiashivam24@gmail.com](mailto:chourasiashivam24@gmail.com)
+
+---
+
+## ⭐ Support
+
+If you like the idea:
+
+* Star ⭐ the repo
+* Share feedback
+* Try the product
+
+---
+
+## 👨‍💻 Author
+
+**Shivam Chourasia**
+
+Building systems that improve how people learn, not just what they learn.
