@@ -137,6 +137,9 @@ return nextState;
 } catch {
 return defaults;
 }
+
+// ✅ CRITICAL: ensures TypeScript never complains
+return defaults;
 }
 
 /* ---------------------------------- */
