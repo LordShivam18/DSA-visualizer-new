@@ -2,15 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { updateStreak } from "@/lib/academy/actions/updateStreak";
 import { buildTraceLessonSession } from "@/lib/academy/sessionBuilders";
-import { getLocalDate } from "@/lib/academy/streak";
-import type { UserProgress } from "@/lib/academy/models";
+import { updateStreakLocal } from "@/lib/academy/streakLocal";
 import type { Problem } from "@/lib/academy/problemRegistry";
 
 import type { LessonFeatureMode } from "../LessonModeToggle";
 import { useLearningPlatform } from "../LearningPlatformProvider";
-import { useAnonymousUserId } from "./useAnonymousUserId";
 
 type CompletionStep = {
   done?: boolean;
@@ -40,13 +37,9 @@ export function useLessonCompletion({
   askedCount: number;
   correctCount: number;
 }) {
-  const userId = useAnonymousUserId();
   const { state, recordSession } = useLearningPlatform();
   const sessionStartedAtRef = useRef(new Date().toISOString());
   const recordedSessionKeysRef = useRef<Set<string>>(new Set());
-  const syncedSessionKeysRef = useRef<Set<string>>(new Set());
-  const completionDatesRef = useRef<Map<string, string>>(new Map());
-  const [serverProgress, setServerProgress] = useState<UserProgress | null>(null);
   const [celebrationSessionKey, setCelebrationSessionKey] = useState<string | null>(
     null
   );
@@ -67,7 +60,6 @@ export function useLessonCompletion({
 
     recordedSessionKeysRef.current.add(sessionKey);
     const endedAt = new Date().toISOString();
-    completionDatesRef.current.set(sessionKey, getLocalDate(endedAt));
 
     const celebrationTimeout = window.setTimeout(() => {
       setCelebrationSessionKey(sessionKey);
@@ -100,55 +92,20 @@ export function useLessonCompletion({
     problem,
     recordSession,
     sessionKey,
-  ]);
-
-  useEffect(() => {
-    if (
-      !isComplete ||
-      !userId ||
-      syncedSessionKeysRef.current.has(sessionKey)
-    ) {
-      return;
-    }
-
-    syncedSessionKeysRef.current.add(sessionKey);
-
-    let cancelled = false;
-
-    void updateStreak(
-      userId,
-      completionDatesRef.current.get(sessionKey) ?? getLocalDate()
-    )
-      .then((nextProgress) => {
-        if (!cancelled) {
-          setServerProgress(nextProgress);
-        }
-      })
-      .catch(() => {
-        return;
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    isComplete,
-    sessionKey,
-    userId,
+    state.learner,
   ]);
 
   const streakDays = useMemo(() => {
-    if (serverProgress) {
-      return serverProgress.streak;
+    if (celebrationSessionKey !== sessionKey) {
+      return state.learner.streakDays;
     }
 
-    return state.learner.streakDays;
-  }, [serverProgress, state.learner.streakDays]);
+    return updateStreakLocal(state.learner, new Date()).streakDays;
+  }, [celebrationSessionKey, sessionKey, state.learner]);
 
   return {
     isComplete,
     showCelebration: celebrationSessionKey === sessionKey,
     streakDays,
-    userProgress: serverProgress,
   };
 }

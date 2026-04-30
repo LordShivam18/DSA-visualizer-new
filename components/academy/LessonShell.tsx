@@ -33,14 +33,16 @@ import { useLearningMode } from "./hooks/useLearningMode";
 import { useLessonCompletion } from "./hooks/useLessonCompletion";
 import { useLessonLearningExperience } from "./hooks/useLessonLearningExperience";
 import { useProgressHint } from "./hooks/useProgressHint";
+import type { LessonEntryExperience } from "@/lib/academy/entryPoints";
+import {
+  hasSeenGuidedEntryOnboarding,
+  markGuidedEntryOnboardingSeen,
+} from "@/lib/academy/localProgressStore";
 import {
   filterReplayVariationsForMode,
   getProgressiveDisclosure,
   type ProgressiveLearningMode,
 } from "@/lib/academy/progressiveDisclosure";
-import type { LessonEntryExperience } from "@/lib/academy/entryPoints";
-
-const GUIDED_ENTRY_ONBOARDING_KEY = "guided-dsa:first-problem-overlay:v1";
 
 type LessonShellViewModel<
   TInputs extends Record<string, string>,
@@ -161,27 +163,18 @@ function ResolvedLessonShell<
       return;
     }
 
-    try {
-      if (window.localStorage.getItem(GUIDED_ENTRY_ONBOARDING_KEY) === "seen") {
-        const frame = window.requestAnimationFrame(() =>
-          setShowEntryOnboarding(false)
-        );
+    if (hasSeenGuidedEntryOnboarding()) {
+      const frame = window.requestAnimationFrame(() =>
+        setShowEntryOnboarding(false)
+      );
 
-        return () => window.cancelAnimationFrame(frame);
-      }
-    } catch {
-      return;
+      return () => window.cancelAnimationFrame(frame);
     }
   }, [entryExperience]);
 
   function dismissEntryOnboarding() {
     setShowEntryOnboarding(false);
-
-    try {
-      window.localStorage.setItem(GUIDED_ENTRY_ONBOARDING_KEY, "seen");
-    } catch {
-      return;
-    }
+    markGuidedEntryOnboardingSeen();
   }
 
   function markEntryInteraction() {

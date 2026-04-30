@@ -7,7 +7,6 @@ import {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
 } from "react";
 
 import { topicCatalog } from "@/lib/academy/catalog";
@@ -22,16 +21,22 @@ import type {
 import {
   createDefaultLearningState,
   createEmptyModeProgress,
-  loadLearningState,
-  saveLearningState,
-} from "@/lib/academy/storage";
-import { getLocalDate, resolveStreakUpdate } from "@/lib/academy/streak";
+  getProgress,
+  saveProgress,
+  subscribeToProgress,
+} from "@/lib/academy/localProgressStore";
+import { updateStreakLocal } from "@/lib/academy/streakLocal";
 
 type LearningPlatformContextValue = {
   state: LearningPlatformState;
   isHydrated: boolean;
   setActiveMode: (problemId: string, mode: AcademyMode) => void;
   recordSession: (session: SessionRecord) => void;
+};
+
+type LearningPlatformStore = {
+  state: LearningPlatformState;
+  isHydrated: boolean;
 };
 
 type Action =
@@ -189,30 +194,20 @@ function reduceSession(state: LearningPlatformState, session: SessionRecord) {
 
   nextTopic.mastery = computeTopicMastery(nextTopic);
 
-  const activeDate = getLocalDate(session.endedAt);
-  const streakChange = resolveStreakUpdate(
-    state.learner.lastActiveAt,
-    activeDate
-  );
   const solvedForFirstTime = previousProblem.completions === 0 && session.completed;
-
-  return {
-    ...state,
-    learner: {
+  const nextLearner = updateStreakLocal(
+    {
       ...state.learner,
       totalStudyMinutes: round(state.learner.totalStudyMinutes + session.durationMs / 60000),
       problemsCompleted: state.learner.problemsCompleted + (solvedForFirstTime ? 1 : 0),
-      lastActiveAt: session.endedAt,
       preferredMode: session.mode,
-      streakDays:
-        streakChange === "start"
-          ? 1
-          : streakChange === "increment"
-          ? state.learner.streakDays + 1
-          : streakChange === "reset"
-          ? 1
-          : state.learner.streakDays,
     },
+    session.endedAt
+  );
+
+  return {
+    ...state,
+    learner: nextLearner,
     problems: {
       ...state.problems,
       [session.problemId]: nextProblem,
@@ -229,26 +224,35 @@ function reduceSession(state: LearningPlatformState, session: SessionRecord) {
   };
 }
 
-function reducer(state: LearningPlatformState, action: Action): LearningPlatformState {
+function reducer(store: LearningPlatformStore, action: Action): LearningPlatformStore {
   switch (action.type) {
     case "hydrate":
-      return action.payload;
+      return {
+        state: action.payload,
+        isHydrated: true,
+      };
     case "set-mode":
       return {
-        ...state,
-        learner: {
-          ...state.learner,
-          preferredMode: action.payload.mode,
-        },
-        activeModes: {
-          ...state.activeModes,
-          [action.payload.problemId]: action.payload.mode,
+        ...store,
+        state: {
+          ...store.state,
+          learner: {
+            ...store.state.learner,
+            preferredMode: action.payload.mode,
+          },
+          activeModes: {
+            ...store.state.activeModes,
+            [action.payload.problemId]: action.payload.mode,
+          },
         },
       };
     case "record-session":
-      return reduceSession(state, action.payload);
+      return {
+        ...store,
+        state: reduceSession(store.state, action.payload),
+      };
     default:
-      return state;
+      return store;
   }
 }
 
@@ -286,36 +290,40 @@ export function LearningPlatformProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [state, dispatch] = useReducer(reducer, undefined, () =>
-    seedMissingTopics(createDefaultLearningState())
+  const [store, dispatch] = useReducer(reducer, undefined, () => ({
+    state: seedMissingTopics(createDefaultLearningState()),
+    isHydrated: false,
+  })
   );
-  const hasLoadedRef = useRef(false);
 
   useEffect(() => {
-    const stored = loadLearningState();
+    dispatch({
+      type: "hydrate",
+      payload: seedMissingTopics(getProgress()),
+    });
 
-    if (stored) {
-      dispatch({
-        type: "hydrate",
-        payload: seedMissingTopics(stored),
+    return subscribeToProgress((nextState) => {
+      startTransition(() => {
+        dispatch({
+          type: "hydrate",
+          payload: seedMissingTopics(nextState),
+        });
       });
-    }
-
-    hasLoadedRef.current = true;
+    });
   }, []);
 
   useEffect(() => {
-    if (!hasLoadedRef.current) {
+    if (!store.isHydrated) {
       return;
     }
 
-    saveLearningState(state);
-  }, [state]);
+    saveProgress(store.state);
+  }, [store]);
 
   const value = useMemo<LearningPlatformContextValue>(
     () => ({
-      state,
-      isHydrated: true,
+      state: store.state,
+      isHydrated: store.isHydrated,
       setActiveMode: (problemId, mode) =>
         dispatch({ type: "set-mode", payload: { problemId, mode } }),
       recordSession: (session) =>
@@ -323,7 +331,7 @@ export function LearningPlatformProvider({
           dispatch({ type: "record-session", payload: session });
         }),
     }),
-    [state]
+    [store]
   );
 
   return (

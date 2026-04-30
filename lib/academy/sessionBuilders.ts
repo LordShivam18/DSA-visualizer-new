@@ -1,6 +1,6 @@
 import { getProblemCatalogEntry } from "./catalog";
+import { createSessionId } from "./localProgressStore";
 import type { Problem } from "./problemRegistry";
-import { createSessionId } from "./storage";
 import type { SessionEvaluation, SessionRecord } from "./models";
 
 type TraceLessonMode = "learn" | "prediction";
