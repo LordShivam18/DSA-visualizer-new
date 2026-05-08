@@ -1,4 +1,4 @@
-# 🚀 Guided DSA Academy
+#  Guided DSA Academy
 
 > Learn Data Structures & Algorithms by **thinking through every step**, not memorizing solutions.
 
